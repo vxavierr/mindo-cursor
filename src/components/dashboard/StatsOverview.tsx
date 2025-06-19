@@ -43,46 +43,45 @@ const StatsOverview = ({ totalEntries, reviewsToday, entries }: StatsOverviewPro
       title: 'Total',
       value: totalEntries,
       subtitle: 'aprendizados',
-      icon: BookOpen,
-      color: 'from-blue-500 to-blue-600'
+      icon: BookOpen
     },
     {
       title: 'Esta Semana',
       value: stats.weeklyEntries,
-      subtitle: 'novos registros',
-      icon: TrendingUp,
-      color: 'from-green-500 to-green-600'
+      subtitle: 'novos',
+      icon: TrendingUp
     },
     {
       title: 'Revisões',
       value: stats.totalReviews,
       subtitle: 'completadas',
-      icon: Target,
-      color: 'from-purple-500 to-purple-600'
+      icon: Target
     },
     {
       title: 'Hoje',
       value: reviewsToday,
-      subtitle: 'para revisar',
-      icon: Calendar,
-      color: reviewsToday > 0 ? 'from-orange-500 to-red-500' : 'from-gray-400 to-gray-500'
+      subtitle: 'pendentes',
+      icon: Calendar
     }
   ];
 
+  if (totalEntries === 0) {
+    return null;
+  }
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
       {statCards.map((stat, index) => {
         const Icon = stat.icon;
         return (
-          <Card key={index} className="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">{stat.title}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">{stat.subtitle}</p>
+          <Card key={index} className="p-6 border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
+            <div className="text-center space-y-3">
+              <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto">
+                <Icon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
               </div>
-              <div className={`w-12 h-12 rounded-full bg-gradient-to-r ${stat.color} flex items-center justify-center`}>
-                <Icon className="w-6 h-6 text-white" />
+              <div>
+                <p className="text-2xl font-light text-gray-900 dark:text-white">{stat.value}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{stat.subtitle}</p>
               </div>
             </div>
           </Card>

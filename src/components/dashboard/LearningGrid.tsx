@@ -27,13 +27,13 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
 
   const getStepColor = (step: number) => {
     const colors = [
-      'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
-      'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-      'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
-      'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300',
-      'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
-      'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-      'bg-pink-100 text-pink-700 dark:bg-pink-900 dark:text-pink-300'
+      'bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+      'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
+      'bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400',
+      'bg-yellow-50 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400',
+      'bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400',
+      'bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
+      'bg-pink-50 text-pink-600 dark:bg-pink-900/20 dark:text-pink-400'
     ];
     return colors[Math.min(step, colors.length - 1)];
   };
@@ -45,51 +45,51 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="w-16 h-16 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="text-center py-20">
+        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
           <TrendingUp className="w-8 h-8 text-gray-400" />
         </div>
-        <h3 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <h3 className="text-xl font-light text-gray-700 dark:text-gray-300 mb-2">
           Nenhum aprendizado registrado
         </h3>
         <p className="text-gray-500 dark:text-gray-400">
-          Clique em "Novo" para começar sua jornada de aprendizado
+          Comece registrando seu primeiro aprendizado
         </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+    <div className="space-y-8">
+      <h2 className="text-2xl font-light text-gray-900 dark:text-white">
         Seus Aprendizados
       </h2>
       
-      <div className="grid gap-4">
+      <div className="space-y-4">
         {sortedEntries.map((entry) => (
-          <Card key={entry.id} className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
+          <Card key={entry.id} className="p-6 border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <span className="text-sm font-mono text-gray-500 dark:text-gray-400">
+                <span className="text-sm font-mono text-gray-400 dark:text-gray-500">
                   #{entry.id}
                 </span>
-                <Badge className={getStepColor(entry.step)}>
+                <Badge className={`${getStepColor(entry.step)} border-0`}>
                   {getStepLabel(entry.step)}
                 </Badge>
               </div>
               
-              <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center text-sm text-gray-400 dark:text-gray-500">
                 <Calendar className="w-4 h-4 mr-2" />
                 {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
               </div>
             </div>
             
             <div className="mb-4">
-              <p className="text-gray-900 dark:text-white text-lg leading-relaxed">
+              <p className="text-gray-900 dark:text-white text-lg leading-relaxed font-light">
                 {entry.content}
               </p>
               {entry.context && (
-                <p className="text-gray-600 dark:text-gray-400 mt-2 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 mt-3 text-sm">
                   {entry.context}
                 </p>
               )}
@@ -99,7 +99,7 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
               <div className="flex items-center flex-wrap gap-2">
                 <Tag className="w-4 h-4 text-gray-400" />
                 {entry.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-xs">
+                  <Badge key={index} variant="outline" className="text-xs border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400">
                     {tag}
                   </Badge>
                 ))}
@@ -107,7 +107,7 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
             )}
             
             {entry.reviews && entry.reviews.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   {entry.reviews.length} revisão{entry.reviews.length > 1 ? 'ões' : ''} completada{entry.reviews.length > 1 ? 's' : ''}
                 </p>
