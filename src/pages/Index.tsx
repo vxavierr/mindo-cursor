@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -46,7 +45,7 @@ const Index = () => {
       const createdDate = new Date(entry.createdAt);
       createdDate.setHours(0, 0, 0, 0);
       
-      const daysDiff = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+      const daysDiff = Math.floor((today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
       const currentStep = entry.step || 0;
       
       return daysDiff >= intervals[currentStep];

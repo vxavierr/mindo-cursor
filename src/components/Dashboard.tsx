@@ -100,7 +100,6 @@ const Dashboard = ({ user, onLogout, toggleTheme, darkMode }: DashboardProps) =>
         </div>
       </header>
 
-      {/* Navigation */}
       <nav className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-6">
           <div className="flex space-x-8">
@@ -168,7 +167,12 @@ const Dashboard = ({ user, onLogout, toggleTheme, darkMode }: DashboardProps) =>
 
         {activeTab === 'settings' && (
           <div className="max-w-4xl mx-auto">
-            <SettingsPanel user={user} />
+            <SettingsPanel 
+              isOpen={true}
+              onClose={() => setActiveTab('learn')}
+              entries={learningEntries}
+              onImport={() => {}}
+            />
           </div>
         )}
       </main>
