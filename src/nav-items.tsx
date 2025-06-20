@@ -1,11 +1,11 @@
 
-import { homeIcon, settingsIcon } from "lucide-react";
+import { Home, Settings } from "lucide-react";
 
 export const navItems = [
   {
     title: "Home",
     to: "/",
-    icon: homeIcon,
+    icon: Home,
     page: <div>Home</div>, // This will be replaced by actual components when needed
   },
 ];
