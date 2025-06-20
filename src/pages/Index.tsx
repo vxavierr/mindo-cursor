@@ -1,21 +1,27 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Brain, Plus, Calendar, Settings, Moon, Sun } from 'lucide-react';
 import AddLearningModal from '@/components/learning/AddLearningModal';
 import ReviewModal from '@/components/learning/ReviewModal';
 import StatsOverview from '@/components/dashboard/StatsOverview';
 import LearningGrid from '@/components/dashboard/LearningGrid';
 import SettingsPanel from '@/components/settings/SettingsPanel';
+import { useSupabaseLearning } from '@/hooks/useSupabaseLearning';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [learningEntries, setLearningEntries] = useState([]);
-  const [reviewsToday, setReviewsToday] = useState([]);
+
+  const {
+    learningEntries,
+    reviewsToday,
+    loading,
+    addLearningEntry,
+    completeReview
+  } = useSupabaseLearning();
 
   useEffect(() => {
     // Check for saved theme preference
@@ -24,36 +30,7 @@ const Index = () => {
       setDarkMode(true);
       document.documentElement.classList.add('dark');
     }
-
-    // Load learning entries from localStorage
-    const saved = localStorage.getItem('learningEntries');
-    if (saved) {
-      const entries = JSON.parse(saved);
-      setLearningEntries(entries);
-      calculateReviewsToday(entries);
-    }
   }, []);
-
-  const calculateReviewsToday = (entries) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const intervals = [1, 3, 7, 14, 30, 60]; // days
-    
-    const reviewsNeeded = entries.filter(entry => {
-      if (entry.completed) return false;
-      
-      const createdDate = new Date(entry.createdAt);
-      createdDate.setHours(0, 0, 0, 0);
-      
-      const daysDiff = Math.floor((today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
-      const currentStep = entry.step || 0;
-      
-      return daysDiff >= intervals[currentStep];
-    });
-    
-    setReviewsToday(reviewsNeeded);
-  };
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -66,46 +43,34 @@ const Index = () => {
     }
   };
 
-  const addLearningEntry = (content, context, tags) => {
-    const newEntry = {
-      id: String(learningEntries.length + 1).padStart(4, '0'),
-      content,
-      context: context || '',
-      tags: tags || [],
-      createdAt: new Date().toISOString(),
-      step: 0,
-      completed: false,
-      reviews: []
-    };
-    
-    const updatedEntries = [...learningEntries, newEntry];
-    setLearningEntries(updatedEntries);
-    localStorage.setItem('learningEntries', JSON.stringify(updatedEntries));
-    calculateReviewsToday(updatedEntries);
+  const handleAddLearning = async (content: string, context?: string, tags?: string[]) => {
+    await addLearningEntry(content, context, tags);
+    setShowAddModal(false);
   };
 
-  const completeReview = (entryId, questions, answers) => {
-    const updatedEntries = learningEntries.map(entry => {
-      if (entry.id === entryId) {
-        const newStep = Math.min((entry.step || 0) + 1, 5);
-        return {
-          ...entry,
-          step: newStep,
-          reviews: [...(entry.reviews || []), {
-            date: new Date().toISOString(),
-            questions,
-            answers,
-            step: newStep
-          }]
-        };
-      }
-      return entry;
-    });
-    
-    setLearningEntries(updatedEntries);
-    localStorage.setItem('learningEntries', JSON.stringify(updatedEntries));
-    calculateReviewsToday(updatedEntries);
+  const handleCompleteReview = async (entryId: string, questions?: string[], answers?: string[]) => {
+    await completeReview(entryId, questions, answers);
   };
+
+  const handleImport = (entries: any[]) => {
+    // Para import, ainda usaremos localStorage temporariamente
+    // Em uma implementação futura, isso pode ser migrado para Supabase
+    localStorage.setItem('learningEntries', JSON.stringify(entries));
+    window.location.reload(); // Recarrega para aplicar os dados importados
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 bg-black dark:bg-white rounded-full flex items-center justify-center animate-pulse">
+            <Brain className="w-5 h-5 text-white dark:text-black" />
+          </div>
+          <p className="text-gray-600 dark:text-gray-400">Carregando seus aprendizados...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={`min-h-screen transition-all duration-300 ${
@@ -198,7 +163,7 @@ const Index = () => {
       <AddLearningModal 
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
-        onAdd={addLearningEntry}
+        onAdd={handleAddLearning}
         existingTags={[...new Set(learningEntries.flatMap(e => e.tags))]}
       />
 
@@ -206,14 +171,14 @@ const Index = () => {
         isOpen={showReviewModal}
         onClose={() => setShowReviewModal(false)}
         reviews={reviewsToday}
-        onComplete={completeReview}
+        onComplete={handleCompleteReview}
       />
 
       <SettingsPanel 
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         entries={learningEntries}
-        onImport={setLearningEntries}
+        onImport={handleImport}
       />
     </div>
   );

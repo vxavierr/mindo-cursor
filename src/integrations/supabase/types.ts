@@ -9,7 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      revisoes: {
+        Row: {
+          completed: boolean | null
+          conteudo: string
+          contexto: string | null
+          data_criacao: string | null
+          data_ultima_revisao: string | null
+          id: string
+          revisoes: Json | null
+          step: number | null
+          tags: string[] | null
+          titulo: string | null
+          usuario_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          conteudo: string
+          contexto?: string | null
+          data_criacao?: string | null
+          data_ultima_revisao?: string | null
+          id?: string
+          revisoes?: Json | null
+          step?: number | null
+          tags?: string[] | null
+          titulo?: string | null
+          usuario_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          conteudo?: string
+          contexto?: string | null
+          data_criacao?: string | null
+          data_ultima_revisao?: string | null
+          id?: string
+          revisoes?: Json | null
+          step?: number | null
+          tags?: string[] | null
+          titulo?: string | null
+          usuario_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
