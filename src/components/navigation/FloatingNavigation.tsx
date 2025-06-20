@@ -1,10 +1,10 @@
 
 import React, { useState } from 'react';
-import { Home, Search, Calendar, User, Plus, LucideIcon } from 'lucide-react';
+import { Home, Search, Calendar, User, Plus } from 'lucide-react';
 
 interface NavigationItem {
   id: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   path: string;
 }
@@ -71,11 +71,10 @@ const FloatingNavigation = ({
                 aria-label={item.label}
               >
                 <Icon 
-                  size={24}
-                  strokeWidth={2}
-                  className={`transition-colors duration-200 ${
+                  className={`w-6 h-6 transition-colors duration-200 ${
                     isActive ? 'text-[#5B6FED]' : 'text-[#8B92A3]'
                   }`}
+                  strokeWidth={2}
                 />
               </button>
             );
@@ -99,7 +98,7 @@ const FloatingNavigation = ({
           }}
           aria-label="Novo aprendizado"
         >
-          <Plus size={24} strokeWidth={2} className="text-white" />
+          <Plus className="w-6 h-6 text-white" strokeWidth={2} />
         </button>
       </nav>
     </div>
