@@ -2,6 +2,7 @@
 import React from 'react';
 import { Trash2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { LearningEntry } from '@/hooks/useCleanLearning';
 
 interface CleanTodaysLearningProps {
@@ -47,14 +48,34 @@ const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) =>
                 </span>
               </div>
               
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onDelete(entry.id)}
-                className="text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 h-8 w-8 p-0"
-              >
-                <Trash2 className="w-4 h-4" strokeWidth={2} />
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 h-8 w-8 p-0"
+                  >
+                    <Trash2 className="w-4 h-4" strokeWidth={2} />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Mover para lixeira?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Este aprendizado será movido para a lixeira. Você poderá restaurá-lo a qualquer momento através das configurações.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => onDelete(entry.id)}
+                      className="bg-red-500 hover:bg-red-600"
+                    >
+                      Mover para lixeira
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             {/* Título */}

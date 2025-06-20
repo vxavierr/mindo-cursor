@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useTrashLearning } from '@/hooks/useTrashLearning';
 
 export interface LearningEntry {
   id: string;
@@ -25,6 +26,7 @@ export const useCleanLearning = () => {
   const [learningEntries, setLearningEntries] = useState<LearningEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { moveToTrash } = useTrashLearning();
 
   // Intervalos de revisão espaçada em dias
   const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60];
@@ -126,18 +128,6 @@ export const useCleanLearning = () => {
 
       console.log('Nova entrada criada:', data);
 
-      const convertedEntry: LearningEntry = {
-        id: data.id,
-        numeroId: data.numero_id,
-        title: data.titulo || '',
-        content: data.conteudo,
-        context: data.contexto || '',
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        createdAt: data.data_criacao || new Date().toISOString(),
-        step: data.step || 0,
-        reviews: convertJsonToReviews(data.revisoes)
-      };
-
       // Recarregar entradas para obter a lista atualizada com IDs corretos
       await loadEntries();
 
@@ -155,48 +145,54 @@ export const useCleanLearning = () => {
     }
   };
 
-  // Excluir entrada diretamente (simplificado)
+  // Mover entrada para lixeira (substituindo deleteEntry)
   const deleteEntry = async (entryId: string) => {
     try {
-      console.log('Excluindo entrada:', entryId);
+      console.log('Movendo entrada para lixeira:', entryId);
       
-      // Remover otimisticamente da lista local primeiro
-      const entryToDelete = learningEntries.find(e => e.id === entryId);
-      if (entryToDelete) {
-        setLearningEntries(prev => prev.filter(e => e.id !== entryId));
-      }
-
-      // Excluir do banco (o trigger reorganizará automaticamente os IDs)
-      const { error } = await supabase
-        .from('revisoes')
-        .delete()
-        .eq('id', entryId);
-
-      if (error) {
-        console.error('Erro ao excluir entrada:', error);
-        // Reverter a exclusão otimista se houve erro
-        if (entryToDelete) {
-          setLearningEntries(prev => [...prev, entryToDelete].sort((a, b) => b.numeroId - a.numeroId));
-        }
-        toast({
-          title: "Erro ao excluir",
-          description: "Tente novamente",
-          variant: "destructive"
-        });
+      // Encontrar a entrada a ser movida
+      const entryToMove = learningEntries.find(e => e.id === entryId);
+      if (!entryToMove) {
+        console.error('Entrada não encontrada:', entryId);
         return;
       }
 
-      console.log('Entrada excluída com sucesso');
+      // Remover otimisticamente da lista local primeiro
+      setLearningEntries(prev => prev.filter(e => e.id !== entryId));
+
+      // Converter entrada para formato da lixeira
+      const entryForTrash = {
+        id: entryToMove.id,
+        content: entryToMove.content,
+        title: entryToMove.title,
+        tags: entryToMove.tags,
+        createdAt: entryToMove.createdAt,
+        context: entryToMove.context,
+        step: entryToMove.step,
+        reviews: entryToMove.reviews
+      };
+
+      // Mover para lixeira usando a função existente
+      const success = await moveToTrash(entryId, entryForTrash);
+
+      if (!success) {
+        // Reverter a remoção otimista se houve erro
+        setLearningEntries(prev => [...prev, entryToMove].sort((a, b) => b.numeroId - a.numeroId));
+        return;
+      }
+
+      console.log('Entrada movida para lixeira com sucesso');
       
       // Recarregar entradas para obter os IDs reorganizados
       await loadEntries();
 
-      toast({
-        title: "Aprendizado excluído",
-        description: "O aprendizado foi excluído permanentemente"
-      });
     } catch (error) {
-      console.error('Erro inesperado ao excluir entrada:', error);
+      console.error('Erro inesperado ao mover entrada para lixeira:', error);
+      // Reverter a remoção otimista
+      const entryToMove = learningEntries.find(e => e.id === entryId);
+      if (entryToMove) {
+        setLearningEntries(prev => [...prev, entryToMove].sort((a, b) => b.numeroId - a.numeroId));
+      }
       toast({
         title: "Erro inesperado",
         description: "Tente novamente",
