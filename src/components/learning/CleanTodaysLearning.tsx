@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Trash2, Hash, Calendar } from 'lucide-react';
+import { Trash2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LearningEntry } from '@/hooks/useCleanLearning';
 
@@ -36,16 +36,13 @@ const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) =>
             {/* Header com ID e ações */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-1.5 text-gray-600">
-                  <Hash className="w-4 h-4" strokeWidth={2} />
-                  <span className="text-sm font-mono font-medium">#{String(entry.numeroId).padStart(4, '0')}</span>
-                </div>
+                <span className="text-sm font-mono font-medium text-gray-600">
+                  {String(entry.numeroId).padStart(4, '0')}
+                </span>
                 <span className="text-sm text-gray-500 font-medium">
                   {new Date(entry.createdAt).toLocaleDateString('pt-BR', { 
                     day: '2-digit', 
-                    month: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    month: '2-digit'
                   })}
                 </span>
               </div>
@@ -85,18 +82,6 @@ const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) =>
                 ))}
               </div>
             )}
-
-            {/* Info da revisão espaçada */}
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600 font-medium">
-                  Step de revisão: {entry.step}
-                </span>
-                <span className="text-gray-500 font-medium">
-                  Revisões: {entry.reviews.length}
-                </span>
-              </div>
-            </div>
           </div>
         ))}
       </div>

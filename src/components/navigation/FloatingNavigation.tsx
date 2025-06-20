@@ -56,7 +56,7 @@ const FloatingNavigation = ({
 
       {/* FAB Sub-actions */}
       {fabMenuOpen && (
-        <div className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-6">
+        <div className="fixed bottom-40 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-6">
           {/* Review button */}
           <div 
             className="flex items-center space-x-4 animate-scale-in"
@@ -92,11 +92,11 @@ const FloatingNavigation = ({
       )}
 
       <div className="fixed bottom-0 left-0 right-0 flex justify-center p-6 pointer-events-none z-40">
-        {/* Navigation Bar with notch for FAB */}
+        {/* Navigation Bar with better notch for FAB */}
         <nav className="relative bg-white rounded-[28px] px-16 py-6 pointer-events-auto"
              style={{
                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-               clipPath: 'polygon(0 0, calc(50% - 40px) 0, calc(50% - 32px) 8px, calc(50% - 24px) 16px, calc(50% - 16px) 24px, calc(50% - 8px) 28px, calc(50% + 8px) 28px, calc(50% + 16px) 24px, calc(50% + 24px) 16px, calc(50% + 32px) 8px, calc(50% + 40px) 0, 100% 0, 100% 100%, 0 100%)'
+               clipPath: 'polygon(0 0, calc(50% - 45px) 0, calc(50% - 38px) 6px, calc(50% - 30px) 12px, calc(50% - 22px) 18px, calc(50% - 14px) 24px, calc(50% - 6px) 30px, calc(50% + 6px) 30px, calc(50% + 14px) 24px, calc(50% + 22px) 18px, calc(50% + 30px) 12px, calc(50% + 38px) 6px, calc(50% + 45px) 0, 100% 0, 100% 100%, 0 100%)'
              }}>
           
           {/* Navigation Items */}
@@ -142,11 +142,11 @@ const FloatingNavigation = ({
           </div>
         </nav>
 
-        {/* Floating Action Button */}
+        {/* Floating Action Button - positioned higher */}
         <button
           onClick={handleFabClick}
           className={`
-            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-4
+            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-8
             w-18 h-18 rounded-full flex items-center justify-center
             transition-all duration-300 ease-out z-10
             ${pressedFab ? 'scale-95' : 'hover:scale-105'}

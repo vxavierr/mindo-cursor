@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -44,36 +45,6 @@ export const useCleanLearning = () => {
     }));
   };
 
-  // Função para encontrar o próximo ID disponível
-  const getNextAvailableId = async (): Promise<number> => {
-    try {
-      // Buscar todos os numero_id existentes na tabela revisoes (incluindo ativos)
-      const { data: existingIds, error } = await supabase
-        .from('revisoes')
-        .select('numero_id')
-        .order('numero_id', { ascending: true });
-
-      if (error) {
-        console.error('Erro ao buscar IDs existentes:', error);
-        return 1;
-      }
-
-      // Criar array com todos os IDs existentes
-      const usedIds = existingIds?.map(item => item.numero_id) || [];
-      
-      // Encontrar o primeiro ID disponível começando de 1
-      let nextId = 1;
-      while (usedIds.includes(nextId)) {
-        nextId++;
-      }
-      
-      return nextId;
-    } catch (error) {
-      console.error('Erro inesperado ao buscar próximo ID:', error);
-      return 1;
-    }
-  };
-
   // Carregar entradas ativas
   const loadEntries = async () => {
     try {
@@ -118,13 +89,10 @@ export const useCleanLearning = () => {
     }
   };
 
-  // Adicionar nova entrada com ID sequencial reutilizando IDs excluídos
+  // Adicionar nova entrada
   const addLearningEntry = async (content: string, title: string, tags: string[], context?: string) => {
     try {
-      const nextId = await getNextAvailableId();
-
       const newEntry = {
-        numero_id: nextId,
         titulo: title,
         conteudo: content,
         contexto: context || null,
@@ -181,14 +149,20 @@ export const useCleanLearning = () => {
     }
   };
 
-  // Excluir entrada (mover para lixeira)
+  // Excluir entrada (mover para lixeira) - agora com reorganização automática
   const deleteEntry = async (entryId: string) => {
     const entry = learningEntries.find(e => e.id === entryId);
     if (!entry) return;
 
     const success = await moveToTrash(entryId, entry);
     if (success) {
+      // Remover da lista local - a reorganização será feita automaticamente pelo trigger
       setLearningEntries(prev => prev.filter(e => e.id !== entryId));
+      
+      // Recarregar a lista para obter os IDs reorganizados
+      setTimeout(() => {
+        loadEntries();
+      }, 500);
     }
   };
 
