@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useTrashLearning } from './useTrashLearning';
 
 export interface LearningEntry {
   id: string;
@@ -26,7 +25,6 @@ export const useCleanLearning = () => {
   const [learningEntries, setLearningEntries] = useState<LearningEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const { moveToTrash } = useTrashLearning();
 
   // Intervalos de revisão espaçada em dias
   const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60];
@@ -48,6 +46,7 @@ export const useCleanLearning = () => {
   // Carregar entradas ativas
   const loadEntries = async () => {
     try {
+      console.log('Carregando entradas...');
       const { data, error } = await supabase
         .from('revisoes')
         .select('*')
@@ -63,6 +62,8 @@ export const useCleanLearning = () => {
         });
         return;
       }
+
+      console.log('Entradas carregadas:', data);
 
       const entries: LearningEntry[] = data?.map(item => ({
         id: item.id,
@@ -92,6 +93,7 @@ export const useCleanLearning = () => {
   // Adicionar nova entrada
   const addLearningEntry = async (content: string, title: string, tags: string[], context?: string) => {
     try {
+      console.log('Adicionando nova entrada...');
       const newEntry = {
         titulo: title,
         conteudo: content,
@@ -122,6 +124,8 @@ export const useCleanLearning = () => {
         return;
       }
 
+      console.log('Nova entrada criada:', data);
+
       const convertedEntry: LearningEntry = {
         id: data.id,
         numeroId: data.numero_id,
@@ -134,7 +138,9 @@ export const useCleanLearning = () => {
         reviews: convertJsonToReviews(data.revisoes)
       };
 
-      setLearningEntries(prev => [convertedEntry, ...prev]);
+      // Recarregar entradas para obter a lista atualizada com IDs corretos
+      await loadEntries();
+
       toast({
         title: "Aprendizado salvo!",
         description: `Aprendizado #${String(data.numero_id).padStart(4, '0')} foi salvo com sucesso.`
@@ -149,26 +155,60 @@ export const useCleanLearning = () => {
     }
   };
 
-  // Excluir entrada (mover para lixeira) - agora com reorganização automática
+  // Excluir entrada diretamente (simplificado)
   const deleteEntry = async (entryId: string) => {
-    const entry = learningEntries.find(e => e.id === entryId);
-    if (!entry) return;
-
-    const success = await moveToTrash(entryId, entry);
-    if (success) {
-      // Remover da lista local - a reorganização será feita automaticamente pelo trigger
-      setLearningEntries(prev => prev.filter(e => e.id !== entryId));
+    try {
+      console.log('Excluindo entrada:', entryId);
       
-      // Recarregar a lista para obter os IDs reorganizados
-      setTimeout(() => {
-        loadEntries();
-      }, 500);
+      // Remover otimisticamente da lista local primeiro
+      const entryToDelete = learningEntries.find(e => e.id === entryId);
+      if (entryToDelete) {
+        setLearningEntries(prev => prev.filter(e => e.id !== entryId));
+      }
+
+      // Excluir do banco (o trigger reorganizará automaticamente os IDs)
+      const { error } = await supabase
+        .from('revisoes')
+        .delete()
+        .eq('id', entryId);
+
+      if (error) {
+        console.error('Erro ao excluir entrada:', error);
+        // Reverter a exclusão otimista se houve erro
+        if (entryToDelete) {
+          setLearningEntries(prev => [...prev, entryToDelete].sort((a, b) => b.numeroId - a.numeroId));
+        }
+        toast({
+          title: "Erro ao excluir",
+          description: "Tente novamente",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('Entrada excluída com sucesso');
+      
+      // Recarregar entradas para obter os IDs reorganizados
+      await loadEntries();
+
+      toast({
+        title: "Aprendizado excluído",
+        description: "O aprendizado foi excluído permanentemente"
+      });
+    } catch (error) {
+      console.error('Erro inesperado ao excluir entrada:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Tente novamente",
+        variant: "destructive"
+      });
     }
   };
 
   // Completar revisão com sistema de espaçamento
   const completeReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => {
     try {
+      console.log('Completando revisão:', entryId, difficulty);
       const entry = learningEntries.find(e => e.id === entryId);
       if (!entry) return;
 

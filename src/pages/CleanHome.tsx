@@ -82,6 +82,11 @@ const CleanHome = () => {
     setShowReviewModal(true);
   };
 
+  const handleDeleteEntry = async (entryId: string) => {
+    console.log('Deletando entrada:', entryId);
+    await deleteEntry(entryId);
+  };
+
   console.log('CleanHome rendered, FAB handlers:', { handleCreateLearning, handleReview });
 
   if (loading) {
@@ -166,7 +171,7 @@ const CleanHome = () => {
         <div className="pb-20">
           <CleanTodaysLearning 
             entries={todaysEntries}
-            onDelete={deleteEntry}
+            onDelete={handleDeleteEntry}
           />
         </div>
       </div>
