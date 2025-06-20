@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -6,8 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Settings, Download, Upload, Bell, User, Database } from 'lucide-react';
+import { Settings, Download, Upload, Bell, User, Database, RefreshCw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -19,6 +19,7 @@ interface SettingsPanelProps {
 const SettingsPanel = ({ isOpen, onClose, entries, onImport }: SettingsPanelProps) => {
   const [importData, setImportData] = useState('');
   const [notifications, setNotifications] = useState(true);
+  const [reorganizingIds, setReorganizingIds] = useState(false);
 
   const exportData = () => {
     const dataToExport = {
@@ -102,6 +103,49 @@ const SettingsPanel = ({ isOpen, onClose, entries, onImport }: SettingsPanelProp
     }
   };
 
+  const reorganizeIds = async () => {
+    setReorganizingIds(true);
+    
+    try {
+      console.log('Iniciando reorganização de IDs...');
+      
+      // Chamar a função existente do banco que reorganiza os IDs
+      const { error } = await supabase.rpc('reorganizar_ids_revisoes');
+      
+      if (error) {
+        console.error('Erro ao reorganizar IDs:', error);
+        toast({
+          title: "Erro ao reorganizar IDs",
+          description: "Ocorreu um erro durante a reorganização. Tente novamente.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('IDs reorganizados com sucesso');
+      
+      toast({
+        title: "IDs reorganizados!",
+        description: "Todos os IDs foram ajustados para serem sequenciais novamente."
+      });
+      
+      // Opcional: recarregar a página para refletir as mudanças
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+      
+    } catch (error) {
+      console.error('Erro inesperado ao reorganizar IDs:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Tente novamente em alguns segundos.",
+        variant: "destructive"
+      });
+    } finally {
+      setReorganizingIds(false);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -157,6 +201,26 @@ const SettingsPanel = ({ isOpen, onClose, entries, onImport }: SettingsPanelProp
             </div>
             
             <div className="space-y-6">
+              {/* Reorganize IDs */}
+              <div>
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4" />
+                  Reorganizar IDs
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                  Corrige gaps nos IDs e garante que sejam sequenciais. Use apenas se houver problemas de numeração.
+                </p>
+                <Button 
+                  onClick={reorganizeIds} 
+                  disabled={reorganizingIds}
+                  variant="outline" 
+                  className="w-full"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${reorganizingIds ? 'animate-spin' : ''}`} />
+                  {reorganizingIds ? 'Reorganizando...' : 'Reorganizar IDs Sequenciais'}
+                </Button>
+              </div>
+
               {/* Export */}
               <div>
                 <h4 className="font-medium mb-2 flex items-center gap-2">
