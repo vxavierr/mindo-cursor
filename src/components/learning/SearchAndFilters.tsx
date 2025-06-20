@@ -10,15 +10,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Search, Filter, X, Calendar as CalendarIcon, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { DateRange } from 'react-day-picker';
 
 interface SearchFilters {
   query: string;
   tags: string[];
   step: string;
-  dateRange: {
-    from?: Date;
-    to?: Date;
-  };
+  dateRange: DateRange | undefined;
   sortBy: 'newest' | 'oldest' | 'step' | 'reviews';
 }
 
@@ -46,13 +44,13 @@ const SearchAndFilters = ({
       query: '',
       tags: [],
       step: '',
-      dateRange: {},
+      dateRange: undefined,
       sortBy: 'newest'
     });
   };
 
   const hasActiveFilters = filters.query || filters.tags.length > 0 || filters.step || 
-                          filters.dateRange.from || filters.sortBy !== 'newest';
+                          filters.dateRange || filters.sortBy !== 'newest';
 
   return (
     <div className="space-y-4">
@@ -101,8 +99,8 @@ const SearchAndFilters = ({
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Tags
               </label>
-              <div className="space-y-2">
-                {availableTags.slice(0, 5).map(tag => (
+              <div className="space-y-2 max-h-32 overflow-y-auto">
+                {availableTags.slice(0, 8).map(tag => (
                   <label key={tag} className="flex items-center space-x-2 text-sm">
                     <input
                       type="checkbox"
@@ -153,7 +151,7 @@ const SearchAndFilters = ({
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {filters.dateRange.from ? (
+                    {filters.dateRange?.from ? (
                       filters.dateRange.to ? (
                         <>
                           {format(filters.dateRange.from, "dd/MM/yyyy", { locale: ptBR })} -{" "}
@@ -171,10 +169,11 @@ const SearchAndFilters = ({
                   <Calendar
                     initialFocus
                     mode="range"
-                    defaultMonth={filters.dateRange.from}
+                    defaultMonth={filters.dateRange?.from}
                     selected={filters.dateRange}
-                    onSelect={(range) => updateFilters({ dateRange: range || {} })}
+                    onSelect={(range) => updateFilters({ dateRange: range })}
                     numberOfMonths={2}
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>

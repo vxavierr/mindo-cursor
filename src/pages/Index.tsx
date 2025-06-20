@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Plus, Calendar, Settings, Moon, Sun, BarChart3 } from 'lucide-react';
@@ -13,6 +12,7 @@ import { useSupabaseLearning } from '@/hooks/useSupabaseLearning';
 import { useNotifications } from '@/hooks/useNotifications';
 import { SpacedRepetitionEngine } from '@/utils/spacedRepetition';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DateRange } from 'react-day-picker';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
@@ -26,7 +26,7 @@ const Index = () => {
     query: '',
     tags: [] as string[],
     step: '',
-    dateRange: {} as { from?: Date; to?: Date },
+    dateRange: undefined as DateRange | undefined,
     sortBy: 'newest' as 'newest' | 'oldest' | 'step' | 'reviews'
   });
 
@@ -85,7 +85,7 @@ const Index = () => {
     }
 
     // Filtro por data
-    if (filters.dateRange.from) {
+    if (filters.dateRange?.from) {
       const entryDate = new Date(entry.createdAt);
       if (entryDate < filters.dateRange.from) return false;
       if (filters.dateRange.to && entryDate > filters.dateRange.to) return false;
