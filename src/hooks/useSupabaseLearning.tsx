@@ -99,7 +99,7 @@ export const useSupabaseLearning = () => {
         revisoes: [],
         data_criacao: new Date().toISOString(),
         data_ultima_revisao: new Date().toISOString(),
-        usuario_id: null // Será null para uso sem login
+        usuario_id: null // Permitir null para uso sem autenticação
       };
 
       const { data, error } = await supabase
@@ -112,23 +112,9 @@ export const useSupabaseLearning = () => {
         console.error('Erro ao adicionar entrada:', error);
         toast({
           title: "Erro ao salvar",
-          description: "Salvando localmente como fallback",
+          description: "Verifique sua conexão e tente novamente",
           variant: "destructive"
         });
-        // Fallback para localStorage
-        const localEntry = {
-          id: String(learningEntries.length + 1).padStart(4, '0'),
-          content,
-          context: context || '',
-          tags: tags || [],
-          createdAt: new Date().toISOString(),
-          step: 0,
-          completed: false,
-          reviews: []
-        };
-        const updatedEntries = [localEntry, ...learningEntries];
-        setLearningEntries(updatedEntries);
-        localStorage.setItem('learningEntries', JSON.stringify(updatedEntries));
         return;
       }
 
@@ -147,7 +133,7 @@ export const useSupabaseLearning = () => {
       setLearningEntries(prev => [convertedEntry, ...prev]);
       toast({
         title: "Aprendizado salvo!",
-        description: "Seu aprendizado foi salvo no banco de dados."
+        description: "Seu aprendizado foi salvo com sucesso."
       });
     } catch (error) {
       console.error('Erro inesperado ao adicionar entrada:', error);
@@ -188,17 +174,9 @@ export const useSupabaseLearning = () => {
         console.error('Erro ao completar revisão:', error);
         toast({
           title: "Erro ao salvar revisão",
-          description: "Atualizando localmente",
+          description: "Tente novamente",
           variant: "destructive"
         });
-        // Fallback local
-        const updatedEntries = learningEntries.map(e => 
-          e.id === entryId 
-            ? { ...e, step: newStep, reviews: updatedReviews }
-            : e
-        );
-        setLearningEntries(updatedEntries);
-        localStorage.setItem('learningEntries', JSON.stringify(updatedEntries));
         return;
       }
 
@@ -213,7 +191,7 @@ export const useSupabaseLearning = () => {
 
       toast({
         title: "Revisão concluída!",
-        description: `Aprendizado #${entryId} atualizado com sucesso.`
+        description: `Aprendizado atualizado com sucesso.`
       });
     } catch (error) {
       console.error('Erro inesperado ao completar revisão:', error);
