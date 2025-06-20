@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Json } from '@/integrations/supabase/types';
 
 interface TrashEntry {
   id_lixeira: string;
@@ -21,6 +22,18 @@ export const useTrashLearning = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Helper function to safely convert Json to array
+  const convertJsonToArray = (jsonData: Json): any[] => {
+    if (!jsonData) return [];
+    if (Array.isArray(jsonData)) return jsonData;
+    try {
+      const parsed = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  };
+
   // Carregar entradas da lixeira
   const loadTrashEntries = async () => {
     try {
@@ -34,7 +47,20 @@ export const useTrashLearning = () => {
         return;
       }
 
-      setTrashEntries(data || []);
+      const formattedEntries: TrashEntry[] = data?.map(item => ({
+        id_lixeira: item.id_lixeira,
+        conteudo: item.conteudo,
+        titulo: item.titulo || undefined,
+        tags: Array.isArray(item.tags) ? item.tags : [],
+        data_criacao: item.data_criacao,
+        data_exclusao: item.data_exclusao,
+        hora_exclusao: item.hora_exclusao,
+        contexto: item.contexto || undefined,
+        step: item.step || 0,
+        revisoes: convertJsonToArray(item.revisoes)
+      })) || [];
+
+      setTrashEntries(formattedEntries);
     } catch (error) {
       console.error('Erro inesperado ao carregar lixeira:', error);
     } finally {
