@@ -1,27 +1,109 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Plus, Calendar, Settings, Moon, Sun } from 'lucide-react';
+import { Brain, Plus, Calendar, Settings, Moon, Sun, BarChart3 } from 'lucide-react';
 import AddLearningModal from '@/components/learning/AddLearningModal';
 import ReviewModal from '@/components/learning/ReviewModal';
 import StatsOverview from '@/components/dashboard/StatsOverview';
 import LearningGrid from '@/components/dashboard/LearningGrid';
+import SearchAndFilters from '@/components/learning/SearchAndFilters';
+import LearningAnalytics from '@/components/analytics/LearningAnalytics';
 import SettingsPanel from '@/components/settings/SettingsPanel';
 import { useSupabaseLearning } from '@/hooks/useSupabaseLearning';
+import { useNotifications } from '@/hooks/useNotifications';
+import { SpacedRepetitionEngine } from '@/utils/spacedRepetition';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const Index = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Filtros para busca
+  const [filters, setFilters] = useState({
+    query: '',
+    tags: [] as string[],
+    step: '',
+    dateRange: {} as { from?: Date; to?: Date },
+    sortBy: 'newest' as 'newest' | 'oldest' | 'step' | 'reviews'
+  });
 
   const {
     learningEntries,
-    reviewsToday,
+    reviewsToday: originalReviewsToday,
     loading,
     addLearningEntry,
     completeReview
   } = useSupabaseLearning();
+
+  const {
+    permission,
+    settings: notificationSettings,
+    requestPermission,
+    scheduleDailyReminder
+  } = useNotifications();
+
+  // Usar algoritmo melhorado para determinar revisões
+  const reviewsToday = SpacedRepetitionEngine.getItemsForReview(
+    learningEntries.map(entry => ({
+      id: entry.id,
+      createdAt: entry.createdAt,
+      step: entry.step,
+      reviews: entry.reviews.map(r => ({
+        date: r.date,
+        difficulty: 'medium' as const,
+        correct: true
+      })),
+      lastReviewDate: entry.reviews[entry.reviews.length - 1]?.date
+    }))
+  ).map(item => learningEntries.find(e => e.id === item.id)!).filter(Boolean);
+
+  // Filtrar e ordenar entradas
+  const filteredEntries = learningEntries.filter(entry => {
+    // Filtro por query
+    if (filters.query) {
+      const query = filters.query.toLowerCase();
+      if (!entry.content.toLowerCase().includes(query) &&
+          !entry.context?.toLowerCase().includes(query) &&
+          !entry.tags.some(tag => tag.toLowerCase().includes(query))) {
+        return false;
+      }
+    }
+
+    // Filtro por tags
+    if (filters.tags.length > 0) {
+      if (!filters.tags.some(tag => entry.tags.includes(tag))) {
+        return false;
+      }
+    }
+
+    // Filtro por step
+    if (filters.step && entry.step !== parseInt(filters.step)) {
+      return false;
+    }
+
+    // Filtro por data
+    if (filters.dateRange.from) {
+      const entryDate = new Date(entry.createdAt);
+      if (entryDate < filters.dateRange.from) return false;
+      if (filters.dateRange.to && entryDate > filters.dateRange.to) return false;
+    }
+
+    return true;
+  }).sort((a, b) => {
+    switch (filters.sortBy) {
+      case 'oldest':
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case 'step':
+        return b.step - a.step;
+      case 'reviews':
+        return (b.reviews?.length || 0) - (a.reviews?.length || 0);
+      default: // newest
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    }
+  });
 
   useEffect(() => {
     // Check for saved theme preference
@@ -31,6 +113,13 @@ const Index = () => {
       document.documentElement.classList.add('dark');
     }
   }, []);
+
+  // Agendar notificações diárias
+  useEffect(() => {
+    if (notificationSettings.enabled && reviewsToday.length > 0) {
+      scheduleDailyReminder(reviewsToday.length);
+    }
+  }, [reviewsToday.length, notificationSettings.enabled, scheduleDailyReminder]);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -90,6 +179,18 @@ const Index = () => {
         </div>
         
         <div className="flex items-center space-x-2">
+          {/* Notificações */}
+          {permission !== 'granted' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={requestPermission}
+              className="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              🔔 Ativar Notificações
+            </Button>
+          )}
+
           <Button
             variant="ghost"
             size="icon"
@@ -146,17 +247,41 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <StatsOverview 
-          totalEntries={learningEntries.length}
-          reviewsToday={reviewsToday.length}
-          entries={learningEntries}
-        />
+        {/* Tabs para diferentes visualizações */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="pb-16">
+          <TabsList className="grid w-full grid-cols-3 mb-8">
+            <TabsTrigger value="overview">Visão Geral</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="search">Buscar</TabsTrigger>
+          </TabsList>
 
-        {/* Learning Grid */}
-        <div className="pb-16">
-          <LearningGrid entries={learningEntries} />
-        </div>
+          <TabsContent value="overview" className="space-y-8">
+            {/* Stats Overview */}
+            <StatsOverview 
+              totalEntries={learningEntries.length}
+              reviewsToday={reviewsToday.length}
+              entries={learningEntries}
+            />
+
+            {/* Learning Grid */}
+            <LearningGrid entries={learningEntries.slice(0, 10)} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <LearningAnalytics entries={learningEntries} />
+          </TabsContent>
+
+          <TabsContent value="search" className="space-y-6">
+            <SearchAndFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              availableTags={[...new Set(learningEntries.flatMap(e => e.tags))]}
+              totalResults={filteredEntries.length}
+            />
+            
+            <LearningGrid entries={filteredEntries} />
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Modals */}
