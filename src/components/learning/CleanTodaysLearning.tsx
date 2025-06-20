@@ -27,36 +27,12 @@ const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) =>
     return String(numeroId).padStart(4, '0');
   };
 
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    const isToday = date.toDateString() === today.toDateString();
-    
-    if (isToday) {
-      return date.toLocaleTimeString('pt-BR', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-    }
-    
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatFullDateTime = (dateString: string) => {
+  // Mostrar apenas dia/mês
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', {
       day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }) + ' às ' + date.toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit'
+      month: '2-digit'
     });
   };
 
@@ -84,7 +60,7 @@ const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) =>
             <div className="flex items-center space-x-2 text-xs text-gray-400 dark:text-gray-500">
               <span className="font-mono">#{formatId(entry.numeroId)}</span>
               <span>•</span>
-              <span>{formatFullDateTime(entry.createdAt)}</span>
+              <span>{formatDate(entry.createdAt)}</span>
             </div>
             
             <AlertDialog>

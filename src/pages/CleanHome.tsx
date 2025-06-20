@@ -86,7 +86,7 @@ const CleanHome = () => {
               variant="ghost"
               size="sm"
               onClick={requestPermission}
-              className="text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover: text-xs px-3 h-8"
+              className="text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 text-xs px-3 h-8"
             >
               🔔 Notificações
             </Button>

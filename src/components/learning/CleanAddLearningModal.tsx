@@ -4,7 +4,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2, Send } from 'lucide-react';
-import { useAI } from '@/hooks/useAI';
+import { useEnhancedAI } from '@/hooks/useEnhancedAI';
+import { useToast } from '@/hooks/use-toast';
 
 interface CleanAddLearningModalProps {
   isOpen: boolean;
@@ -16,7 +17,8 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
   const [content, setContent] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const { improveText, generateTitleAndTags, transcribeAudio, isProcessing } = useAI();
+  const { improveText, generateTitleAndTags, transcribeAudio, isProcessing } = useEnhancedAI();
+  const { toast } = useToast();
 
   const startRecording = async () => {
     try {
@@ -29,19 +31,53 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
       };
 
       recorder.onstop = async () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/wav' });
-        const transcribedText = await transcribeAudio(audioBlob);
-        if (transcribedText) {
-          setContent(transcribedText);
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        console.log('Audio blob criado:', audioBlob.size, 'bytes');
+        
+        try {
+          const transcribedText = await transcribeAudio(audioBlob);
+          console.log('Texto transcrito:', transcribedText);
+          
+          if (transcribedText && transcribedText.trim()) {
+            setContent(prev => prev + (prev ? ' ' : '') + transcribedText);
+            toast({
+              title: "Áudio transcrito!",
+              description: "O texto foi adicionado com sucesso"
+            });
+          } else {
+            toast({
+              title: "Nenhum texto detectado",
+              description: "Tente falar mais alto ou mais próximo do microfone",
+              variant: "destructive"
+            });
+          }
+        } catch (error) {
+          console.error('Erro na transcrição:', error);
+          toast({
+            title: "Erro na transcrição",
+            description: "Tente novamente",
+            variant: "destructive"
+          });
         }
+        
         stream.getTracks().forEach(track => track.stop());
       };
 
       recorder.start();
       setMediaRecorder(recorder);
       setIsRecording(true);
+
+      toast({
+        title: "Gravação iniciada",
+        description: "Fale agora..."
+      });
     } catch (error) {
       console.error('Erro ao iniciar gravação:', error);
+      toast({
+        title: "Erro no microfone",
+        description: "Verifique as permissões do microfone",
+        variant: "destructive"
+      });
     }
   };
 
@@ -50,25 +86,68 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
       mediaRecorder.stop();
       setIsRecording(false);
       setMediaRecorder(null);
+      
+      toast({
+        title: "Gravação finalizada",
+        description: "Processando áudio..."
+      });
     }
   };
 
   const handleImproveText = async () => {
-    if (!content.trim()) return;
+    if (!content.trim()) {
+      toast({
+        title: "Nenhum texto para melhorar",
+        description: "Digite algum conteúdo primeiro",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    const improvedText = await improveText(content);
-    setContent(improvedText);
+    try {
+      const improvedText = await improveText(content);
+      if (improvedText && improvedText !== content) {
+        setContent(improvedText);
+        toast({
+          title: "Texto melhorado!",
+          description: "O conteúdo foi aprimorado pela IA"
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao melhorar texto:', error);
+      toast({
+        title: "Erro na melhoria do texto",
+        description: "Tente novamente",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleSubmit = async () => {
-    if (!content.trim()) return;
+    if (!content.trim()) {
+      toast({
+        title: "Conteúdo obrigatório",
+        description: "Por favor, adicione algum conteúdo",
+        variant: "destructive"
+      });
+      return;
+    }
 
-    // Gerar título e tags automaticamente
-    const { title, tags } = await generateTitleAndTags(content);
-    
-    onAdd(content.trim(), title, tags);
-    setContent('');
-    onClose();
+    try {
+      // Gerar título e tags automaticamente
+      const { title, tags } = await generateTitleAndTags(content);
+      
+      onAdd(content.trim(), title, tags);
+      setContent('');
+      onClose();
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      toast({
+        title: "Erro ao salvar",
+        description: "Tente novamente",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -172,7 +251,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
             </div>
           </div>
           
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+          <p className="text-xs text-gray-400 dark: text-center">
             ⌘ + Enter para salvar rapidamente
           </p>
         </div>

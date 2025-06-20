@@ -42,6 +42,36 @@ export const useCleanLearning = () => {
     }));
   };
 
+  // Função para encontrar o próximo ID disponível
+  const getNextAvailableId = async (): Promise<number> => {
+    try {
+      // Buscar todos os numero_id existentes na tabela revisoes (incluindo ativos)
+      const { data: existingIds, error } = await supabase
+        .from('revisoes')
+        .select('numero_id')
+        .order('numero_id', { ascending: true });
+
+      if (error) {
+        console.error('Erro ao buscar IDs existentes:', error);
+        return 1; // Fallback para ID 1
+      }
+
+      // Criar array com todos os IDs existentes
+      const usedIds = existingIds?.map(item => item.numero_id) || [];
+      
+      // Encontrar o primeiro ID disponível começando de 1
+      let nextId = 1;
+      while (usedIds.includes(nextId)) {
+        nextId++;
+      }
+      
+      return nextId;
+    } catch (error) {
+      console.error('Erro inesperado ao buscar próximo ID:', error);
+      return 1;
+    }
+  };
+
   // Carregar entradas ativas
   const loadEntries = async () => {
     try {
@@ -86,10 +116,14 @@ export const useCleanLearning = () => {
     }
   };
 
-  // Adicionar nova entrada
+  // Adicionar nova entrada com ID sequencial reutilizando IDs excluídos
   const addLearningEntry = async (content: string, title: string, tags: string[], context?: string) => {
     try {
+      // Encontrar o próximo ID disponível
+      const nextId = await getNextAvailableId();
+
       const newEntry = {
+        numero_id: nextId, // Definir manualmente o próximo ID disponível
         titulo: title,
         conteudo: content,
         contexto: context || null,
