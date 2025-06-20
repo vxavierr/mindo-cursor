@@ -15,11 +15,13 @@ export type Database = {
           contexto: string | null
           data_criacao: string
           data_ultima_revisao: string
+          deleted_at: string | null
           id: string
           numero_id: number
           revisoes: Json
           step: number
           tags: string[]
+          titulo: string | null
           usuario_id: string | null
         }
         Insert: {
@@ -27,11 +29,13 @@ export type Database = {
           contexto?: string | null
           data_criacao?: string
           data_ultima_revisao?: string
+          deleted_at?: string | null
           id?: string
           numero_id?: number
           revisoes?: Json
           step?: number
           tags?: string[]
+          titulo?: string | null
           usuario_id?: string | null
         }
         Update: {
@@ -39,11 +43,13 @@ export type Database = {
           contexto?: string | null
           data_criacao?: string
           data_ultima_revisao?: string
+          deleted_at?: string | null
           id?: string
           numero_id?: number
           revisoes?: Json
           step?: number
           tags?: string[]
+          titulo?: string | null
           usuario_id?: string | null
         }
         Relationships: []

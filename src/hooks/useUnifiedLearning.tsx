@@ -77,17 +77,17 @@ export const useUnifiedLearning = () => {
         const entry: LearningEntry = {
           id: item.id,
           numeroId: item.numero_id,
-          title: item.titulo || '',
+          title: (item as any).titulo || '',
           content: item.conteudo,
           context: item.contexto || '',
           tags: Array.isArray(item.tags) ? item.tags : [],
           createdAt: item.data_criacao || new Date().toISOString(),
           step: item.step || 0,
           reviews: convertJsonToReviews(item.revisoes),
-          deletedAt: item.deleted_at
+          deletedAt: (item as any).deleted_at
         };
 
-        if (item.deleted_at) {
+        if ((item as any).deleted_at) {
           deletedEntries.push(entry);
         } else {
           activeEntries.push(entry);
@@ -144,7 +144,7 @@ export const useUnifiedLearning = () => {
       const convertedEntry: LearningEntry = {
         id: data.id,
         numeroId: data.numero_id,
-        title: data.titulo || '',
+        title: (data as any).titulo || '',
         content: data.conteudo,
         context: data.contexto || '',
         tags: Array.isArray(data.tags) ? data.tags : [],
@@ -173,7 +173,7 @@ export const useUnifiedLearning = () => {
     try {
       const { error } = await supabase
         .from('revisoes')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ deleted_at: new Date().toISOString() } as any)
         .eq('id', entryId);
 
       if (error) {
@@ -212,7 +212,7 @@ export const useUnifiedLearning = () => {
     try {
       const { error } = await supabase
         .from('revisoes')
-        .update({ deleted_at: null })
+        .update({ deleted_at: null } as any)
         .eq('id', entryId);
 
       if (error) {
