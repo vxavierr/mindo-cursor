@@ -69,16 +69,20 @@ const CleanHome = () => {
 
   const handleNavigate = (path: string) => {
     console.log('Navigate to:', path);
-    // Implementar navegação aqui
+    // Implementar navegação aqui se necessário
   };
 
   const handleCreateLearning = () => {
+    console.log('FAB - Create Learning clicked!');
     setShowAddModal(true);
   };
 
   const handleReview = () => {
+    console.log('FAB - Review clicked!');
     setShowReviewModal(true);
   };
+
+  console.log('CleanHome rendered, FAB handlers:', { handleCreateLearning, handleReview });
 
   if (loading) {
     return (

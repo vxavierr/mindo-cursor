@@ -19,28 +19,40 @@ const FloatingNavigation = ({
   const [pressedFab, setPressedFab] = useState(false);
   const [fabMenuOpen, setFabMenuOpen] = useState(false);
 
+  console.log('FloatingNavigation props:', { onCreateLearning, onReview });
+
   const handleItemClick = (itemId: string, path: string) => {
+    console.log('Nav item clicked:', itemId, path);
     setPressedItem(itemId);
     setTimeout(() => setPressedItem(null), 150);
     onNavigate?.(path);
   };
 
-  const handleFabClick = () => {
+  const handleFabClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('FAB clicked, current state:', fabMenuOpen);
     setPressedFab(true);
     setTimeout(() => setPressedFab(false), 150);
     setFabMenuOpen(!fabMenuOpen);
   };
 
-  const handleSubAction = (action: 'create' | 'review') => {
+  const handleSubAction = (action: 'create' | 'review', e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Sub action clicked:', action);
     setFabMenuOpen(false);
     if (action === 'create') {
+      console.log('Calling onCreateLearning');
       onCreateLearning?.();
     } else {
+      console.log('Calling onReview');
       onReview?.();
     }
   };
 
   const handleOverlayClick = () => {
+    console.log('Overlay clicked, closing menu');
     setFabMenuOpen(false);
   };
 
@@ -56,7 +68,7 @@ const FloatingNavigation = ({
 
       {/* FAB Sub-actions */}
       {fabMenuOpen && (
-        <div className="fixed bottom-40 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-6">
+        <div className="fixed bottom-36 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-4">
           {/* Review button */}
           <div 
             className="flex items-center space-x-4 animate-scale-in"
@@ -66,7 +78,7 @@ const FloatingNavigation = ({
               Revisar
             </span>
             <button
-              onClick={() => handleSubAction('review')}
+              onClick={(e) => handleSubAction('review', e)}
               className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 border border-gray-100"
             >
               <RotateCcw className="w-6 h-6 text-[#5B6FED]" strokeWidth={2.5} />
@@ -82,7 +94,7 @@ const FloatingNavigation = ({
               Novo aprendizado
             </span>
             <button
-              onClick={() => handleSubAction('create')}
+              onClick={(e) => handleSubAction('create', e)}
               className="w-14 h-14 bg-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 border border-gray-100"
             >
               <BookOpen className="w-6 h-6 text-[#5B6FED]" strokeWidth={2.5} />
@@ -92,7 +104,7 @@ const FloatingNavigation = ({
       )}
 
       <div className="fixed bottom-0 left-0 right-0 flex justify-center p-6 pointer-events-none z-40">
-        {/* Navigation Bar with better notch for FAB */}
+        {/* Navigation Bar with notch for FAB */}
         <nav className="relative bg-white rounded-[28px] px-16 py-6 pointer-events-auto"
              style={{
                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
@@ -142,13 +154,13 @@ const FloatingNavigation = ({
           </div>
         </nav>
 
-        {/* Floating Action Button - positioned higher */}
+        {/* Floating Action Button */}
         <button
           onClick={handleFabClick}
           className={`
-            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-8
+            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-6
             w-18 h-18 rounded-full flex items-center justify-center
-            transition-all duration-300 ease-out z-10
+            transition-all duration-300 ease-out z-10 pointer-events-auto
             ${pressedFab ? 'scale-95' : 'hover:scale-105'}
             ${fabMenuOpen ? 'rotate-45' : ''}
           `}
