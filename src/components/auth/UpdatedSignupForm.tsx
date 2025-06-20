@@ -5,12 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
-interface SignupFormProps {
+interface UpdatedSignupFormProps {
   onSignup: (email: string, password: string, name: string) => Promise<void>;
   isLoading: boolean;
 }
 
-const SignupForm = ({ onSignup, isLoading }: SignupFormProps) => {
+export const UpdatedSignupForm = ({ onSignup, isLoading }: UpdatedSignupFormProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -118,5 +118,3 @@ const SignupForm = ({ onSignup, isLoading }: SignupFormProps) => {
     </form>
   );
 };
-
-export default SignupForm;

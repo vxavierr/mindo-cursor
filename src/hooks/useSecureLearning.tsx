@@ -50,7 +50,6 @@ export const useSecureLearning = () => {
         .from('revisoes')
         .select('*')
         .eq('usuario_id', user.id)
-        .is('deleted_at', null)
         .order('numero_id', { ascending: false });
 
       if (error) {
@@ -212,14 +211,14 @@ export const useSecureLearning = () => {
     }
   };
 
-  // Soft delete
+  // Soft delete (atualizar status para inativo por enquanto)
   const softDeleteEntry = async (entryId: string) => {
     if (!user) return;
 
     try {
       const { error } = await supabase
         .from('revisoes')
-        .update({ deleted_at: new Date().toISOString() })
+        .update({ status: 'inativo' })
         .eq('id', entryId)
         .eq('usuario_id', user.id);
 

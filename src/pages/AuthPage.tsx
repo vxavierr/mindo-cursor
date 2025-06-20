@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import LoginForm from '@/components/auth/LoginForm';
-import SignupForm from '@/components/auth/SignupForm';
+import { UpdatedLoginForm } from '@/components/auth/UpdatedLoginForm';
+import { UpdatedSignupForm } from '@/components/auth/UpdatedSignupForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -86,11 +86,11 @@ const AuthPage = () => {
           </TabsList>
 
           <TabsContent value="login">
-            <LoginForm onLogin={handleLogin} isLoading={isLoading} />
+            <UpdatedLoginForm onLogin={handleLogin} isLoading={isLoading} />
           </TabsContent>
 
           <TabsContent value="signup">
-            <SignupForm onSignup={handleSignup} isLoading={isLoading} />
+            <UpdatedSignupForm onSignup={handleSignup} isLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </Card>
