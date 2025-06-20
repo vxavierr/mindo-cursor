@@ -7,13 +7,20 @@ import { UpdatedSignupForm } from '@/components/auth/UpdatedSignupForm';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { translateAuthError, getAuthErrorType } from '@/utils/authErrors';
 
 const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loginErrorType, setLoginErrorType] = useState<string | null>(null);
+  const [signupError, setSignupError] = useState<string | null>(null);
+  const [signupSuccess, setSignupSuccess] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (email: string, password: string) => {
     setIsLoading(true);
+    setLoginError(null);
+    setLoginErrorType(null);
     
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
@@ -21,9 +28,15 @@ const AuthPage = () => {
     });
 
     if (error) {
+      const translatedError = translateAuthError(error.message);
+      const errorType = getAuthErrorType(error.message);
+      
+      setLoginError(translatedError);
+      setLoginErrorType(errorType);
+      
       toast({
         title: "Erro no login",
-        description: error.message,
+        description: translatedError,
         variant: "destructive"
       });
     } else if (data.user) {
@@ -39,12 +52,14 @@ const AuthPage = () => {
 
   const handleSignup = async (email: string, password: string, name: string) => {
     setIsLoading(true);
+    setSignupError(null);
+    setSignupSuccess(false);
     
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           name: name
         }
@@ -52,12 +67,16 @@ const AuthPage = () => {
     });
 
     if (error) {
+      const translatedError = translateAuthError(error.message);
+      setSignupError(translatedError);
+      
       toast({
         title: "Erro no cadastro",
-        description: error.message,
+        description: translatedError,
         variant: "destructive"
       });
     } else if (data.user) {
+      setSignupSuccess(true);
       toast({
         title: "Conta criada com sucesso!",
         description: "Verifique seu email para confirmar a conta."
@@ -65,6 +84,30 @@ const AuthPage = () => {
     }
     
     setIsLoading(false);
+  };
+
+  const handleResendConfirmation = async (email: string) => {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      }
+    });
+
+    if (error) {
+      const translatedError = translateAuthError(error.message);
+      toast({
+        title: "Erro ao reenviar email",
+        description: translatedError,
+        variant: "destructive"
+      });
+    } else {
+      toast({
+        title: "Email reenviado!",
+        description: "Verifique sua caixa de entrada."
+      });
+    }
   };
 
   return (
@@ -86,11 +129,22 @@ const AuthPage = () => {
           </TabsList>
 
           <TabsContent value="login">
-            <UpdatedLoginForm onLogin={handleLogin} isLoading={isLoading} />
+            <UpdatedLoginForm 
+              onLogin={handleLogin} 
+              onResendConfirmation={handleResendConfirmation}
+              isLoading={isLoading}
+              error={loginError}
+              errorType={loginErrorType}
+            />
           </TabsContent>
 
           <TabsContent value="signup">
-            <UpdatedSignupForm onSignup={handleSignup} isLoading={isLoading} />
+            <UpdatedSignupForm 
+              onSignup={handleSignup} 
+              isLoading={isLoading}
+              error={signupError}
+              success={signupSuccess}
+            />
           </TabsContent>
         </Tabs>
       </Card>

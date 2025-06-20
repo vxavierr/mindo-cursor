@@ -3,14 +3,22 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { User, Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface UpdatedSignupFormProps {
   onSignup: (email: string, password: string, name: string) => Promise<void>;
   isLoading: boolean;
+  error: string | null;
+  success: boolean;
 }
 
-export const UpdatedSignupForm = ({ onSignup, isLoading }: UpdatedSignupFormProps) => {
+export const UpdatedSignupForm = ({ 
+  onSignup, 
+  isLoading, 
+  error, 
+  success 
+}: UpdatedSignupFormProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,8 +37,34 @@ export const UpdatedSignupForm = ({ onSignup, isLoading }: UpdatedSignupFormProp
     }
   };
 
+  if (success) {
+    return (
+      <div className="text-center space-y-4">
+        <CheckCircle className="w-16 h-16 mx-auto text-green-500" />
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-gray-800">
+            Conta criada com sucesso!
+          </h3>
+          <p className="text-sm text-gray-600">
+            Enviamos um email de confirmação para <strong>{email}</strong>
+          </p>
+          <p className="text-xs text-gray-500">
+            Verifique sua caixa de entrada e clique no link para ativar sua conta.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-2">
         <Label htmlFor="name" className="text-gray-700">Nome</Label>
         <div className="relative">

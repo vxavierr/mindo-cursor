@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import AuthGuard from "@/components/auth/AuthGuard";
 import CleanHome from "./pages/CleanHome";
 import AuthPage from "./pages/AuthPage";
+import AuthCallback from "./pages/AuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/" element={
               <AuthGuard>
                 <CleanHome />
