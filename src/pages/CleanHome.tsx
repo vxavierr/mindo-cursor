@@ -19,6 +19,7 @@ const CleanHome = () => {
     todaysEntries,
     loading,
     addLearningEntry,
+    deleteEntry,
     completeReview
   } = useCleanLearning();
 
@@ -37,6 +38,18 @@ const CleanHome = () => {
     
     return daysSinceLastReview >= requiredInterval;
   });
+
+  // Get recent entries (last 7 days)
+  const getRecentEntries = () => {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    return learningEntries.filter(entry => 
+      new Date(entry.createdAt) >= sevenDaysAgo
+    );
+  };
+
+  const recentEntries = getRecentEntries();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFFBEA] via-orange-50 to-yellow-50">
@@ -94,34 +107,6 @@ const CleanHome = () => {
             </p>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/50">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-blue-600 mb-2">
-                  {learningEntries.length}
-                </div>
-                <div className="text-gray-600">Aprendizados</div>
-              </div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/50">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600 mb-2">
-                  {reviewsToday.length}
-                </div>
-                <div className="text-gray-600">Para revisar hoje</div>
-              </div>
-            </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-orange-200/50">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-purple-600 mb-2">
-                  {learningEntries.reduce((sum, entry) => sum + (entry.reviews?.length || 0), 0)}
-                </div>
-                <div className="text-gray-600">Revisões feitas</div>
-              </div>
-            </div>
-          </div>
-
           {/* Add Learning Button */}
           <div className="text-center">
             <Button
@@ -132,11 +117,12 @@ const CleanHome = () => {
             </Button>
           </div>
 
-          {/* Today's Learning */}
+          {/* Recent Learning */}
           <CleanTodaysLearning 
-            entries={learningEntries}
+            entries={recentEntries}
             reviewsToday={reviewsToday}
             onCompleteReview={completeReview}
+            onDeleteEntry={deleteEntry}
             loading={loading}
           />
         </div>

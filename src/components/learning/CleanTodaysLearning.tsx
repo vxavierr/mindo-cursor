@@ -21,10 +21,11 @@ interface CleanTodaysLearningProps {
   entries: LearningEntry[];
   reviewsToday: LearningEntry[];
   onCompleteReview: (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => Promise<void>;
+  onDeleteEntry: (entryId: string) => Promise<void>;
   loading: boolean;
 }
 
-const CleanTodaysLearning = ({ entries, reviewsToday, onCompleteReview, loading }: CleanTodaysLearningProps) => {
+const CleanTodaysLearning = ({ entries, reviewsToday, onCompleteReview, onDeleteEntry, loading }: CleanTodaysLearningProps) => {
   const formatId = (numeroId: number) => {
     return String(numeroId).padStart(4, '0');
   };
@@ -58,7 +59,7 @@ const CleanTodaysLearning = ({ entries, reviewsToday, onCompleteReview, loading 
           <Clock className="w-6 h-6 text-gray-300 dark:text-gray-600" />
         </div>
         <h3 className="text-lg font-light text-gray-600 dark:text-gray-400 mb-2">
-          Nenhum aprendizado hoje
+          Nenhum aprendizado recente
         </h3>
         <p className="text-sm text-gray-400 dark:text-gray-500">
           Registre algo novo que você aprendeu
@@ -86,12 +87,43 @@ const CleanTodaysLearning = ({ entries, reviewsToday, onCompleteReview, loading 
                   <span className="text-orange-600">Step {entry.step}</span>
                 </div>
                 
-                <Button
-                  onClick={() => onCompleteReview(entry.id, 'medium', [], [])}
-                  className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2"
-                >
-                  Revisar
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    onClick={() => onCompleteReview(entry.id, 'medium', [], [])}
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2"
+                  >
+                    Revisar
+                  </Button>
+                  
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir aprendizado</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Tem certeza que deseja excluir este aprendizado? Esta ação não pode ser desfeita.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={() => onDeleteEntry(entry.id)}
+                          className="bg-red-500 hover:bg-red-600"
+                        >
+                          Excluir
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </div>
               
               {entry.title && (
@@ -119,10 +151,10 @@ const CleanTodaysLearning = ({ entries, reviewsToday, onCompleteReview, loading 
         </div>
       )}
 
-      {/* Seção de Todos os Aprendizados */}
+      {/* Seção de Aprendizados Recentes */}
       <div className="space-y-3">
         <h3 className="text-xl font-semibold text-gray-800 mb-4">
-          🧠 Todos os aprendizados ({entries.length})
+          🧠 Aprendizados recentes ({entries.length})
         </h3>
         {entries.map((entry) => (
           <Card key={entry.id} className="p-5 border-0 bg-gray-50/50 hover:bg-gray-50 transition-all duration-200 group">
@@ -134,6 +166,35 @@ const CleanTodaysLearning = ({ entries, reviewsToday, onCompleteReview, loading 
                 <span>•</span>
                 <span>Step {entry.step}</span>
               </div>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir aprendizado</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja excluir este aprendizado? Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => onDeleteEntry(entry.id)}
+                      className="bg-red-500 hover:bg-red-600"
+                    >
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
             
             {entry.title && (
