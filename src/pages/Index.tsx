@@ -26,7 +26,7 @@ const Index = () => {
   const [filters, setFilters] = useState({
     query: '',
     tags: [] as string[],
-    step: '',
+    step: 'all',
     dateRange: undefined as DateRange | undefined,
     sortBy: 'newest' as 'newest' | 'oldest' | 'step' | 'reviews' | 'id'
   });
@@ -98,7 +98,7 @@ const Index = () => {
     }
 
     // Filtro por step
-    if (filters.step && entry.step !== parseInt(filters.step)) {
+    if (filters.step && filters.step !== 'all' && entry.step !== parseInt(filters.step)) {
       return false;
     }
 

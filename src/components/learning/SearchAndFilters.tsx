@@ -43,13 +43,13 @@ const SearchAndFilters = ({
     onFiltersChange({
       query: '',
       tags: [],
-      step: '',
+      step: 'all',
       dateRange: undefined,
       sortBy: 'newest'
     });
   };
 
-  const hasActiveFilters = filters.query || filters.tags.length > 0 || filters.step || 
+  const hasActiveFilters = filters.query || filters.tags.length > 0 || filters.step !== 'all' || 
                           filters.dateRange || filters.sortBy !== 'newest';
 
   return (
@@ -130,7 +130,7 @@ const SearchAndFilters = ({
                   <SelectValue placeholder="Todos os níveis" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os níveis</SelectItem>
+                  <SelectItem value="all">Todos os níveis</SelectItem>
                   <SelectItem value="0">Novo (0)</SelectItem>
                   <SelectItem value="1">1 dia</SelectItem>
                   <SelectItem value="2">3 dias</SelectItem>
