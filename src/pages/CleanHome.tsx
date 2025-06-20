@@ -5,7 +5,7 @@ import { Settings, User, LogOut } from 'lucide-react';
 import CleanTodaysLearning from '@/components/learning/CleanTodaysLearning';
 import CleanAddLearningModal from '@/components/learning/CleanAddLearningModal';
 import SettingsPanel from '@/components/settings/SettingsPanel';
-import { useSecureLearning } from '@/hooks/useSecureLearning';
+import { useCleanLearning } from '@/hooks/useCleanLearning';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 
@@ -16,15 +16,27 @@ const CleanHome = () => {
   const { profile } = useUserProfile();
   const { 
     learningEntries, 
-    reviewsToday,
+    todaysEntries,
     loading,
     addLearningEntry,
     completeReview
-  } = useSecureLearning();
+  } = useCleanLearning();
 
   const handleLogout = async () => {
     await signOut();
   };
+
+  // Filter today's entries that need review based on spaced repetition logic
+  const reviewsToday = learningEntries.filter(entry => {
+    if (!entry.reviews || entry.reviews.length === 0) return true;
+    
+    const lastReview = entry.reviews[entry.reviews.length - 1];
+    const daysSinceLastReview = Math.floor((Date.now() - new Date(lastReview.date).getTime()) / (1000 * 60 * 60 * 24));
+    const intervals = [1, 3, 7, 14, 30, 60];
+    const requiredInterval = intervals[Math.min(entry.step, intervals.length - 1)];
+    
+    return daysSinceLastReview >= requiredInterval;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFFBEA] via-orange-50 to-yellow-50">
@@ -134,7 +146,7 @@ const CleanHome = () => {
       <CleanAddLearningModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSubmit={addLearningEntry}
+        onAdd={addLearningEntry}
       />
 
       <SettingsPanel
