@@ -52,7 +52,7 @@ serve(async (req) => {
         body: JSON.stringify({
           contents: [{
             parts: [
-              { text: "Transcreva este áudio para texto em português. Retorne apenas o texto transcrito, sem formatação extra:" },
+              { text: "Transcreva este áudio para texto em português. Retorne APENAS o texto transcrito, sem formatação, explicações ou pontuação extra:" },
               {
                 inline_data: {
                   mime_type: "audio/webm",
@@ -63,7 +63,7 @@ serve(async (req) => {
           }],
           generationConfig: {
             temperature: 0.1,
-            maxOutputTokens: 1000,
+            maxOutputTokens: 500,
           }
         }),
       }

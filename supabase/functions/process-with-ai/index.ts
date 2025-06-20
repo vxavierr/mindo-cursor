@@ -45,27 +45,21 @@ serve(async (req) => {
     
     switch (action) {
       case 'improve':
-        prompt = `Melhore este texto mantendo o significado original, mas tornando-o mais claro, coeso e bem estruturado. Mantenha em português e preserve o estilo pessoal do autor:
+        prompt = `Melhore este texto mantendo o significado original, mas tornando-o mais claro, coeso e bem estruturado. Retorne APENAS o texto melhorado, sem explicações, opções ou formatação extra:
 
-${text}
-
-Texto melhorado:`;
+${text}`;
         break;
         
       case 'generate_tags':
-        prompt = `Gere até 5 tags relevantes e concisas para este aprendizado em português. Retorne apenas as tags separadas por vírgula, sem numeração ou formatação extra:
+        prompt = `Gere até 5 tags relevantes e concisas para este aprendizado em português. Retorne APENAS as tags separadas por vírgula, sem numeração, explicações ou formatação extra:
 
-${text}
-
-Tags:`;
+${text}`;
         break;
         
       case 'generate_title':
-        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 60 caracteres, sem aspas:
+        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 60 caracteres. Retorne APENAS o título, sem aspas, explicações ou formatação extra:
 
-${text}
-
-Título:`;
+${text}`;
         break;
         
       default:
@@ -93,8 +87,8 @@ Título:`;
             parts: [{ text: prompt }]
           }],
           generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 1000,
+            temperature: 0.3,
+            maxOutputTokens: 200,
           }
         }),
       }
