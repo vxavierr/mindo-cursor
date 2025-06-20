@@ -14,10 +14,30 @@ interface LearningEntry {
   reviews: Array<{ date: string; questions?: string[]; answers?: string[]; step?: number }>;
 }
 
+interface Review {
+  date: string;
+  questions?: string[];
+  answers?: string[];
+  step?: number;
+}
+
 export const useSupabaseLearning = () => {
   const [learningEntries, setLearningEntries] = useState<LearningEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // Helper function to safely convert Json to Review array
+  const convertJsonToReviews = (jsonData: any): Review[] => {
+    if (!jsonData) return [];
+    if (!Array.isArray(jsonData)) return [];
+    
+    return jsonData.map((item: any) => ({
+      date: item?.date || new Date().toISOString(),
+      questions: Array.isArray(item?.questions) ? item.questions : [],
+      answers: Array.isArray(item?.answers) ? item.answers : [],
+      step: typeof item?.step === 'number' ? item.step : 0
+    }));
+  };
 
   // Carregar entradas do Supabase
   const loadEntries = async () => {
@@ -47,11 +67,11 @@ export const useSupabaseLearning = () => {
         id: item.id,
         content: item.conteudo,
         context: item.contexto || '',
-        tags: item.tags || [],
+        tags: Array.isArray(item.tags) ? item.tags : [],
         createdAt: item.data_criacao || new Date().toISOString(),
         step: item.step || 0,
         completed: item.completed || false,
-        reviews: Array.isArray(item.revisoes) ? item.revisoes : []
+        reviews: convertJsonToReviews(item.revisoes)
       })) || [];
 
       setLearningEntries(entries);
@@ -117,11 +137,11 @@ export const useSupabaseLearning = () => {
         id: data.id,
         content: data.conteudo,
         context: data.contexto || '',
-        tags: data.tags || [],
+        tags: Array.isArray(data.tags) ? data.tags : [],
         createdAt: data.data_criacao || new Date().toISOString(),
         step: data.step || 0,
         completed: data.completed || false,
-        reviews: Array.isArray(data.revisoes) ? data.revisoes : []
+        reviews: convertJsonToReviews(data.revisoes)
       };
 
       setLearningEntries(prev => [convertedEntry, ...prev]);
@@ -146,7 +166,7 @@ export const useSupabaseLearning = () => {
       if (!entry) return;
 
       const newStep = Math.min((entry.step || 0) + 1, 5);
-      const newReview = {
+      const newReview: Review = {
         date: new Date().toISOString(),
         questions: questions || [],
         answers: answers || [],
