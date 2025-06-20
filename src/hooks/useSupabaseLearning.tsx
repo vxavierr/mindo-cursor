@@ -5,6 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface LearningEntry {
   id: string;
+  numeroId: number;
   content: string;
   context?: string;
   tags: string[];
@@ -44,7 +45,7 @@ export const useSupabaseLearning = () => {
       const { data, error } = await supabase
         .from('revisoes')
         .select('*')
-        .order('data_criacao', { ascending: false });
+        .order('numero_id', { ascending: false });
 
       if (error) {
         console.error('Erro ao carregar entradas:', error);
@@ -59,6 +60,7 @@ export const useSupabaseLearning = () => {
       // Converter dados do Supabase para o formato esperado
       const entries: LearningEntry[] = data?.map(item => ({
         id: item.id,
+        numeroId: item.numero_id,
         content: item.conteudo,
         context: item.contexto || '',
         tags: Array.isArray(item.tags) ? item.tags : [],
@@ -113,6 +115,7 @@ export const useSupabaseLearning = () => {
       // Converter e adicionar à lista
       const convertedEntry: LearningEntry = {
         id: data.id,
+        numeroId: data.numero_id,
         content: data.conteudo,
         context: data.contexto || '',
         tags: Array.isArray(data.tags) ? data.tags : [],
@@ -124,7 +127,7 @@ export const useSupabaseLearning = () => {
       setLearningEntries(prev => [convertedEntry, ...prev]);
       toast({
         title: "Aprendizado salvo!",
-        description: "Seu aprendizado foi salvo com sucesso."
+        description: `Aprendizado #${String(data.numero_id).padStart(4, '0')} foi salvo com sucesso.`
       });
     } catch (error) {
       console.error('Erro inesperado ao adicionar entrada:', error);
@@ -182,7 +185,7 @@ export const useSupabaseLearning = () => {
 
       toast({
         title: "Revisão concluída!",
-        description: `Aprendizado atualizado com sucesso.`
+        description: `Aprendizado #${String(entry.numeroId).padStart(4, '0')} atualizado com sucesso.`
       });
     } catch (error) {
       console.error('Erro inesperado ao completar revisão:', error);

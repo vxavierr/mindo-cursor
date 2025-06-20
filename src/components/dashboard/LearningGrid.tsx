@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 
 interface LearningEntry {
   id: string;
+  numeroId: number;
   content: string;
   context?: string;
   tags: string[];
@@ -20,9 +21,7 @@ interface LearningGridProps {
 
 const LearningGrid = ({ entries }: LearningGridProps) => {
   const sortedEntries = useMemo(() => {
-    return [...entries].sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    return [...entries].sort((a, b) => b.numeroId - a.numeroId);
   }, [entries]);
 
   const getStepColor = (step: number) => {
@@ -41,6 +40,10 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
   const getStepLabel = (step: number) => {
     const labels = ['Novo', '1 dia', '3 dias', '1 semana', '2 semanas', '1 mês', '2 meses'];
     return labels[Math.min(step, labels.length - 1)];
+  };
+
+  const formatId = (numeroId: number) => {
+    return String(numeroId).padStart(4, '0');
   };
 
   if (entries.length === 0) {
@@ -71,7 +74,7 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
                 <span className="text-sm font-mono text-gray-400 dark:text-gray-500">
-                  #{entry.id}
+                  #{formatId(entry.numeroId)}
                 </span>
                 <Badge className={`${getStepColor(entry.step)} border-0`}>
                   {getStepLabel(entry.step)}

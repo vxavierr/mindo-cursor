@@ -17,7 +17,7 @@ interface SearchFilters {
   tags: string[];
   step: string;
   dateRange: DateRange | undefined;
-  sortBy: 'newest' | 'oldest' | 'step' | 'reviews';
+  sortBy: 'newest' | 'oldest' | 'step' | 'reviews' | 'id';
 }
 
 interface SearchAndFiltersProps {
@@ -59,7 +59,7 @@ const SearchAndFilters = ({
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="Buscar aprendizados..."
+            placeholder="Buscar aprendizados... (use #0001 para buscar por ID)"
             value={filters.query}
             onChange={(e) => updateFilters({ query: e.target.value })}
             className="pl-10"
@@ -191,6 +191,7 @@ const SearchAndFilters = ({
                 <SelectContent>
                   <SelectItem value="newest">Mais recente</SelectItem>
                   <SelectItem value="oldest">Mais antigo</SelectItem>
+                  <SelectItem value="id">Número ID</SelectItem>
                   <SelectItem value="step">Nível de revisão</SelectItem>
                   <SelectItem value="reviews">Mais revisado</SelectItem>
                 </SelectContent>

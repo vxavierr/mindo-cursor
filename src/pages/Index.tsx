@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Plus, Calendar, Settings, Moon, Sun, BarChart3 } from 'lucide-react';
@@ -27,7 +28,7 @@ const Index = () => {
     tags: [] as string[],
     step: '',
     dateRange: undefined as DateRange | undefined,
-    sortBy: 'newest' as 'newest' | 'oldest' | 'step' | 'reviews'
+    sortBy: 'newest' as 'newest' | 'oldest' | 'step' | 'reviews' | 'id'
   });
 
   const {
@@ -60,11 +61,28 @@ const Index = () => {
     }))
   ).map(item => learningEntries.find(e => e.id === item.id)!).filter(Boolean);
 
+  // Função para buscar por ID no formato #XXXX
+  const searchByIdPattern = (query: string, entry: any) => {
+    const idMatch = query.match(/#(\d{1,4})/);
+    if (idMatch) {
+      const searchId = parseInt(idMatch[1]);
+      return entry.numeroId === searchId;
+    }
+    return false;
+  };
+
   // Filtrar e ordenar entradas
   const filteredEntries = learningEntries.filter(entry => {
     // Filtro por query
     if (filters.query) {
       const query = filters.query.toLowerCase();
+      
+      // Busca por ID no formato #XXXX
+      if (searchByIdPattern(filters.query, entry)) {
+        return true;
+      }
+      
+      // Busca normal no conteúdo, contexto e tags
       if (!entry.content.toLowerCase().includes(query) &&
           !entry.context?.toLowerCase().includes(query) &&
           !entry.tags.some(tag => tag.toLowerCase().includes(query))) {
@@ -96,6 +114,8 @@ const Index = () => {
     switch (filters.sortBy) {
       case 'oldest':
         return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case 'id':
+        return b.numeroId - a.numeroId;
       case 'step':
         return b.step - a.step;
       case 'reviews':

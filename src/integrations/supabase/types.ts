@@ -16,6 +16,7 @@ export type Database = {
           data_criacao: string
           data_ultima_revisao: string
           id: string
+          numero_id: number
           revisoes: Json
           step: number
           tags: string[]
@@ -27,6 +28,7 @@ export type Database = {
           data_criacao?: string
           data_ultima_revisao?: string
           id?: string
+          numero_id?: number
           revisoes?: Json
           step?: number
           tags?: string[]
@@ -38,6 +40,7 @@ export type Database = {
           data_criacao?: string
           data_ultima_revisao?: string
           id?: string
+          numero_id?: number
           revisoes?: Json
           step?: number
           tags?: string[]
