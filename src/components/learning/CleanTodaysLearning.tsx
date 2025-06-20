@@ -1,126 +1,107 @@
 
-import { Card } from '@/components/ui/card';
+import React from 'react';
+import { Trash2, Hash, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Trash2, Clock, Tag } from 'lucide-react';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-
-interface LearningEntry {
-  id: string;
-  numeroId: number;
-  title: string;
-  content: string;
-  context?: string;
-  tags: string[];
-  createdAt: string;
-  step: number;
-  reviews: Array<{ date: string }>;
-}
+import { LearningEntry } from '@/hooks/useCleanLearning';
 
 interface CleanTodaysLearningProps {
   entries: LearningEntry[];
-  onDelete: (entryId: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) => {
-  const formatId = (numeroId: number) => {
-    return String(numeroId).padStart(4, '0');
-  };
-
-  // Mostrar apenas dia/mês
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit'
-    });
-  };
-
   if (entries.length === 0) {
     return (
-      <div className="text-center py-16 px-4">
-        <div className="w-12 h-12 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-          <Clock className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+      <div className="text-center py-16">
+        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Calendar className="w-8 h-8 text-gray-400" strokeWidth={1.5} />
         </div>
-        <h3 className="text-lg font-light text-gray-600 dark:text-gray-400 mb-2">
-          Nenhum aprendizado hoje
-        </h3>
-        <p className="text-sm text-gray-400 dark:text-gray-500">
-          Registre algo novo que você aprendeu
-        </p>
+        <p className="text-lg text-gray-600 font-medium mb-2">Nenhum aprendizado hoje</p>
+        <p className="text-gray-500">Registre seu primeiro aprendizado do dia</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-3">
-      {entries.map((entry) => (
-        <Card key={entry.id} className="p-5 border-0 bg-gray-50/50 dark:bg-gray-900/50 hover:bg-gray-50 dark:hover:bg-gray-900/80 transition-all duration-200 group">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center space-x-2 text-xs text-gray-400 dark:text-gray-500">
-              <span className="font-mono">#{formatId(entry.numeroId)}</span>
-              <span>•</span>
-              <span>{formatDate(entry.createdAt)}</span>
+    <div className="space-y-6">
+      <h3 className="text-xl font-semibold text-gray-900 mb-6">Aprendizados de hoje</h3>
+      
+      <div className="space-y-4">
+        {entries.map((entry) => (
+          <div 
+            key={entry.id} 
+            className="bg-white rounded-3xl p-6 border border-gray-100 hover:border-gray-200 transition-all duration-200"
+            style={{ boxShadow: '0 4px 16px rgba(0, 0, 0, 0.06)' }}
+          >
+            {/* Header com ID e ações */}
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1.5 text-gray-600">
+                  <Hash className="w-4 h-4" strokeWidth={2} />
+                  <span className="text-sm font-mono font-medium">{entry.id}</span>
+                </div>
+                <span className="text-sm text-gray-500 font-medium">
+                  {new Date(entry.created_at).toLocaleDateString('pt-BR', { 
+                    day: '2-digit', 
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
+              </div>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDelete(entry.id)}
+                className="text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors duration-200 h-8 w-8 p-0"
+              >
+                <Trash2 className="w-4 h-4" strokeWidth={2} />
+              </Button>
             </div>
-            
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 h-8 w-8 p-0"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Mover para lixeira?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Este aprendizado será movido para a lixeira, mas você poderá restaurá-lo a qualquer momento.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={() => onDelete(entry.id)}
-                    className="bg-red-500 hover:bg-red-600"
-                  >
-                    Mover para lixeira
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-          
-          {entry.title && (
-            <h3 className="font-medium text-gray-900 dark:text-white mb-3 leading-relaxed">
-              {entry.title}
-            </h3>
-          )}
-          
-          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4 text-[15px]">
-            {entry.content}
-          </p>
-          
-          {entry.context && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 italic border-l-2 border-gray-200 dark:border-gray-700 pl-3">
-              {entry.context}
+
+            {/* Título */}
+            {entry.title && (
+              <h4 className="text-lg font-semibold text-gray-900 mb-3 leading-relaxed">
+                {entry.title}
+              </h4>
+            )}
+
+            {/* Conteúdo */}
+            <p className="text-gray-700 leading-relaxed mb-4 text-base">
+              {entry.content}
             </p>
-          )}
-          
-          {entry.tags.length > 0 && (
-            <div className="flex items-center flex-wrap gap-2">
-              <Tag className="w-3 h-3 text-gray-400" />
-              {entry.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-xs border-gray-200 dark:border-gray-600 text-gray-500 dark:text-gray-400 bg-transparent">
-                  {tag}
-                </Badge>
-              ))}
+
+            {/* Tags */}
+            {entry.tags && entry.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {entry.tags.map((tag, index) => (
+                  <span 
+                    key={index}
+                    className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Info da revisão espaçada */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600 font-medium">
+                  Próxima revisão: {entry.next_review_date ? 
+                    new Date(entry.next_review_date).toLocaleDateString('pt-BR') : 
+                    'Não agendada'}
+                </span>
+                <span className="text-gray-500 font-medium">
+                  Intervalo: {entry.interval_days} dias
+                </span>
+              </div>
             </div>
-          )}
-        </Card>
-      ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

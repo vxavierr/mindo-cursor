@@ -19,7 +19,7 @@ const NavigationLayout = ({
 }: NavigationLayoutProps) => {
   return (
     <div 
-      className="min-h-screen pb-28"
+      className="min-h-screen pb-32"
       style={{ backgroundColor: '#E8EBF0' }}
     >
       {/* Main Content Area */}

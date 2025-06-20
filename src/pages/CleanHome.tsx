@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Moon, Sun } from 'lucide-react';
@@ -84,10 +85,10 @@ const CleanHome = () => {
       <NavigationLayout activeNavItem="home">
         <div className="flex items-center justify-center h-screen">
           <div className="text-center space-y-4">
-            <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center animate-pulse">
-              <Brain className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-gray-900 rounded-full flex items-center justify-center animate-pulse">
+              <Brain className="w-6 h-6 text-white" />
             </div>
-            <p className="text-gray-500 font-light">Carregando...</p>
+            <p className="text-gray-700 font-medium text-lg">Carregando...</p>
           </div>
         </div>
       </NavigationLayout>
@@ -102,21 +103,21 @@ const CleanHome = () => {
       onReview={handleReview}
     >
       {/* Header */}
-      <header className="px-6 py-6 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-gray-100">
+      <header className="px-6 py-6 flex justify-between items-center bg-white/90 backdrop-blur-sm border-b border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-7 h-7 bg-gray-900 rounded-full flex items-center justify-center">
-            <Brain className="w-4 h-4 text-white" />
+          <div className="w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center">
+            <Brain className="w-5 h-5 text-white" />
           </div>
-          <h1 className="text-lg font-light text-gray-900">SpaceLearn</h1>
+          <h1 className="text-xl font-semibold text-gray-900">SpaceLearn</h1>
         </div>
         
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-2">
           {permission !== 'granted' && (
             <Button
               variant="ghost"
               size="sm"
               onClick={requestPermission}
-              className="text-gray-500 hover:bg-gray-50 text-xs px-3 h-8"
+              className="text-gray-600 hover:bg-gray-100 text-sm px-4 h-9 font-medium"
             >
               🔔 Notificações
             </Button>
@@ -126,20 +127,20 @@ const CleanHome = () => {
             variant="ghost"
             size="sm"
             onClick={toggleTheme}
-            className="w-8 h-8 p-0 text-gray-500 hover:bg-gray-50"
+            className="w-9 h-9 p-0 text-gray-600 hover:bg-gray-100"
           >
-            {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-6">
         {/* Hero Section */}
         <div className="py-16 text-center">
-          <h2 className="text-3xl font-light text-gray-900 mb-3">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
             O que você aprendeu hoje?
           </h2>
-          <p className="text-gray-500 mb-12 font-light">
+          <p className="text-lg text-gray-600 mb-12 font-medium">
             Registre e organize seus aprendizados
           </p>
 
@@ -148,8 +149,8 @@ const CleanHome = () => {
             <div className="mb-12">
               <Button
                 onClick={() => setShowReviewModal(true)}
-                className="bg-white hover:bg-gray-50 text-red-600 border border-red-200 rounded-full px-6 py-2 text-sm font-medium"
-                style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)' }}
+                className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-8 py-3 text-base font-semibold transition-all duration-200"
+                style={{ boxShadow: '0 6px 20px rgba(239, 68, 68, 0.15)' }}
               >
                 {reviewsToday.length} revisão{reviewsToday.length > 1 ? 'ões' : ''} pendente{reviewsToday.length > 1 ? 's' : ''}
               </Button>
@@ -158,7 +159,7 @@ const CleanHome = () => {
         </div>
 
         {/* Today's Learning Entries */}
-        <div className="pb-16">
+        <div className="pb-20">
           <CleanTodaysLearning 
             entries={todaysEntries}
             onDelete={deleteEntry}
