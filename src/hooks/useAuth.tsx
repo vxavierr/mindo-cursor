@@ -2,6 +2,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { createUserProfileIfNotExists } from '@/utils/createUserProfile';
 
 interface AuthContextType {
   user: User | null;
@@ -20,10 +21,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Create profile if user just signed in and doesn't have one
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(()=> {
+            createUserProfileIfNotExists();
+          }, 0);
+        }
       }
     );
 
@@ -32,6 +40,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Create profile for existing session
+      if (session?.user) {
+        setTimeout(() => {
+          createUserProfileIfNotExists();
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
