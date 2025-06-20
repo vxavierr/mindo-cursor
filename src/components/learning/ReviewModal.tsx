@@ -1,31 +1,40 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, ArrowRight, ArrowLeft, Calendar, Tag, Brain } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft, Calendar, Tag, Brain, Clock } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-interface Review {
+interface LearningEntry {
   id: string;
+  numeroId: number;
+  title: string;
   content: string;
   context?: string;
   tags: string[];
   createdAt: string;
   step: number;
+  reviews: Array<{ 
+    date: string; 
+    questions?: string[]; 
+    answers?: string[]; 
+    step?: number;
+    difficulty?: 'easy' | 'medium' | 'hard';
+  }>;
 }
 
 interface ReviewModalProps {
   isOpen: boolean;
   onClose: () => void;
-  reviews: Review[];
-  onComplete: (entryId: string, questions: string[], answers: string[]) => void;
+  reviews: LearningEntry[];
+  onCompleteReview: (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => void;
 }
 
-const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps) => {
+const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showQuestions, setShowQuestions] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
@@ -35,23 +44,28 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
 
   const currentReview = reviews[currentIndex];
 
-  const generateQuestions = (content: string) => {
-    // Simple AI-like question generation based on content
-    const questionTemplates = [
-      `Qual o conceito principal que você aprendeu sobre: "${content.substring(0, 50)}..."?`,
-      `Como você aplicaria este conhecimento na prática?`,
-      `Quais são os pontos mais importantes deste aprendizado?`
+  const formatId = (numeroId: number) => {
+    return String(numeroId).padStart(4, '0');
+  };
+
+  const generateQuestions = (content: string, title?: string) => {
+    const baseQuestions = [
+      `Explique com suas palavras: ${content.length > 80 ? content.substring(0, 80) + '...' : content}`,
+      `Qual a aplicação prática deste conhecimento?`,
+      `Quais são os pontos-chave que você deve lembrar?`
     ];
-    
-    // Generate 1-3 questions based on content length
-    const numQuestions = content.length > 100 ? 3 : content.length > 50 ? 2 : 1;
-    return questionTemplates.slice(0, numQuestions);
+
+    if (title) {
+      baseQuestions.unshift(`Explique o conceito: ${title}`);
+    }
+
+    return baseQuestions.slice(0, content.length > 100 ? 3 : 2);
   };
 
   const startReview = () => {
     if (!currentReview) return;
     
-    const generatedQuestions = generateQuestions(currentReview.content);
+    const generatedQuestions = generateQuestions(currentReview.content, currentReview.title);
     setQuestions(generatedQuestions);
     setAnswers(new Array(generatedQuestions.length).fill(''));
     setQuestionIndex(0);
@@ -68,7 +82,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
       setQuestionIndex(questionIndex + 1);
       setCurrentAnswer(answers[questionIndex + 1] || '');
     } else {
-      completeCurrentReview(updatedAnswers);
+      completeReview(updatedAnswers, 'medium');
     }
   };
 
@@ -83,22 +97,21 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
     }
   };
 
-  const completeCurrentReview = (finalAnswers: string[]) => {
-    onComplete(currentReview.id, questions, finalAnswers);
+  const completeReview = (finalAnswers: string[], difficulty: 'easy' | 'medium' | 'hard') => {
+    onCompleteReview(currentReview.id, difficulty, questions, finalAnswers);
     
     toast({
       title: "Revisão concluída!",
-      description: `Aprendizado #${currentReview.id} revisado com sucesso.`
+      description: `Aprendizado #${formatId(currentReview.numeroId)} revisado com sucesso.`
     });
 
-    // Move to next review or close
     if (currentIndex < reviews.length - 1) {
       setCurrentIndex(currentIndex + 1);
       resetReviewState();
     } else {
       toast({
         title: "Parabéns! 🎉",
-        description: "Todas as revisões do dia foram concluídas!"
+        description: "Todas as revisões foram concluídas!"
       });
       onClose();
       resetModalState();
@@ -128,6 +141,12 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
     }
   };
 
+  const getDaysFromCreation = (createdAt: string) => {
+    const created = new Date(createdAt);
+    const now = new Date();
+    return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+  };
+
   if (!isOpen) return null;
 
   if (reviews.length === 0) {
@@ -145,7 +164,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
               Você não tem revisões pendentes hoje.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500">
-              Continue aprendendo e volte amanhã para suas próximas revisões!
+              Continue aprendendo e volte depois para suas próximas revisões!
             </p>
           </div>
           <Button onClick={onClose} className="w-full">
@@ -166,31 +185,45 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
               Revisão {currentIndex + 1} de {reviews.length}
             </div>
             <Badge variant="outline">
-              #{currentReview?.id}
+              #{formatId(currentReview?.numeroId)}
             </Badge>
           </DialogTitle>
         </DialogHeader>
 
         {!showQuestions ? (
-          // Review content display
           <div className="space-y-6">
             <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-0">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     <Calendar className="w-4 h-4" />
-                    {new Date(currentReview.createdAt).toLocaleDateString('pt-BR')}
+                    {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: '2-digit'
+                    })}
+                    • {getDaysFromCreation(currentReview.createdAt)} dias atrás
                   </div>
-                  <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                    Step {currentReview.step + 1}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-yellow-600" />
+                    <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                      Step {currentReview.step + 1}
+                    </Badge>
+                  </div>
                 </div>
                 
+                {currentReview.title && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      {currentReview.title}
+                    </h3>
+                  </div>
+                )}
+                
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                  <h4 className="text-md font-medium text-gray-800 dark:text-gray-200 mb-2">
                     Conteúdo para revisar:
-                  </h3>
-                  <p className="text-gray-800 dark:text-gray-200 text-lg leading-relaxed">
+                  </h4>
+                  <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
                     {currentReview.content}
                   </p>
                 </div>
@@ -223,7 +256,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
               
               <div className="flex justify-center gap-3">
                 <Button variant="outline" onClick={skipReview}>
-                  Pular
+                  Pular Esta
                 </Button>
                 <Button 
                   onClick={startReview}
@@ -236,7 +269,6 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
             </div>
           </div>
         ) : (
-          // Questions display
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">
@@ -267,7 +299,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
               />
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <Button 
                 variant="outline" 
                 onClick={prevQuestion}
@@ -276,14 +308,43 @@ const ReviewModal = ({ isOpen, onClose, reviews, onComplete }: ReviewModalProps)
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Anterior
               </Button>
-              
-              <Button 
-                onClick={nextQuestion}
-                className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white"
-              >
-                {questionIndex === questions.length - 1 ? 'Concluir' : 'Próxima'}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+
+              <div className="flex gap-2">
+                {questionIndex === questions.length - 1 && (
+                  <>
+                    <Button 
+                      onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
+                      variant="outline"
+                      className="border-red-200 text-red-600 hover:bg-red-50"
+                    >
+                      Difícil
+                    </Button>
+                    <Button 
+                      onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
+                      variant="outline"
+                      className="border-yellow-200 text-yellow-600 hover:bg-yellow-50"
+                    >
+                      Médio
+                    </Button>
+                    <Button 
+                      onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
+                      className="bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      Fácil
+                    </Button>
+                  </>
+                )}
+                
+                {questionIndex < questions.length - 1 && (
+                  <Button 
+                    onClick={nextQuestion}
+                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white"
+                  >
+                    Próxima
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -7,18 +7,47 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Process base64 in chunks to prevent memory issues
+function processBase64Chunks(base64String: string, chunkSize = 32768) {
+  const chunks: Uint8Array[] = [];
+  let position = 0;
+  
+  while (position < base64String.length) {
+    const chunk = base64String.slice(position, position + chunkSize);
+    const binaryChunk = atob(chunk);
+    const bytes = new Uint8Array(binaryChunk.length);
+    
+    for (let i = 0; i < binaryChunk.length; i++) {
+      bytes[i] = binaryChunk.charCodeAt(i);
+    }
+    
+    chunks.push(bytes);
+    position += chunkSize;
+  }
+
+  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+
+  return result;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
 
   try {
-    const { text, action } = await req.json();
+    const { audio } = await req.json();
     const googleApiKey = Deno.env.get('GOOGLE_AI_API');
-
+    
     if (!googleApiKey) {
-      console.error('GOOGLE_AI_API key not found in environment');
+      console.error('GOOGLE_AI_API key not found');
       return new Response(
         JSON.stringify({ error: 'Google AI API key not configured' }),
         { 
@@ -28,54 +57,19 @@ serve(async (req) => {
       );
     }
 
-    let prompt = '';
-    
-    switch (action) {
-      case 'improve':
-        prompt = `Melhore este texto mantendo o significado original, mas tornando-o mais claro e bem estruturado. Mantenha em português:
-
-${text}
-
-Texto melhorado:`;
-        break;
-        
-      case 'generate_tags':
-        prompt = `Gere 3-5 tags relevantes para este aprendizado em português. Retorne apenas as tags separadas por vírgula:
-
-${text}
-
-Tags:`;
-        break;
-        
-      case 'generate_title':
-        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 60 caracteres:
-
-${text}
-
-Título:`;
-        break;
-        
-      case 'transcribe':
-        return new Response(
-          JSON.stringify({ error: 'Transcription should be handled by audio endpoint' }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-        
-      default:
-        return new Response(
-          JSON.stringify({ error: 'Invalid action' }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
+    if (!audio) {
+      return new Response(
+        JSON.stringify({ error: 'No audio data provided' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
-    console.log('Sending request to Gemini API with prompt:', prompt.substring(0, 100) + '...');
+    console.log('Processing audio transcription...');
 
+    // Use Gemini API for audio transcription
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
       {
@@ -85,10 +79,18 @@ Título:`;
         },
         body: JSON.stringify({
           contents: [{
-            parts: [{ text: prompt }]
+            parts: [
+              { text: "Transcreva este áudio para texto em português. Retorne apenas o texto transcrito:" },
+              {
+                inline_data: {
+                  mime_type: "audio/webm",
+                  data: audio
+                }
+              }
+            ]
           }],
           generationConfig: {
-            temperature: 0.7,
+            temperature: 0.1,
             maxOutputTokens: 1000,
           }
         }),
@@ -96,8 +98,9 @@ Título:`;
     );
 
     if (!response.ok) {
+      console.error('Gemini API error:', response.status);
       const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
+      console.error('Error details:', errorText);
       return new Response(
         JSON.stringify({ error: `Gemini API error: ${response.status}` }),
         { 
@@ -108,7 +111,7 @@ Título:`;
     }
 
     const data = await response.json();
-    console.log('Gemini API response:', JSON.stringify(data, null, 2));
+    console.log('Gemini transcription response:', JSON.stringify(data, null, 2));
 
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
       console.error('Unexpected Gemini API response structure:', data);
@@ -121,16 +124,16 @@ Título:`;
       );
     }
 
-    const result = data.candidates[0].content.parts[0].text.trim();
-    console.log('AI result:', result);
+    const transcription = data.candidates[0].content.parts[0].text.trim();
+    console.log('Transcription result:', transcription);
 
     return new Response(
-      JSON.stringify({ result }),
+      JSON.stringify({ text: transcription }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in process-with-ai function:', error);
+    console.error('Error in transcribe-audio function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

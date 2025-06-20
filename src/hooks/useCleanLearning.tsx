@@ -28,6 +28,9 @@ export const useCleanLearning = () => {
   const { toast } = useToast();
   const { moveToTrash } = useTrashLearning();
 
+  // Intervalos de revisão espaçada em dias
+  const REVIEW_INTERVALS = [1, 3, 7, 14, 30, 60];
+
   // Helper function to safely convert Json to Review array
   const convertJsonToReviews = (jsonData: any) => {
     if (!jsonData) return [];
@@ -53,7 +56,7 @@ export const useCleanLearning = () => {
 
       if (error) {
         console.error('Erro ao buscar IDs existentes:', error);
-        return 1; // Fallback para ID 1
+        return 1;
       }
 
       // Criar array com todos os IDs existentes
@@ -119,11 +122,10 @@ export const useCleanLearning = () => {
   // Adicionar nova entrada com ID sequencial reutilizando IDs excluídos
   const addLearningEntry = async (content: string, title: string, tags: string[], context?: string) => {
     try {
-      // Encontrar o próximo ID disponível
       const nextId = await getNextAvailableId();
 
       const newEntry = {
-        numero_id: nextId, // Definir manualmente o próximo ID disponível
+        numero_id: nextId,
         titulo: title,
         conteudo: content,
         contexto: context || null,
@@ -191,30 +193,86 @@ export const useCleanLearning = () => {
     }
   };
 
+  // Completar revisão com sistema de espaçamento
+  const completeReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => {
+    try {
+      const entry = learningEntries.find(e => e.id === entryId);
+      if (!entry) return;
+
+      // Calcular próximo step baseado na dificuldade
+      let nextStep = entry.step;
+      
+      switch (difficulty) {
+        case 'easy':
+          nextStep = Math.min(entry.step + 2, REVIEW_INTERVALS.length - 1);
+          break;
+        case 'medium':
+          nextStep = Math.min(entry.step + 1, REVIEW_INTERVALS.length - 1);
+          break;
+        case 'hard':
+          nextStep = Math.max(entry.step - 1, 0);
+          break;
+      }
+
+      const newReview = {
+        date: new Date().toISOString(),
+        questions: questions || [],
+        answers: answers || [],
+        step: nextStep,
+        difficulty
+      };
+
+      const updatedReviews = [...entry.reviews, newReview];
+
+      const { error } = await supabase
+        .from('revisoes')
+        .update({
+          step: nextStep,
+          revisoes: updatedReviews,
+          data_ultima_revisao: new Date().toISOString()
+        })
+        .eq('id', entryId);
+
+      if (error) {
+        console.error('Erro ao completar revisão:', error);
+        toast({
+          title: "Erro ao salvar revisão",
+          description: "Tente novamente",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Atualizar estado local
+      setLearningEntries(prev => 
+        prev.map(e => 
+          e.id === entryId 
+            ? { ...e, step: nextStep, reviews: updatedReviews }
+            : e
+        )
+      );
+
+      const intervalDays = REVIEW_INTERVALS[nextStep];
+      toast({
+        title: "Revisão concluída!",
+        description: `Próxima revisão em ${intervalDays} dias`
+      });
+    } catch (error) {
+      console.error('Erro inesperado ao completar revisão:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Tente novamente",
+        variant: "destructive"
+      });
+    }
+  };
+
   // Obter entradas de hoje
   const getTodaysEntries = () => {
     const today = new Date().toDateString();
     return learningEntries.filter(entry => 
       new Date(entry.createdAt).toDateString() === today
     );
-  };
-
-  // Obter revisões pendentes
-  const getReviewsToday = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const intervals = [1, 3, 7, 14, 30, 60]; // days
-    
-    return learningEntries.filter(entry => {
-      const createdDate = new Date(entry.createdAt);
-      createdDate.setHours(0, 0, 0, 0);
-      
-      const daysDiff = Math.floor((today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
-      const currentStep = entry.step || 0;
-      
-      return daysDiff >= intervals[currentStep];
-    });
   };
 
   useEffect(() => {
@@ -224,10 +282,10 @@ export const useCleanLearning = () => {
   return {
     learningEntries,
     todaysEntries: getTodaysEntries(),
-    reviewsToday: getReviewsToday(),
     loading,
     addLearningEntry,
     deleteEntry,
+    completeReview,
     refreshEntries: loadEntries
   };
 };

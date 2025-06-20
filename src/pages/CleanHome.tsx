@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Brain, Plus, Calendar, Moon, Sun } from 'lucide-react';
 import CleanAddLearningModal from '@/components/learning/CleanAddLearningModal';
 import CleanTodaysLearning from '@/components/learning/CleanTodaysLearning';
+import ReviewModal from '@/components/learning/ReviewModal';
 import { useCleanLearning } from '@/hooks/useCleanLearning';
+import { useReviewSystem } from '@/hooks/useReviewSystem';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useEffect } from 'react';
 
@@ -16,14 +18,18 @@ const CleanHome = () => {
     return false;
   });
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const {
+    learningEntries,
     todaysEntries,
-    reviewsToday,
     loading,
     addLearningEntry,
-    deleteEntry
+    deleteEntry,
+    completeReview
   } = useCleanLearning();
+
+  const { reviewsToday } = useReviewSystem(learningEntries);
 
   const {
     permission,
@@ -54,6 +60,10 @@ const CleanHome = () => {
   const handleAddLearning = async (content: string, title: string, tags: string[]) => {
     await addLearningEntry(content, title, tags);
     setShowAddModal(false);
+  };
+
+  const handleCompleteReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => {
+    await completeReview(entryId, difficulty, questions, answers);
   };
 
   if (loading) {
@@ -123,15 +133,19 @@ const CleanHome = () => {
               Novo Aprendizado
             </Button>
 
-            {reviewsToday.length > 0 && (
-              <Button
-                variant="outline"
-                className="h-11 px-6 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full font-light"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Revisar ({reviewsToday.length})
-              </Button>
-            )}
+            <Button
+              onClick={() => setShowReviewModal(true)}
+              variant="outline"
+              className="h-11 px-6 border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-full font-light relative"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              Revisar
+              {reviewsToday.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {reviewsToday.length}
+                </span>
+              )}
+            </Button>
           </div>
         </div>
 
@@ -149,6 +163,14 @@ const CleanHome = () => {
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
         onAdd={handleAddLearning}
+      />
+
+      {/* Review Modal */}
+      <ReviewModal
+        isOpen={showReviewModal}
+        onClose={() => setShowReviewModal(false)}
+        reviews={reviewsToday}
+        onCompleteReview={handleCompleteReview}
       />
     </div>
   );
