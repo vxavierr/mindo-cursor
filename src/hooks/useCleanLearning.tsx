@@ -1,10 +1,9 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useTrashLearning } from './useTrashLearning';
 
-interface LearningEntry {
+export interface LearningEntry {
   id: string;
   numeroId: number;
   title: string;
