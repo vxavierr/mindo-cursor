@@ -7,36 +7,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Process base64 in chunks to prevent memory issues
-function processBase64Chunks(base64String: string, chunkSize = 32768) {
-  const chunks: Uint8Array[] = [];
-  let position = 0;
-  
-  while (position < base64String.length) {
-    const chunk = base64String.slice(position, position + chunkSize);
-    const binaryChunk = atob(chunk);
-    const bytes = new Uint8Array(binaryChunk.length);
-    
-    for (let i = 0; i < binaryChunk.length; i++) {
-      bytes[i] = binaryChunk.charCodeAt(i);
-    }
-    
-    chunks.push(bytes);
-    position += chunkSize;
-  }
-
-  const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-  const result = new Uint8Array(totalLength);
-  let offset = 0;
-
-  for (const chunk of chunks) {
-    result.set(chunk, offset);
-    offset += chunk.length;
-  }
-
-  return result;
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -45,6 +15,8 @@ serve(async (req) => {
   try {
     const { audio } = await req.json();
     const googleApiKey = Deno.env.get('GOOGLE_AI_API');
+    
+    console.log('Recebida requisição de transcrição, tamanho do áudio:', audio?.length);
     
     if (!googleApiKey) {
       console.error('GOOGLE_AI_API key not found');
@@ -58,6 +30,7 @@ serve(async (req) => {
     }
 
     if (!audio) {
+      console.error('No audio data provided');
       return new Response(
         JSON.stringify({ error: 'No audio data provided' }),
         { 
@@ -67,9 +40,8 @@ serve(async (req) => {
       );
     }
 
-    console.log('Processing audio transcription...');
+    console.log('Enviando áudio para Gemini API...');
 
-    // Use Gemini API for audio transcription
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
       {
@@ -80,7 +52,7 @@ serve(async (req) => {
         body: JSON.stringify({
           contents: [{
             parts: [
-              { text: "Transcreva este áudio para texto em português. Retorne apenas o texto transcrito:" },
+              { text: "Transcreva este áudio para texto em português. Retorne apenas o texto transcrito, sem formatação extra:" },
               {
                 inline_data: {
                   mime_type: "audio/webm",
@@ -98,9 +70,8 @@ serve(async (req) => {
     );
 
     if (!response.ok) {
-      console.error('Gemini API error:', response.status);
       const errorText = await response.text();
-      console.error('Error details:', errorText);
+      console.error('Gemini API error:', response.status, errorText);
       return new Response(
         JSON.stringify({ error: `Gemini API error: ${response.status}` }),
         { 
@@ -111,7 +82,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Gemini transcription response:', JSON.stringify(data, null, 2));
+    console.log('Resposta da Gemini API:', JSON.stringify(data, null, 2));
 
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
       console.error('Unexpected Gemini API response structure:', data);
@@ -125,7 +96,7 @@ serve(async (req) => {
     }
 
     const transcription = data.candidates[0].content.parts[0].text.trim();
-    console.log('Transcription result:', transcription);
+    console.log('Transcrição obtida:', transcription);
 
     return new Response(
       JSON.stringify({ text: transcription }),

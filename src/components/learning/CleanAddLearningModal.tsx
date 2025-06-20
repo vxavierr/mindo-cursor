@@ -22,15 +22,19 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
 
   const startRecording = async () => {
     try {
+      console.log('Iniciando gravação...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       const chunks: Blob[] = [];
 
       recorder.ondataavailable = (event) => {
-        chunks.push(event.data);
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
       };
 
       recorder.onstop = async () => {
+        console.log('Gravação finalizada, processando áudio...');
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         console.log('Audio blob criado:', audioBlob.size, 'bytes');
         
@@ -55,7 +59,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
           console.error('Erro na transcrição:', error);
           toast({
             title: "Erro na transcrição",
-            description: "Tente novamente",
+            description: "Verifique sua conexão e tente novamente",
             variant: "destructive"
           });
         }
@@ -105,6 +109,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
     }
     
     try {
+      console.log('Melhorando texto...');
       const improvedText = await improveText(content);
       if (improvedText && improvedText !== content) {
         setContent(improvedText);
@@ -117,7 +122,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
       console.error('Erro ao melhorar texto:', error);
       toast({
         title: "Erro na melhoria do texto",
-        description: "Tente novamente",
+        description: "Verifique sua conexão e tente novamente",
         variant: "destructive"
       });
     }
@@ -134,17 +139,22 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
     }
 
     try {
-      // Gerar título e tags automaticamente
+      console.log('Gerando título e tags...');
       const { title, tags } = await generateTitleAndTags(content);
       
       onAdd(content.trim(), title, tags);
       setContent('');
       onClose();
+      
+      toast({
+        title: "Aprendizado salvo!",
+        description: "Título e tags foram gerados automaticamente"
+      });
     } catch (error) {
       console.error('Erro ao salvar:', error);
       toast({
         title: "Erro ao salvar",
-        description: "Tente novamente",
+        description: "Verifique sua conexão e tente novamente",
         variant: "destructive"
       });
     }
@@ -222,7 +232,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
 
           <div className="flex justify-between items-center pt-2">
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Título e tags serão gerados automaticamente
+              Título e tags serão gerados automaticamente pela IA
             </p>
             
             <div className="flex space-x-2">
@@ -251,7 +261,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
             </div>
           </div>
           
-          <p className="text-xs text-gray-400 dark: text-center">
+          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
             ⌘ + Enter para salvar rapidamente
           </p>
         </div>

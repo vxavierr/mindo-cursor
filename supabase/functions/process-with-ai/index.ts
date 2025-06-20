@@ -17,6 +17,8 @@ serve(async (req) => {
     const { text, action } = await req.json();
     const googleApiKey = Deno.env.get('GOOGLE_AI_API');
 
+    console.log('Recebida requisição:', { action, textLength: text?.length });
+
     if (!googleApiKey) {
       console.error('GOOGLE_AI_API key not found in environment');
       return new Response(
@@ -28,11 +30,22 @@ serve(async (req) => {
       );
     }
 
+    if (!text || !action) {
+      console.error('Missing text or action in request');
+      return new Response(
+        JSON.stringify({ error: 'Text and action are required' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
     let prompt = '';
     
     switch (action) {
       case 'improve':
-        prompt = `Melhore este texto mantendo o significado original, mas tornando-o mais claro e bem estruturado. Mantenha em português:
+        prompt = `Melhore este texto mantendo o significado original, mas tornando-o mais claro, coeso e bem estruturado. Mantenha em português e preserve o estilo pessoal do autor:
 
 ${text}
 
@@ -40,7 +53,7 @@ Texto melhorado:`;
         break;
         
       case 'generate_tags':
-        prompt = `Gere 3-5 tags relevantes para este aprendizado em português. Retorne apenas as tags separadas por vírgula:
+        prompt = `Gere até 5 tags relevantes e concisas para este aprendizado em português. Retorne apenas as tags separadas por vírgula, sem numeração ou formatação extra:
 
 ${text}
 
@@ -48,25 +61,17 @@ Tags:`;
         break;
         
       case 'generate_title':
-        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 60 caracteres:
+        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 60 caracteres, sem aspas:
 
 ${text}
 
 Título:`;
         break;
         
-      case 'transcribe':
-        return new Response(
-          JSON.stringify({ error: 'Transcription should be handled by audio endpoint' }),
-          { 
-            status: 400, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-        
       default:
+        console.error('Invalid action:', action);
         return new Response(
-          JSON.stringify({ error: 'Invalid action' }),
+          JSON.stringify({ error: 'Invalid action. Use: improve, generate_tags, or generate_title' }),
           { 
             status: 400, 
             headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -74,7 +79,7 @@ Título:`;
         );
     }
 
-    console.log('Sending request to Gemini API with prompt:', prompt.substring(0, 100) + '...');
+    console.log('Enviando para Gemini API, action:', action);
 
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
@@ -108,7 +113,7 @@ Título:`;
     }
 
     const data = await response.json();
-    console.log('Gemini API response:', JSON.stringify(data, null, 2));
+    console.log('Resposta da Gemini API:', JSON.stringify(data, null, 2));
 
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
       console.error('Unexpected Gemini API response structure:', data);
@@ -122,7 +127,7 @@ Título:`;
     }
 
     const result = data.candidates[0].content.parts[0].text.trim();
-    console.log('AI result:', result);
+    console.log('Resultado processado:', result);
 
     return new Response(
       JSON.stringify({ result }),

@@ -10,21 +10,27 @@ export const useEnhancedAI = () => {
   const improveText = async (content: string): Promise<string> => {
     setIsProcessing(true);
     try {
+      console.log('Melhorando texto:', content.substring(0, 100) + '...');
+      
       const { data, error } = await supabase.functions.invoke('process-with-ai', {
         body: { 
-          content, 
-          action: 'improve_text',
-          prompt: 'Revise este texto mantendo sua estrutura original, mas tornando-o mais claro, coeso e bem escrito. Preserve o significado e o estilo pessoal do autor.'
+          text: content, 
+          action: 'improve'
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro na função process-with-ai:', error);
+        throw error;
+      }
+
+      console.log('Resposta da IA para melhoria:', data);
       return data.result || content;
     } catch (error) {
-      console.error('Error improving text:', error);
+      console.error('Erro ao melhorar texto:', error);
       toast({
         title: "Erro ao melhorar texto",
-        description: "Tente novamente em alguns instantes",
+        description: "Verifique sua conexão e tente novamente",
         variant: "destructive"
       });
       return content;
@@ -35,22 +41,45 @@ export const useEnhancedAI = () => {
 
   const generateTitleAndTags = async (content: string): Promise<{ title: string; tags: string[] }> => {
     try {
-      const { data, error } = await supabase.functions.invoke('process-with-ai', {
+      console.log('Gerando título e tags para:', content.substring(0, 100) + '...');
+      
+      // Gerar título
+      const { data: titleData, error: titleError } = await supabase.functions.invoke('process-with-ai', {
         body: { 
-          content, 
-          action: 'generate_title_tags',
-          prompt: 'Com base neste conteúdo de aprendizado, gere um título conciso e relevante (máximo 60 caracteres) e até 5 tags que categorizam o conhecimento descrito.'
+          text: content, 
+          action: 'generate_title'
         }
       });
 
-      if (error) throw error;
-      return { 
-        title: data.title || content.substring(0, 60) + (content.length > 60 ? '...' : ''),
-        tags: data.tags || []
-      };
+      if (titleError) {
+        console.error('Erro ao gerar título:', titleError);
+        throw titleError;
+      }
+
+      // Gerar tags
+      const { data: tagsData, error: tagsError } = await supabase.functions.invoke('process-with-ai', {
+        body: { 
+          text: content, 
+          action: 'generate_tags'
+        }
+      });
+
+      if (tagsError) {
+        console.error('Erro ao gerar tags:', tagsError);
+        throw tagsError;
+      }
+
+      console.log('Título gerado:', titleData);
+      console.log('Tags geradas:', tagsData);
+
+      const title = titleData?.result || content.substring(0, 60) + (content.length > 60 ? '...' : '');
+      const tagsString = tagsData?.result || '';
+      const tags = tagsString ? tagsString.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [];
+
+      return { title, tags };
     } catch (error) {
-      console.error('Error generating title and tags:', error);
-      // Return fallback values
+      console.error('Erro ao gerar título e tags:', error);
+      // Retornar valores de fallback
       return {
         title: content.substring(0, 60) + (content.length > 60 ? '...' : ''),
         tags: []
@@ -61,12 +90,13 @@ export const useEnhancedAI = () => {
   const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     setIsProcessing(true);
     try {
-      // Convert audio to base64
+      console.log('Iniciando transcrição de áudio, tamanho:', audioBlob.size, 'bytes');
+      
+      // Converter áudio para base64
       const reader = new FileReader();
       const audioData = await new Promise<string>((resolve, reject) => {
         reader.onload = () => {
           const result = reader.result as string;
-          // Remove data URL prefix to get just the base64 data
           const base64Data = result.split(',')[1];
           resolve(base64Data);
         };
@@ -74,21 +104,26 @@ export const useEnhancedAI = () => {
         reader.readAsDataURL(audioBlob);
       });
 
-      const { data, error } = await supabase.functions.invoke('process-with-ai', {
+      console.log('Áudio convertido para base64, tamanho:', audioData.length);
+
+      const { data, error } = await supabase.functions.invoke('transcribe-audio', {
         body: { 
-          audioData,
-          action: 'transcribe_audio',
-          prompt: 'Transcreva este áudio em português, organizando o texto de forma clara e estruturada.'
+          audio: audioData
         }
       });
 
-      if (error) throw error;
-      return data.transcription || '';
+      if (error) {
+        console.error('Erro na função transcribe-audio:', error);
+        throw error;
+      }
+
+      console.log('Resposta da transcrição:', data);
+      return data.text || '';
     } catch (error) {
-      console.error('Error transcribing audio:', error);
+      console.error('Erro na transcrição:', error);
       toast({
         title: "Erro na transcrição",
-        description: "Tente novamente em alguns instantes",
+        description: "Verifique o microfone e tente novamente",
         variant: "destructive"
       });
       return '';
