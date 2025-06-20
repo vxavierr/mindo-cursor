@@ -9,16 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      lixeira_aprendizados: {
+        Row: {
+          conteudo: string
+          contexto: string | null
+          data_criacao: string
+          data_exclusao: string
+          hora_exclusao: string
+          id_lixeira: string
+          revisoes: Json | null
+          step: number | null
+          tags: string[] | null
+          titulo: string | null
+        }
+        Insert: {
+          conteudo: string
+          contexto?: string | null
+          data_criacao: string
+          data_exclusao?: string
+          hora_exclusao?: string
+          id_lixeira?: string
+          revisoes?: Json | null
+          step?: number | null
+          tags?: string[] | null
+          titulo?: string | null
+        }
+        Update: {
+          conteudo?: string
+          contexto?: string | null
+          data_criacao?: string
+          data_exclusao?: string
+          hora_exclusao?: string
+          id_lixeira?: string
+          revisoes?: Json | null
+          step?: number | null
+          tags?: string[] | null
+          titulo?: string | null
+        }
+        Relationships: []
+      }
       revisoes: {
         Row: {
           conteudo: string
           contexto: string | null
           data_criacao: string
           data_ultima_revisao: string
-          deleted_at: string | null
+          hora_criacao: string | null
           id: string
           numero_id: number
           revisoes: Json
+          status: string | null
           step: number
           tags: string[]
           titulo: string | null
@@ -29,10 +69,11 @@ export type Database = {
           contexto?: string | null
           data_criacao?: string
           data_ultima_revisao?: string
-          deleted_at?: string | null
+          hora_criacao?: string | null
           id?: string
           numero_id?: number
           revisoes?: Json
+          status?: string | null
           step?: number
           tags?: string[]
           titulo?: string | null
@@ -43,10 +84,11 @@ export type Database = {
           contexto?: string | null
           data_criacao?: string
           data_ultima_revisao?: string
-          deleted_at?: string | null
+          hora_criacao?: string | null
           id?: string
           numero_id?: number
           revisoes?: Json
+          status?: string | null
           step?: number
           tags?: string[]
           titulo?: string | null
