@@ -11,42 +11,36 @@ export type Database = {
     Tables: {
       revisoes: {
         Row: {
-          completed: boolean | null
           conteudo: string
           contexto: string | null
-          data_criacao: string | null
-          data_ultima_revisao: string | null
+          data_criacao: string
+          data_ultima_revisao: string
           id: string
-          revisoes: Json | null
-          step: number | null
-          tags: string[] | null
-          titulo: string | null
+          revisoes: Json
+          step: number
+          tags: string[]
           usuario_id: string | null
         }
         Insert: {
-          completed?: boolean | null
           conteudo: string
           contexto?: string | null
-          data_criacao?: string | null
-          data_ultima_revisao?: string | null
+          data_criacao?: string
+          data_ultima_revisao?: string
           id?: string
-          revisoes?: Json | null
-          step?: number | null
-          tags?: string[] | null
-          titulo?: string | null
+          revisoes?: Json
+          step?: number
+          tags?: string[]
           usuario_id?: string | null
         }
         Update: {
-          completed?: boolean | null
           conteudo?: string
           contexto?: string | null
-          data_criacao?: string | null
-          data_ultima_revisao?: string | null
+          data_criacao?: string
+          data_ultima_revisao?: string
           id?: string
-          revisoes?: Json | null
-          step?: number | null
-          tags?: string[] | null
-          titulo?: string | null
+          revisoes?: Json
+          step?: number
+          tags?: string[]
           usuario_id?: string | null
         }
         Relationships: []

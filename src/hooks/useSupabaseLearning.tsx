@@ -10,7 +10,6 @@ interface LearningEntry {
   tags: string[];
   createdAt: string;
   step: number;
-  completed: boolean;
   reviews: Array<{ date: string; questions?: string[]; answers?: string[]; step?: number }>;
 }
 
@@ -51,14 +50,9 @@ export const useSupabaseLearning = () => {
         console.error('Erro ao carregar entradas:', error);
         toast({
           title: "Erro ao carregar dados",
-          description: "Usando dados locais como fallback",
+          description: "Verifique sua conexão e tente novamente",
           variant: "destructive"
         });
-        // Fallback para localStorage se houver erro
-        const saved = localStorage.getItem('learningEntries');
-        if (saved) {
-          setLearningEntries(JSON.parse(saved));
-        }
         return;
       }
 
@@ -70,18 +64,17 @@ export const useSupabaseLearning = () => {
         tags: Array.isArray(item.tags) ? item.tags : [],
         createdAt: item.data_criacao || new Date().toISOString(),
         step: item.step || 0,
-        completed: item.completed || false,
         reviews: convertJsonToReviews(item.revisoes)
       })) || [];
 
       setLearningEntries(entries);
     } catch (error) {
       console.error('Erro inesperado ao carregar entradas:', error);
-      // Fallback para localStorage
-      const saved = localStorage.getItem('learningEntries');
-      if (saved) {
-        setLearningEntries(JSON.parse(saved));
-      }
+      toast({
+        title: "Erro inesperado",
+        description: "Tente recarregar a página",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
@@ -95,11 +88,10 @@ export const useSupabaseLearning = () => {
         contexto: context || null,
         tags: tags || [],
         step: 0,
-        completed: false,
         revisoes: [],
         data_criacao: new Date().toISOString(),
         data_ultima_revisao: new Date().toISOString(),
-        usuario_id: null // Permitir null para uso sem autenticação
+        usuario_id: null
       };
 
       const { data, error } = await supabase
@@ -126,7 +118,6 @@ export const useSupabaseLearning = () => {
         tags: Array.isArray(data.tags) ? data.tags : [],
         createdAt: data.data_criacao || new Date().toISOString(),
         step: data.step || 0,
-        completed: data.completed || false,
         reviews: convertJsonToReviews(data.revisoes)
       };
 
@@ -211,8 +202,6 @@ export const useSupabaseLearning = () => {
     const intervals = [1, 3, 7, 14, 30, 60]; // days
     
     return entries.filter(entry => {
-      if (entry.completed) return false;
-      
       const createdDate = new Date(entry.createdAt);
       createdDate.setHours(0, 0, 0, 0);
       
