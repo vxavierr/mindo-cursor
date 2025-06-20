@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Moon, Sun } from 'lucide-react';
@@ -72,8 +71,12 @@ const CleanHome = () => {
     // Implementar navegação aqui
   };
 
-  const handleFabClick = () => {
+  const handleCreateLearning = () => {
     setShowAddModal(true);
+  };
+
+  const handleReview = () => {
+    setShowReviewModal(true);
   };
 
   if (loading) {
@@ -95,7 +98,8 @@ const CleanHome = () => {
     <NavigationLayout 
       activeNavItem="home"
       onNavigate={handleNavigate}
-      onFabClick={handleFabClick}
+      onCreateLearning={handleCreateLearning}
+      onReview={handleReview}
     >
       {/* Header */}
       <header className="px-6 py-6 flex justify-between items-center bg-white/80 backdrop-blur-sm border-b border-gray-100">

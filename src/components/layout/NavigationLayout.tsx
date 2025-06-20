@@ -6,14 +6,16 @@ interface NavigationLayoutProps {
   children: React.ReactNode;
   activeNavItem?: string;
   onNavigate?: (path: string) => void;
-  onFabClick?: () => void;
+  onCreateLearning?: () => void;
+  onReview?: () => void;
 }
 
 const NavigationLayout = ({ 
   children, 
   activeNavItem, 
   onNavigate,
-  onFabClick 
+  onCreateLearning,
+  onReview
 }: NavigationLayoutProps) => {
   return (
     <div 
@@ -29,7 +31,8 @@ const NavigationLayout = ({
       <FloatingNavigation
         activeItem={activeNavItem}
         onNavigate={onNavigate}
-        onFabClick={onFabClick}
+        onCreateLearning={onCreateLearning}
+        onReview={onReview}
       />
     </div>
   );
