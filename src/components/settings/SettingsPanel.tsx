@@ -109,8 +109,8 @@ const SettingsPanel = ({ isOpen, onClose, entries, onImport }: SettingsPanelProp
     try {
       console.log('Iniciando reorganização de IDs...');
       
-      // Chamar a função existente do banco que reorganiza os IDs
-      const { error } = await supabase.rpc('reorganizar_ids_revisoes');
+      // Chamar a função do banco com casting para resolver o erro TypeScript
+      const { error } = await (supabase as any).rpc('reorganizar_ids_revisoes');
       
       if (error) {
         console.error('Erro ao reorganizar IDs:', error);
