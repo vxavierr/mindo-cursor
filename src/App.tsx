@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Index from './pages/Index';
@@ -11,12 +12,15 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {
   QueryClient,
+  QueryClientProvider,
 } from '@tanstack/react-query'
 import EnhancedHome from "@/pages/EnhancedHome";
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
         <BrowserRouter>
@@ -24,7 +28,14 @@ function App() {
             <Route path="/" element={<EnhancedHome />} />
             <Route path="/clean" element={<CleanHome />} />
             <Route path="/original" element={<Index />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={
+              <Dashboard 
+                user={{ name: 'Usuário' }}
+                onLogout={() => console.log('Logout')}
+                toggleTheme={() => console.log('Toggle theme')}
+                darkMode={false}
+              />
+            } />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/search" element={<SearchPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
@@ -32,7 +43,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
