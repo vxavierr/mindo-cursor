@@ -34,17 +34,31 @@ const EnhancedTodaysLearning = ({
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6">
+      <h3 className="text-xl font-semibold text-gray-900 mb-6 md:hidden">
         {compact ? 'Aprendizados' : 'Aprendizados de hoje'}
       </h3>
       
-      <div className="space-y-4">
+      {/* Mobile Layout */}
+      <div className="md:hidden space-y-4">
         {entries.map((entry) => (
           <EnhancedLearningCard
             key={entry.id}
             entry={entry}
             onDelete={onDelete}
             compact={compact}
+          />
+        ))}
+      </div>
+
+      {/* Desktop Grid Layout */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+        {entries.map((entry) => (
+          <EnhancedLearningCard
+            key={entry.id}
+            entry={entry}
+            onDelete={onDelete}
+            compact={compact}
+            desktopLayout={true}
           />
         ))}
       </div>

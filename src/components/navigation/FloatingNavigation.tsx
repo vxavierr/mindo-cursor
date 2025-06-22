@@ -68,7 +68,7 @@ const FloatingNavigation = ({
 
       {/* FAB Sub-actions */}
       {fabMenuOpen && (
-        <div className="fixed bottom-36 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-4">
+        <div className="fixed bottom-36 md:bottom-44 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center space-y-4">
           {/* Review button */}
           <div 
             className="flex items-center space-x-4 animate-scale-in"
@@ -103,49 +103,67 @@ const FloatingNavigation = ({
         </div>
       )}
 
-      <div className="fixed bottom-0 left-0 right-0 flex justify-center p-6 pointer-events-none z-40">
+      <div className="fixed bottom-0 left-0 right-0 md:bottom-8 md:left-1/2 md:transform md:-translate-x-1/2 md:w-auto flex justify-center p-6 pointer-events-none z-40">
         {/* Navigation Bar with notch for FAB */}
-        <nav className="relative bg-white rounded-[28px] px-16 py-6 pointer-events-auto"
+        <nav className="relative bg-white rounded-[28px] md:rounded-[32px] px-16 md:px-6 py-6 md:py-3 pointer-events-auto md:flex md:items-center md:gap-8"
              style={{
                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-               clipPath: 'polygon(0 0, calc(50% - 45px) 0, calc(50% - 38px) 6px, calc(50% - 30px) 12px, calc(50% - 22px) 18px, calc(50% - 14px) 24px, calc(50% - 6px) 30px, calc(50% + 6px) 30px, calc(50% + 14px) 24px, calc(50% + 22px) 18px, calc(50% + 30px) 12px, calc(50% + 38px) 6px, calc(50% + 45px) 0, 100% 0, 100% 100%, 0 100%)'
+               clipPath: window.innerWidth >= 768 ? 'none' : 'polygon(0 0, calc(50% - 45px) 0, calc(50% - 38px) 6px, calc(50% - 30px) 12px, calc(50% - 22px) 18px, calc(50% - 14px) 24px, calc(50% - 6px) 30px, calc(50% + 6px) 30px, calc(50% + 14px) 24px, calc(50% + 22px) 18px, calc(50% + 30px) 12px, calc(50% + 38px) 6px, calc(50% + 45px) 0, 100% 0, 100% 100%, 0 100%)'
              }}>
           
           {/* Navigation Items */}
-          <div className="flex items-center justify-between w-56">
+          <div className="flex items-center justify-between w-56 md:w-auto md:gap-8">
             {/* Home Button */}
             <button
               onClick={() => handleItemClick('home', '/')}
               className={`
-                w-14 h-14 flex items-center justify-center rounded-full
+                w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full
                 transition-all duration-200 ease-out
                 ${pressedItem === 'home' ? 'scale-95 bg-gray-100' : 'hover:scale-105 hover:bg-gray-50'}
               `}
               aria-label="Home"
             >
               <Home 
-                className={`w-7 h-7 transition-colors duration-200 ${
+                className={`w-7 h-7 md:w-6 md:h-6 transition-colors duration-200 ${
                   activeItem === 'home' ? 'text-[#5B6FED]' : 'text-[#6B7280]'
                 }`}
                 strokeWidth={2.5}
               />
             </button>
 
-            {/* Empty space for FAB */}
-            <div className="w-20" />
+            {/* FAB - Desktop integrado na nav */}
+            <button
+              onClick={handleFabClick}
+              className={`
+                w-18 h-18 md:w-14 md:h-14 md:relative md:transform-none rounded-full flex items-center justify-center
+                transition-all duration-300 ease-out z-10 pointer-events-auto
+                ${pressedFab ? 'scale-95' : 'hover:scale-105'}
+                ${fabMenuOpen ? 'rotate-45' : ''}
+                ${window.innerWidth >= 768 ? '' : 'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-6'}
+              `}
+              style={{
+                background: 'linear-gradient(135deg, #6B7BF7 0%, #4B5FDD 100%)',
+                boxShadow: pressedFab 
+                  ? '0 6px 12px rgba(91, 111, 237, 0.3)' 
+                  : '0 12px 24px rgba(91, 111, 237, 0.4)'
+              }}
+              aria-label="Menu de ações"
+            >
+              <Plus className="w-7 h-7 md:w-6 md:h-6 text-white transition-transform duration-300" strokeWidth={2.5} />
+            </button>
 
             {/* Settings Button */}
             <button
               onClick={() => handleItemClick('settings', '/settings')}
               className={`
-                w-14 h-14 flex items-center justify-center rounded-full
+                w-14 h-14 md:w-12 md:h-12 flex items-center justify-center rounded-full
                 transition-all duration-200 ease-out
                 ${pressedItem === 'settings' ? 'scale-95 bg-gray-100' : 'hover:scale-105 hover:bg-gray-50'}
               `}
               aria-label="Settings"
             >
               <Settings 
-                className={`w-7 h-7 transition-colors duration-200 ${
+                className={`w-7 h-7 md:w-6 md:h-6 transition-colors duration-200 ${
                   activeItem === 'settings' ? 'text-[#5B6FED]' : 'text-[#6B7280]'
                 }`}
                 strokeWidth={2.5}
@@ -153,27 +171,6 @@ const FloatingNavigation = ({
             </button>
           </div>
         </nav>
-
-        {/* Floating Action Button */}
-        <button
-          onClick={handleFabClick}
-          className={`
-            absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-6
-            w-18 h-18 rounded-full flex items-center justify-center
-            transition-all duration-300 ease-out z-10 pointer-events-auto
-            ${pressedFab ? 'scale-95' : 'hover:scale-105'}
-            ${fabMenuOpen ? 'rotate-45' : ''}
-          `}
-          style={{
-            background: 'linear-gradient(135deg, #6B7BF7 0%, #4B5FDD 100%)',
-            boxShadow: pressedFab 
-              ? '0 6px 12px rgba(91, 111, 237, 0.3)' 
-              : '0 12px 24px rgba(91, 111, 237, 0.4)'
-          }}
-          aria-label="Menu de ações"
-        >
-          <Plus className="w-7 h-7 text-white transition-transform duration-300" strokeWidth={2.5} />
-        </button>
       </div>
     </>
   );
