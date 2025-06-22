@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Moon, Sun } from 'lucide-react';
@@ -110,10 +109,10 @@ const EnhancedHome = () => {
       onReview={handleReview}
     >
       <div style={{ backgroundColor: '#f5f5f7', minHeight: '100vh' }}>
-        {/* Main Container for Desktop Centering */}
-        <div className="max-w-[1200px] mx-auto">
+        {/* Main Container for Desktop Centering with increased margins */}
+        <div className="max-w-[1000px] mx-auto px-6 md:px-16">
           {/* Header Responsivo */}
-          <header className="px-6 md:px-12 py-6 md:py-8 flex justify-between items-center bg-white border-b border-gray-100">
+          <header className="py-6 md:py-8 flex justify-between items-center bg-white border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <div 
                 className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
@@ -151,7 +150,7 @@ const EnhancedHome = () => {
 
           {/* Navegação por Data Responsiva */}
           <div className="bg-white border-b border-gray-100">
-            <div className="max-w-[800px] mx-auto px-6 md:px-12 py-4 md:py-6">
+            <div className="max-w-[600px] mx-auto py-4 md:py-6">
               <DateNavigation 
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
@@ -161,7 +160,7 @@ const EnhancedHome = () => {
 
           {/* Toggle de Visualização Responsivo */}
           <div className="bg-white border-b border-gray-100">
-            <div className="px-6 md:px-12 py-4 flex justify-end">
+            <div className="py-4 flex justify-end">
               <ViewToggle 
                 label="Vista Compacta"
                 defaultValue={compactView}
@@ -171,7 +170,7 @@ const EnhancedHome = () => {
           </div>
 
           {/* Conteúdo Principal */}
-          <div className="px-6 md:px-12 py-8 md:py-12 pb-32">
+          <div className="py-8 md:py-12 pb-32">
             {/* Hero Section - Apenas mobile */}
             <div className="md:hidden py-16 text-center">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">

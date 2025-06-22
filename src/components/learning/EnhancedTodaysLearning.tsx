@@ -50,8 +50,8 @@ const EnhancedTodaysLearning = ({
         ))}
       </div>
 
-      {/* Desktop Grid Layout */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+      {/* Desktop Grid Layout - Limited to 2 columns */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-8">
         {entries.map((entry) => (
           <EnhancedLearningCard
             key={entry.id}
