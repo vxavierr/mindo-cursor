@@ -19,15 +19,15 @@ const NavigationLayout = ({
 }: NavigationLayoutProps) => {
   return (
     <div 
-      className="w-full min-h-screen pb-32 md:pb-40"
+      className="w-full min-h-screen pb-32 md:pb-40 content-transition"
       style={{ backgroundColor: '#E8EBF0' }}
     >
-      {/* Main Content Area - Full Width */}
-      <main className="w-full relative">
+      {/* Main Content Area - Enhanced responsive */}
+      <main className="w-full relative container-responsive">
         {children}
       </main>
       
-      {/* Floating Navigation */}
+      {/* Floating Navigation - Enhanced with nav transitions */}
       <FloatingNavigation
         activeItem={activeNavItem}
         onNavigate={onNavigate}
