@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -142,6 +141,64 @@ export const useCleanLearning = () => {
         description: "Tente novamente",
         variant: "destructive"
       });
+    }
+  };
+
+  // Nova função para atualizar entrada
+  const updateLearningEntry = async (entryId: string, updates: { title?: string; content?: string; tags?: string[]; context?: string }) => {
+    try {
+      console.log('Atualizando entrada:', entryId, updates);
+      
+      const updateData: any = {};
+      if (updates.title !== undefined) updateData.titulo = updates.title;
+      if (updates.content !== undefined) updateData.conteudo = updates.content;
+      if (updates.tags !== undefined) updateData.tags = updates.tags;
+      if (updates.context !== undefined) updateData.contexto = updates.context;
+
+      const { error } = await supabase
+        .from('revisoes')
+        .update(updateData)
+        .eq('id', entryId);
+
+      if (error) {
+        console.error('Erro ao atualizar entrada:', error);
+        toast({
+          title: "Erro ao salvar alterações",
+          description: "Verifique sua conexão e tente novamente",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // Atualizar estado local
+      setLearningEntries(prev => 
+        prev.map(entry => 
+          entry.id === entryId 
+            ? { 
+                ...entry, 
+                title: updates.title !== undefined ? updates.title : entry.title,
+                content: updates.content !== undefined ? updates.content : entry.content,
+                tags: updates.tags !== undefined ? updates.tags : entry.tags,
+                context: updates.context !== undefined ? updates.context : entry.context
+              }
+            : entry
+        )
+      );
+
+      toast({
+        title: "Alterações salvas!",
+        description: "O aprendizado foi atualizado com sucesso."
+      });
+
+      return true;
+    } catch (error) {
+      console.error('Erro inesperado ao atualizar entrada:', error);
+      toast({
+        title: "Erro inesperado",
+        description: "Tente novamente",
+        variant: "destructive"
+      });
+      return false;
     }
   };
 
@@ -293,6 +350,7 @@ export const useCleanLearning = () => {
     todaysEntries: getTodaysEntries(),
     loading,
     addLearningEntry,
+    updateLearningEntry,
     deleteEntry,
     completeReview,
     refreshEntries: loadEntries

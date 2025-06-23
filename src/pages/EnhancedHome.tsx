@@ -30,6 +30,7 @@ const EnhancedHome = () => {
     todaysEntries,
     loading,
     addLearningEntry,
+    updateLearningEntry,
     deleteEntry,
     completeReview
   } = useCleanLearning();
@@ -65,6 +66,10 @@ const EnhancedHome = () => {
   const handleAddLearning = async (content: string, title: string, tags: string[]) => {
     await addLearningEntry(content, title, tags);
     setShowAddModal(false);
+  };
+
+  const handleUpdateLearning = async (entryId: string, updates: { title?: string; content?: string; tags?: string[]; context?: string }) => {
+    return await updateLearningEntry(entryId, updates);
   };
 
   const handleCompleteReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => {
@@ -198,6 +203,7 @@ const EnhancedHome = () => {
           <EnhancedTodaysLearning 
             entries={todaysEntries}
             onDelete={handleDeleteEntry}
+            onUpdate={handleUpdateLearning}
             compact={compactView}
           />
         </div>

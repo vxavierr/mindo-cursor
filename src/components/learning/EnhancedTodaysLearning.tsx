@@ -7,12 +7,14 @@ import EnhancedLearningCard from './EnhancedLearningCard';
 interface EnhancedTodaysLearningProps {
   entries: LearningEntry[];
   onDelete: (id: string) => void;
+  onUpdate?: (id: string, updates: { title?: string; content?: string; tags?: string[]; context?: string }) => Promise<boolean>;
   compact?: boolean;
 }
 
 const EnhancedTodaysLearning = ({ 
   entries, 
-  onDelete, 
+  onDelete,
+  onUpdate, 
   compact = false 
 }: EnhancedTodaysLearningProps) => {
   if (entries.length === 0) {
@@ -41,6 +43,7 @@ const EnhancedTodaysLearning = ({
             key={entry.id}
             entry={entry}
             onDelete={onDelete}
+            onUpdate={onUpdate}
             compact={compact}
           />
         ))}
@@ -53,6 +56,7 @@ const EnhancedTodaysLearning = ({
             key={entry.id}
             entry={entry}
             onDelete={onDelete}
+            onUpdate={onUpdate}
             compact={compact}
             desktopLayout={true}
           />
