@@ -54,19 +54,18 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
 
   return (
     <div className="bg-white border-b border-gray-100">
-      <div className="flex justify-between items-center px-4 py-4 overflow-x-auto gap-3 md:gap-8 md:px-8 md:py-6">
+      <div className="flex justify-between items-center w-full px-4 py-4 md:px-8 md:py-6">
         {dateItems.map((item, index) => (
           <button
             key={index}
             onClick={() => handleDateClick(item)}
             className={`
               flex flex-col items-center px-4 py-3 rounded-xl transition-all duration-200
-              flex-shrink-0
               ${isSelected(item) 
                 ? 'bg-gray-900 text-white' 
                 : 'text-gray-600 hover:bg-gray-50'
               }
-              md:px-8 md:py-4 min-w-[4rem] md:min-w-[7rem]
+              md:px-8 md:py-4
             `}
           >
             <span className={`text-sm md:text-base mb-2 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
