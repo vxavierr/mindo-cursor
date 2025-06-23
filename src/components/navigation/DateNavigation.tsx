@@ -54,26 +54,26 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
 
   return (
     <div className="w-full bg-white border-b border-gray-100">
-      {/* Mobile: Scroll horizontal */}
-      <div className="md:hidden overflow-x-auto px-4 py-3">
-        <div className="flex space-x-3 min-w-max">
+      {/* Mobile: Fit all days without scroll */}
+      <div className="md:hidden px-3 py-3">
+        <div className="flex justify-between items-center w-full">
           {dateItems.map((item, index) => (
             <button
               key={index}
               onClick={() => handleDateClick(item)}
               className={`
-                flex flex-col items-center py-2 px-3 rounded-xl transition-all duration-200
-                flex-shrink-0 min-w-[60px]
+                flex flex-col items-center py-2 px-1 rounded-xl transition-all duration-200
+                flex-1 mx-0.5 min-w-0
                 ${isSelected(item) 
                   ? 'bg-gray-900 text-white' 
                   : 'text-gray-600 hover:bg-gray-50'
                 }
               `}
             >
-              <span className={`text-xs mb-1 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
+              <span className={`text-xs mb-1 ${isSelected(item) ? 'opacity-80' : 'opacity-70'} truncate w-full text-center`}>
                 {item.day}
               </span>
-              <span className="text-lg font-semibold">
+              <span className="text-base font-semibold">
                 {item.date}
               </span>
             </button>
