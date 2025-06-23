@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Moon, Sun } from 'lucide-react';
@@ -154,14 +153,10 @@ const EnhancedHome = () => {
 
         {/* Navegação por Data - Full Width */}
         <div className="w-full bg-white border-b border-gray-100">
-          <div className="w-full py-4 md:py-6 px-6 md:px-8">
-            <div className="max-w-[600px] mx-auto">
-              <DateNavigation 
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-              />
-            </div>
-          </div>
+          <DateNavigation 
+            selectedDate={selectedDate}
+            onDateSelect={setSelectedDate}
+          />
         </div>
 
         {/* Toggle de Visualização - Full Width */}

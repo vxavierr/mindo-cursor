@@ -53,8 +53,8 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
   };
 
   return (
-    <div className="bg-white border-b border-gray-100">
-      <div className="flex justify-between items-center px-4 py-3 w-full">
+    <div className="bg-white border-b border-gray-100 w-full">
+      <div className="flex justify-between items-center px-6 md:px-8 py-3 w-full">
         {dateItems.map((item, index) => (
           <button
             key={index}
