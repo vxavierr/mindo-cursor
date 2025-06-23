@@ -44,7 +44,6 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
   }, []);
 
   const handleDateClick = (dateItem: DateItem) => {
-    console.log('[Calendar] Date selected:', dateItem.fullDate);
     onDateSelect?.(dateItem.fullDate);
   };
 
@@ -55,30 +54,28 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
 
   return (
     <div className="bg-white border-b border-gray-100">
-      <div className="w-full px-4 md:px-8 py-3">
-        <div className="flex justify-between items-center w-full md:grid md:grid-cols-7 md:gap-4">
-          {dateItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={() => handleDateClick(item)}
-              className={`
-                flex flex-col items-center py-3 px-2 rounded-xl transition-all duration-200
-                flex-1 mx-1 min-w-0 md:mx-0 md:px-4 md:py-4
-                ${isSelected(item) 
-                  ? 'bg-gray-100 text-gray-900 border-2 border-blue-500' 
-                  : 'text-gray-600 hover:bg-gray-50 border-2 border-transparent'
-                }
-              `}
-            >
-              <span className={`text-xs md:text-sm mb-2 ${isSelected(item) ? 'opacity-80 font-medium' : 'opacity-70'}`}>
-                {item.day}
-              </span>
-              <span className={`text-lg md:text-2xl ${isSelected(item) ? 'font-bold' : 'font-semibold'}`}>
-                {item.date}
-              </span>
-            </button>
-          ))}
-        </div>
+      <div className="flex justify-between items-center px-4 py-3 w-full">
+        {dateItems.map((item, index) => (
+          <button
+            key={index}
+            onClick={() => handleDateClick(item)}
+            className={`
+              flex flex-col items-center py-3 px-2 rounded-xl transition-all duration-200
+              flex-1 mx-1 min-w-0
+              ${isSelected(item) 
+                ? 'bg-gray-900 text-white' 
+                : 'text-gray-600 hover:bg-gray-50'
+              }
+            `}
+          >
+            <span className={`text-xs md:text-sm mb-2 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
+              {item.day}
+            </span>
+            <span className="text-lg md:text-2xl font-semibold">
+              {item.date}
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );
