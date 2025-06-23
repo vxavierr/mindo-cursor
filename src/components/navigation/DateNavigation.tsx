@@ -61,17 +61,18 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
             onClick={() => handleDateClick(item)}
             className={`
               flex flex-col items-center px-3 py-2 rounded-xl transition-all duration-200
-              min-w-[3rem] flex-shrink-0
+              flex-shrink-0
               ${isSelected(item) 
                 ? 'bg-gray-900 text-white' 
                 : 'text-gray-600 hover:bg-gray-50'
               }
+              md:px-6 md:py-3 min-w-[3rem] md:min-w-[5rem]
             `}
           >
-            <span className={`text-xs mb-1 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
+            <span className={`text-xs md:text-sm mb-1 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
               {item.day}
             </span>
-            <span className="text-lg font-semibold">
+            <span className="text-lg md:text-2xl font-semibold">
               {item.date}
             </span>
           </button>
