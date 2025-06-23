@@ -36,16 +36,16 @@ const EnhancedLearningCard = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
-  {/* Estado para controle individual de expansão - padrão é recolhido (false) */}
+  // Estado para controle individual de expansão - padrão é recolhido (false)
   const [isExpanded, setIsExpanded] = useState(false);
 
-  {/* Gradientes mais suaves e legíveis */}
+  // Gradientes mais suaves e legíveis
   const gradients = [
-    'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', {/* indigo para purple */}
-    'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)', {/* pink para rose */}
-    'linear-gradient(135deg, #10b981 0%, #059669 100%)', {/* emerald */}
-    'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)', {/* amber para orange */}
-    'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'  {/* blue */}
+    'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', // indigo para purple
+    'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)', // pink para rose
+    'linear-gradient(135deg, #10b981 0%, #059669 100%)', // emerald
+    'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)', // amber para orange
+    'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'  // blue
   ];
 
   const cardGradient = gradient || gradients[entry.numeroId % gradients.length];
@@ -97,17 +97,17 @@ const EnhancedLearningCard = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    {/* Prevenir expansão se estiver clicando em botões ou dropdown */}
+    // Prevenir expansão se estiver clicando em botões ou dropdown
     if (isEditing || isDropdownOpen) return;
     
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('[role="menuitem"]')) return;
     
-    {/* Alternar estado de expansão do card */}
+    // Alternar estado de expansão do card
     setIsExpanded(!isExpanded);
   };
 
-  {/* Função para truncar conteúdo quando recolhido */}
+  // Função para truncar conteúdo quando recolhido
   const getTruncatedContent = (content: string, maxLength: number = 80) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
@@ -115,7 +115,7 @@ const EnhancedLearningCard = ({
 
   const showActions = isEditing || isDropdownOpen || isHovered;
 
-  {/* Classes dinâmicas baseadas no estado de expansão */}
+  // Classes dinâmicas baseadas no estado de expansão
   const cardClasses = desktopLayout 
     ? `relative rounded-2xl p-6 group transition-all duration-500 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl ${
         isExpanded ? 'z-10 scale-105 shadow-2xl' : ''
