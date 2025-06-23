@@ -49,22 +49,8 @@ const EnhancedTodaysLearning = ({
         ))}
       </div>
 
-      {/* Tablet: Grid 2 colunas */}
-      <div className="hidden sm:grid lg:hidden grid-cols-2 gap-4">
-        {entries.map((entry) => (
-          <EnhancedLearningCard
-            key={entry.id}
-            entry={entry}
-            onDelete={onDelete}
-            onUpdate={onUpdate}
-            compact={compact}
-            desktopLayout={true}
-          />
-        ))}
-      </div>
-
-      {/* Desktop: Grid 3-4 colunas baseado no tamanho */}
-      <div className="hidden lg:grid xl:grid-cols-4 lg:grid-cols-3 gap-6 cards-grid-transition">
+      {/* Tablet e Desktop: Grid 2 colunas */}
+      <div className="hidden sm:grid grid-cols-2 gap-6 cards-grid-transition">
         {entries.map((entry) => (
           <EnhancedLearningCard
             key={entry.id}

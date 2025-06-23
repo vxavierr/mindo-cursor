@@ -41,9 +41,9 @@ const EnhancedLearningCard = ({
 
   // Gradientes mais suaves e legíveis
   const gradients = [
-    'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', // indigo para purple
+    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // indigo para purple
     'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)', // pink para rose
-    'linear-gradient(135deg, #10b981 0%, #059669 100%)', // emerald
+    'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)', // emerald
     'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)', // amber para orange
     'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'  // blue
   ];
@@ -108,131 +108,34 @@ const EnhancedLearningCard = ({
   };
 
   // Função para truncar conteúdo quando recolhido
-  const getTruncatedContent = (content: string, maxLength: number = 80) => {
+  const getTruncatedContent = (content: string, maxLength: number = 120) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
   };
 
   const showActions = isEditing || isDropdownOpen || isHovered;
 
-  // Classes dinâmicas baseadas no estado de expansão
-  const cardClasses = desktopLayout 
-    ? `relative rounded-2xl p-6 group transition-all duration-500 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl ${
-        isExpanded ? 'z-10 scale-105 shadow-2xl' : ''
-      } ${isEditing ? 'ring-2 ring-white/50' : ''} ${isDropdownOpen || isHovered ? 'scale-[1.02] shadow-xl' : ''}`
-    : `relative rounded-2xl p-5 mb-4 group transition-all duration-500 ease-in-out cursor-pointer ${
-        isExpanded ? 'z-10 scale-105 shadow-2xl mb-8' : ''
-      } ${isEditing ? 'min-h-[280px]' : isExpanded ? 'min-h-[200px]' : 'min-h-[140px]'}`;
-
+  // Layout para desktop com novo design
   if (desktopLayout) {
     return (
       <>
         <div 
-          className={cardClasses}
+          className="relative rounded-3xl p-6 group transition-all duration-300 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl min-h-[300px] flex flex-col"
           style={{ 
             background: cardGradient,
             boxShadow: isExpanded 
               ? '0 20px 40px rgba(0, 0, 0, 0.25)' 
               : isDropdownOpen || isHovered 
                 ? '0 12px 32px rgba(0, 0, 0, 0.15)' 
-                : '0 8px 24px rgba(0, 0, 0, 0.10)',
-            transition: 'all 0.5s ease-in-out',
-            transform: isExpanded ? 'translateY(-8px) scale(1.02)' : undefined
+                : '0 8px 24px rgba(0, 0, 0, 0.10)'
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onClick={handleCardClick}
         >
-          {/* Actions Desktop */}
-          <div className={`absolute top-4 right-4 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
-            showActions
-              ? 'opacity-100 translate-y-0' 
-              : 'opacity-0 translate-y-2'
-          }`}>
-            {isEditing ? (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSave();
-                  }}
-                  disabled={isSaving}
-                  className="w-9 h-9 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                >
-                  <Check className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCancel();
-                  }}
-                  className="w-9 h-9 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-                
-                <DropdownMenu onOpenChange={setIsDropdownOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    align="end" 
-                    className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
-                    sideOffset={8}
-                  >
-                    <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit();
-                      }} 
-                      className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setShowDeleteDialog(true);
-                      }} 
-                      className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Mover para lixeira
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            )}
-          </div>
-
-          {/* Header com Badge */}
-          <div className="relative z-10 flex justify-between items-start mb-5">
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2.5 flex items-center gap-3 transition-all duration-300 shadow-sm">
+          {/* Header com ID e Data */}
+          <div className="flex justify-between items-start mb-6">
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-3 shadow-sm">
               <span className="text-xs text-gray-500 font-medium tracking-wider uppercase">
                 #{formatId(entry.numeroId)}
               </span>
@@ -240,35 +143,115 @@ const EnhancedLearningCard = ({
                 {formatDate(entry.createdAt)}
               </span>
             </div>
+
+            {/* Actions */}
+            <div className={`flex gap-2 transition-all duration-300 ease-in-out ${
+              showActions
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-2'
+            }`}>
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSave();
+                    }}
+                    disabled={isSaving}
+                    className="w-9 h-9 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancel();
+                    }}
+                    className="w-9 h-9 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </Button>
+                  
+                  <DropdownMenu onOpenChange={setIsDropdownOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      align="end" 
+                      className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
+                      sideOffset={8}
+                    >
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit();
+                        }} 
+                        className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDeleteDialog(true);
+                        }} 
+                        className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Mover para lixeira
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Conteúdo Principal */}
-          <div className="relative z-10 text-white flex-1 flex flex-col min-h-0">
+          <div className="flex-1 flex flex-col text-white">
             {isEditing ? (
-              <div className="space-y-4">
-                {/* Campo de Título */}
+              <div className="space-y-4 flex-1">
                 <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <Input
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
                     placeholder="Título do aprendizado"
-                    className="bg-white/95 text-gray-900 border-0 text-lg font-semibold placeholder:text-gray-500 h-12 text-base"
+                    className="bg-white/95 text-gray-900 border-0 text-lg font-semibold placeholder:text-gray-500 h-12"
                     onClick={(e) => e.stopPropagation()}
                   />
                 </div>
                 
-                {/* Campo de Conteúdo */}
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex-1">
                   <Textarea
                     value={editedContent}
                     onChange={(e) => setEditedContent(e.target.value)}
                     placeholder="Descreva seu aprendizado..."
-                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base leading-relaxed"
-                    style={{ 
-                      minHeight: '120px',
-                      height: 'auto'
-                    }}
-                    rows={Math.max(4, Math.ceil(editedContent.length / 50))}
+                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base leading-relaxed h-full min-h-[120px]"
                     onClick={(e) => e.stopPropagation()}
                   />
                 </div>
@@ -282,16 +265,23 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                {/* Conteúdo - truncado quando recolhido, completo quando expandido */}
+                {/* Conteúdo */}
                 <div className="flex-1 mb-4">
                   <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
-                    {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
+                    {isExpanded ? entry.content : getTruncatedContent(entry.content, 120)}
                   </p>
+                  
+                  {/* Indicador de mais conteúdo */}
+                  {!isExpanded && entry.content.length > 120 && (
+                    <div className="mt-2">
+                      <span className="text-white/70 text-sm italic">Clique para ver mais...</span>
+                    </div>
+                  )}
                 </div>
               </>
             )}
             
-            {/* Tags - sempre visíveis */}
+            {/* Tags */}
             {!compact && (
               <div className="mt-auto pt-4" onClick={(e) => e.stopPropagation()}>
                 <EditableTags 
@@ -304,7 +294,7 @@ const EnhancedLearningCard = ({
           </div>
         </div>
 
-        {/* AlertDialog separado para Desktop */}
+        {/* AlertDialog */}
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogContent className="z-[70]">
             <AlertDialogHeader>
@@ -328,14 +318,14 @@ const EnhancedLearningCard = ({
     );
   }
 
-  {/* Layout mobile com clique para expandir/recolher */}
+  // Layout mobile mantido igual
   return (
     <>
       <div 
-        className={cardClasses}
+        className="relative rounded-2xl p-5 mb-4 group transition-all duration-500 ease-in-out cursor-pointer"
         style={{ 
           background: cardGradient,
-          height: 'auto',
+          minHeight: isEditing ? '280px' : isExpanded ? '200px' : '140px',
           transition: 'all 0.5s ease-in-out',
           transform: isExpanded ? 'translateY(-4px) scale(1.02)' : undefined,
           boxShadow: isExpanded 
@@ -477,14 +467,13 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                {/* Conteúdo com controle de expansão individual */}
                 <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4">
                   {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
                 </p>
               </>
             )}
             
-            {/* Tags Mobile - sempre visíveis */}
+            {/* Tags Mobile */}
             {!compact && (
               <div onClick={(e) => e.stopPropagation()}>
                 <EditableTags 
