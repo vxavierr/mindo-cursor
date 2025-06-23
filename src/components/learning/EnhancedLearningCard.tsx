@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Share2, MoreVertical, Edit, Trash2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Share2, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -36,7 +36,7 @@ const EnhancedLearningCard = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
-  // Novo estado para controle individual de minimizar/expandir
+  // Estado para controle individual de minimizar/expandir (apenas mobile)
   const [isMinimized, setIsMinimized] = useState(false);
 
   // Gradientes mais suaves e legíveis
@@ -96,24 +96,33 @@ const EnhancedLearningCard = ({
     setShowDeleteDialog(false);
   };
 
-  const toggleMinimized = () => {
-    setIsMinimized(!isMinimized);
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevenir expansão se estiver clicando em botões ou dropdown
+    if (isEditing || isDropdownOpen) return;
+    
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('[role="menuitem"]')) return;
+    
+    // Apenas no mobile
+    if (!desktopLayout) {
+      setIsMinimized(!isMinimized);
+    }
   };
 
-  // Função para truncar conteúdo quando minimizado
-  const getTruncatedContent = (content: string, maxLength: number = 100) => {
+  // Função para truncar conteúdo quando minimizado (apenas mobile)
+  const getTruncatedContent = (content: string, maxLength: number = 80) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
   };
 
   const showActions = isEditing || isDropdownOpen || isHovered;
 
-  // Classes base otimizadas para legibilidade
+  // Classes base restauradas para desktop
   const cardClasses = desktopLayout 
-    ? `relative rounded-2xl p-6 group transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl cursor-pointer ${
-        isEditing ? 'ring-2 ring-white/50 min-h-[300px]' : 'min-h-[220px]'
+    ? `relative rounded-2xl p-6 group transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl ${
+        isEditing ? 'ring-2 ring-white/50' : ''
       } ${isDropdownOpen || isHovered ? 'scale-[1.02] shadow-xl' : ''}`
-    : `relative rounded-2xl p-5 mb-4 group transition-all duration-300 ease-in-out ${
+    : `relative rounded-2xl p-5 mb-4 group transition-all duration-300 ease-in-out cursor-pointer ${
         isEditing ? 'min-h-[280px]' : 'min-h-[140px]'
       }`;
 
@@ -125,7 +134,6 @@ const EnhancedLearningCard = ({
           style={{ 
             background: cardGradient,
             boxShadow: isDropdownOpen || isHovered ? '0 12px 32px rgba(0, 0, 0, 0.15)' : '0 8px 24px rgba(0, 0, 0, 0.10)',
-            height: 'auto',
             transition: 'all 0.3s ease-in-out'
           }}
           onMouseEnter={() => setIsHovered(true)}
@@ -215,19 +223,9 @@ const EnhancedLearningCard = ({
                 {formatDate(entry.createdAt)}
               </span>
             </div>
-
-            {/* Botão de minimizar/expandir no Desktop */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleMinimized}
-              className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-            >
-              {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-            </Button>
           </div>
 
-          {/* Conteúdo Principal com altura dinâmica */}
+          {/* Conteúdo Principal - Layout original restaurado */}
           <div className="relative z-10 text-white flex-1 flex flex-col min-h-0">
             {isEditing ? (
               <div className="space-y-4">
@@ -265,10 +263,10 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                {/* Conteúdo - minimizado ou expandido */}
+                {/* Conteúdo - sempre expandido no desktop */}
                 <div className="flex-1 mb-4">
                   <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
-                    {isMinimized ? getTruncatedContent(entry.content, 150) : entry.content}
+                    {entry.content}
                   </p>
                 </div>
               </>
@@ -311,7 +309,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile otimizado com controle individual
+  // Layout mobile com clique para expandir/minimizar
   return (
     <>
       <div 
@@ -321,6 +319,7 @@ const EnhancedLearningCard = ({
           height: 'auto',
           transition: 'all 0.3s ease-in-out'
         }}
+        onClick={handleCardClick}
       >
         <div className="relative z-10 transition-all duration-300">
           {/* Header Mobile */}
@@ -337,22 +336,15 @@ const EnhancedLearningCard = ({
 
             {/* Actions Mobile */}
             <div className="flex gap-2 ml-auto">
-              {/* Botão de minimizar/expandir sempre visível no mobile */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleMinimized}
-                className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-              >
-                {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-              </Button>
-
               {isEditing ? (
                 <>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleSave}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSave();
+                    }}
                     disabled={isSaving}
                     className="w-10 h-10 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                   >
@@ -361,7 +353,10 @@ const EnhancedLearningCard = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleCancel}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCancel();
+                    }}
                     className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                   >
                     <X className="w-4 h-4" />
@@ -373,7 +368,9 @@ const EnhancedLearningCard = ({
                     variant="ghost"
                     size="sm"
                     className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                    onClick={() => {}}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
                   >
                     <Share2 className="w-4 h-4" />
                   </Button>
@@ -384,6 +381,7 @@ const EnhancedLearningCard = ({
                         variant="ghost"
                         size="sm"
                         className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                        onClick={(e) => e.stopPropagation()}
                       >
                         <MoreVertical className="w-4 h-4" />
                       </Button>
@@ -394,14 +392,20 @@ const EnhancedLearningCard = ({
                       sideOffset={8}
                     >
                       <DropdownMenuItem 
-                        onClick={handleEdit} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit();
+                        }} 
                         className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem 
-                        onClick={() => setShowDeleteDialog(true)} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowDeleteDialog(true);
+                        }} 
                         className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
                       >
                         <Trash2 className="w-4 h-4 mr-2" />
@@ -424,6 +428,7 @@ const EnhancedLearningCard = ({
                     onChange={(e) => setEditedTitle(e.target.value)}
                     placeholder="Título do aprendizado"
                     className="bg-white/95 text-gray-900 border-0 text-base font-semibold placeholder:text-gray-500"
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
                 <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/20">
@@ -437,6 +442,7 @@ const EnhancedLearningCard = ({
                       height: 'auto'
                     }}
                     rows={Math.max(3, Math.ceil(editedContent.length / 40))}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
               </div>
@@ -457,11 +463,13 @@ const EnhancedLearningCard = ({
             
             {/* Tags Mobile - sempre visíveis */}
             {!compact && (
-              <EditableTags 
-                tags={isEditing ? editedTags : entry.tags}
-                onTagsChange={setEditedTags}
-                isEditing={isEditing}
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <EditableTags 
+                  tags={isEditing ? editedTags : entry.tags}
+                  onTagsChange={setEditedTags}
+                  isEditing={isEditing}
+                />
+              </div>
             )}
           </div>
         </div>
