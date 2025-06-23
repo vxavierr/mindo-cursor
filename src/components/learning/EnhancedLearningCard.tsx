@@ -36,12 +36,13 @@ const EnhancedLearningCard = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Gradientes mais suaves e legíveis
   const gradients = [
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
-    'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)',
-    'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', // indigo para purple
+    'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)', // pink para rose
+    'linear-gradient(135deg, #10b981 0%, #059669 100%)', // emerald
+    'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)', // amber para orange
+    'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'  // blue
   ];
 
   const cardGradient = gradient || gradients[entry.numeroId % gradients.length];
@@ -92,13 +93,16 @@ const EnhancedLearningCard = ({
     setShowDeleteDialog(false);
   };
 
-  // Controla se mostra os botões (sempre visível quando editando, dropdown aberto ou hovering)
   const showActions = isEditing || isDropdownOpen || isHovered;
 
-  // Classes base do card com melhorias - mantém scale quando dropdown está aberto ou hovering
+  // Classes base otimizadas para legibilidade
   const cardClasses = desktopLayout 
-    ? `relative rounded-3xl p-6 group min-h-[240px] max-h-[400px] flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl cursor-pointer ${isEditing ? 'ring-2 ring-white/50' : ''} ${isDropdownOpen || isHovered ? 'scale-[1.02] shadow-2xl' : ''}`
-    : `relative rounded-3xl p-6 mb-4 group min-h-[120px] transition-all duration-300 ease-in-out ${isEditing ? 'min-h-[200px]' : ''}`;
+    ? `relative rounded-2xl p-6 group transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl cursor-pointer ${
+        isEditing ? 'ring-2 ring-white/50 min-h-[300px]' : 'min-h-[220px]'
+      } ${isDropdownOpen || isHovered ? 'scale-[1.02] shadow-xl' : ''}`
+    : `relative rounded-2xl p-5 mb-4 group transition-all duration-300 ease-in-out ${
+        isEditing ? 'min-h-[280px]' : 'min-h-[140px]'
+      }`;
 
   if (desktopLayout) {
     return (
@@ -107,15 +111,15 @@ const EnhancedLearningCard = ({
           className={cardClasses}
           style={{ 
             background: cardGradient,
-            boxShadow: isDropdownOpen || isHovered ? '0 12px 32px rgba(0, 0, 0, 0.15)' : '0 8px 32px rgba(0, 0, 0, 0.12)',
-            height: isEditing ? 'auto' : undefined,
+            boxShadow: isDropdownOpen || isHovered ? '0 12px 32px rgba(0, 0, 0, 0.15)' : '0 8px 24px rgba(0, 0, 0, 0.10)',
+            height: 'auto', // Permitir crescimento dinâmico
             transition: 'all 0.3s ease-in-out'
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Ações Desktop - Controle de visibilidade melhorado */}
-          <div className={`absolute top-6 right-6 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
+          {/* Actions Desktop */}
+          <div className={`absolute top-4 right-4 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
             showActions
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-2'
@@ -127,7 +131,7 @@ const EnhancedLearningCard = ({
                   size="sm"
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="w-8 h-8 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                  className="w-9 h-9 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                 >
                   <Check className="w-4 h-4" />
                 </Button>
@@ -135,7 +139,7 @@ const EnhancedLearningCard = ({
                   variant="ghost"
                   size="sm"
                   onClick={handleCancel}
-                  className="w-8 h-8 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                  className="w-9 h-9 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                 >
                   <X className="w-4 h-4" />
                 </Button>
@@ -145,10 +149,9 @@ const EnhancedLearningCard = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="w-8 h-8 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                  className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                   onClick={(e) => {
                     e.stopPropagation();
-                    /* Implementar compartilhamento futuramente */
                   }}
                 >
                   <Share2 className="w-4 h-4" />
@@ -159,7 +162,7 @@ const EnhancedLearningCard = ({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="w-8 h-8 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
+                      className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                     >
                       <MoreVertical className="w-4 h-4" />
                     </Button>
@@ -189,10 +192,10 @@ const EnhancedLearningCard = ({
             )}
           </div>
 
-          {/* Header do Card */}
-          <div className="relative z-10 flex justify-between items-start mb-4">
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-3 transition-all duration-300">
-              <span className="text-xs text-gray-500 font-medium tracking-wider">
+          {/* Header com Badge */}
+          <div className="relative z-10 flex justify-between items-start mb-5">
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2.5 flex items-center gap-3 transition-all duration-300 shadow-sm">
+              <span className="text-xs text-gray-500 font-medium tracking-wider uppercase">
                 #{formatId(entry.numeroId)}
               </span>
               <span className="text-base font-bold text-gray-900">
@@ -201,47 +204,62 @@ const EnhancedLearningCard = ({
             </div>
           </div>
 
-          {/* Conteúdo Principal */}
-          <div className="relative z-10 text-white flex-1 flex flex-col justify-center min-h-[100px]">
+          {/* Conteúdo Principal com altura dinâmica */}
+          <div className="relative z-10 text-white flex-1 flex flex-col min-h-0">
             {isEditing ? (
               <div className="space-y-4">
-                <div className="border border-white/30 rounded-lg p-3 bg-white/10 backdrop-blur-sm">
+                {/* Campo de Título */}
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <Input
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
                     placeholder="Título do aprendizado"
-                    className="bg-white/90 text-gray-900 border-0 text-lg font-semibold placeholder:text-gray-500"
+                    className="bg-white/95 text-gray-900 border-0 text-lg font-semibold placeholder:text-gray-500 h-12 text-base"
                   />
                 </div>
-                <div className="border border-white/30 rounded-lg p-3 bg-white/10 backdrop-blur-sm">
+                
+                {/* Campo de Conteúdo */}
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
                   <Textarea
                     value={editedContent}
                     onChange={(e) => setEditedContent(e.target.value)}
-                    placeholder="Conteúdo do aprendizado"
-                    className="bg-white/90 text-gray-900 border-0 min-h-[100px] resize-none placeholder:text-gray-500"
+                    placeholder="Descreva seu aprendizado..."
+                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base leading-relaxed"
+                    style={{ 
+                      minHeight: '120px',
+                      height: 'auto'
+                    }}
+                    rows={Math.max(4, Math.ceil(editedContent.length / 50))}
                   />
                 </div>
               </div>
             ) : (
               <>
+                {/* Título */}
                 {entry.title && (
-                  <h3 className="text-xl font-semibold mb-3 leading-tight transition-all duration-300">
+                  <h3 className="text-xl font-semibold mb-4 leading-tight text-white drop-shadow-sm break-words">
                     {entry.title}
                   </h3>
                 )}
-                <p className="text-white/90 leading-relaxed text-[15px] line-clamp-3 transition-all duration-300">
-                  {entry.content}
-                </p>
+                
+                {/* Conteúdo */}
+                <div className="flex-1 mb-4">
+                  <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
+                    {entry.content}
+                  </p>
+                </div>
               </>
             )}
             
-            {/* Tags */}
+            {/* Tags - sempre visíveis e sem cortes */}
             {!compact && (
-              <EditableTags 
-                tags={isEditing ? editedTags : entry.tags}
-                onTagsChange={setEditedTags}
-                isEditing={isEditing}
-              />
+              <div className="mt-auto pt-4">
+                <EditableTags 
+                  tags={isEditing ? editedTags : entry.tags}
+                  onTagsChange={setEditedTags}
+                  isEditing={isEditing}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -270,67 +288,141 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile sem overlay pontiagudo
+  // Layout mobile otimizado
   return (
     <>
       <div 
         className={cardClasses}
         style={{ 
           background: cardGradient,
-          height: isEditing ? 'auto' : undefined,
+          height: 'auto',
           transition: 'all 0.3s ease-in-out'
         }}
       >
-        {/* Conteúdo */}
-        <div className="relative z-10 flex items-start gap-4 transition-all duration-300">
-          {/* ID e Data */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 flex flex-col items-center justify-center min-w-[4rem] flex-shrink-0 transition-all duration-300">
-            <span className="text-xs text-gray-500 font-medium tracking-wider">
-              #{formatId(entry.numeroId)}
-            </span>
-            <span className="text-base font-bold text-gray-900">
-              {formatDate(entry.createdAt)}
-            </span>
+        <div className="relative z-10 transition-all duration-300">
+          {/* Header Mobile */}
+          <div className="flex items-start gap-4 mb-4">
+            {/* Badge ID/Data */}
+            <div className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2.5 flex flex-col items-center justify-center min-w-[4rem] flex-shrink-0 shadow-sm">
+              <span className="text-xs text-gray-500 font-medium tracking-wider uppercase">
+                #{formatId(entry.numeroId)}
+              </span>
+              <span className="text-sm font-bold text-gray-900">
+                {formatDate(entry.createdAt)}
+              </span>
+            </div>
+
+            {/* Actions Mobile */}
+            <div className="flex gap-2 ml-auto">
+              {isEditing ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="w-10 h-10 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                  >
+                    <Check className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleCancel}
+                    className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                    onClick={() => {}}
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </Button>
+                  
+                  <DropdownMenu onOpenChange={setIsDropdownOpen}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                      >
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      align="end" 
+                      className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
+                      sideOffset={8}
+                    >
+                      <DropdownMenuItem 
+                        onClick={handleEdit} 
+                        className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => setShowDeleteDialog(true)} 
+                        className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Mover para lixeira
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Conteúdo Principal */}
-          <div className="flex-1 text-white transition-all duration-300">
+          {/* Conteúdo Mobile */}
+          <div className="text-white">
             {isEditing ? (
-              <div className="space-y-3">
-                <div className="border border-white/30 rounded-lg p-2 bg-white/10 backdrop-blur-sm">
+              <div className="space-y-4">
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                   <Input
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
                     placeholder="Título do aprendizado"
-                    className="bg-white/90 text-gray-900 border-0 text-base font-semibold placeholder:text-gray-500"
+                    className="bg-white/95 text-gray-900 border-0 text-base font-semibold placeholder:text-gray-500"
                   />
                 </div>
-                <div className="border border-white/30 rounded-lg p-2 bg-white/10 backdrop-blur-sm">
+                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/20">
                   <Textarea
                     value={editedContent}
                     onChange={(e) => setEditedContent(e.target.value)}
-                    placeholder="Conteúdo do aprendizado"
-                    className="bg-white/90 text-gray-900 border-0 min-h-[80px] resize-none placeholder:text-gray-500"
+                    placeholder="Descreva seu aprendizado..."
+                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base"
+                    style={{ 
+                      minHeight: '100px',
+                      height: 'auto'
+                    }}
+                    rows={Math.max(3, Math.ceil(editedContent.length / 40))}
                   />
                 </div>
               </div>
             ) : (
               <>
                 {entry.title && (
-                  <h3 className="text-lg font-semibold mb-2 leading-tight transition-all duration-300">
+                  <h3 className="text-lg font-semibold mb-3 leading-tight text-white drop-shadow-sm break-words">
                     {entry.title}
                   </h3>
                 )}
-                <p className={`
-                  text-white/90 leading-relaxed text-sm transition-all duration-300
-                  ${compact ? 'line-clamp-1' : 'line-clamp-2'}
-                `}>
+                <p className={`text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4 ${
+                  compact ? 'line-clamp-2' : ''
+                }`}>
                   {entry.content}
                 </p>
               </>
             )}
             
-            {/* Tags */}
+            {/* Tags Mobile */}
             {!compact && (
               <EditableTags 
                 tags={isEditing ? editedTags : entry.tags}
@@ -339,78 +431,10 @@ const EnhancedLearningCard = ({
               />
             )}
           </div>
-
-          {/* Ações Mobile - Sempre visíveis */}
-          <div className="flex gap-2 transition-all duration-300 ease-in-out">
-            {isEditing ? (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="w-10 h-10 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
-                >
-                  <Check className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleCancel}
-                  className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
-                >
-                  <X className="w-4 h-4" />
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
-                  onClick={() => {/* Implementar compartilhamento futuramente */}}
-                >
-                  <Share2 className="w-4 h-4" />
-                </Button>
-                
-                <DropdownMenu onOpenChange={setIsDropdownOpen}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
-                    >
-                      <MoreVertical className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    align="end" 
-                    className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
-                    sideOffset={8}
-                  >
-                    <DropdownMenuItem 
-                      onClick={handleEdit} 
-                      className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Editar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={() => setShowDeleteDialog(true)} 
-                      className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
-                    >
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Mover para lixeira
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
-            )}
-          </div>
         </div>
       </div>
 
-      {/* AlertDialog separado para Mobile */}
+      {/* AlertDialog Mobile */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="z-[70]">
           <AlertDialogHeader>
@@ -427,7 +451,7 @@ const EnhancedLearningCard = ({
             >
               Mover para lixeira
             </AlertDialogAction>
-          </AlertDialogFooter>
+            </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>

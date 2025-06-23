@@ -49,83 +49,80 @@ const EditableTags = ({ tags, onTagsChange, isEditing }: EditableTagsProps) => {
   };
 
   if (!isEditing) {
-    // Modo normal - tags com estilo original
+    // Modo normal - mostrar todas as tags sem cortes
     return (
       <div className="flex flex-wrap gap-2">
-        {tags.slice(0, 3).map((tag, index) => (
+        {tags.map((tag, index) => (
           <span 
             key={index}
-            className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium transition-all duration-200 hover:bg-white/30"
+            className="px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium transition-all duration-200 hover:bg-white/30 border border-white/10 drop-shadow-sm whitespace-nowrap"
           >
             {tag}
           </span>
         ))}
-        {tags.length > 3 && (
-          <span className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium">
-            +{tags.length - 3}
-          </span>
-        )}
       </div>
     );
   }
 
-  // Modo de edição - tags editáveis com estilo similar ao bloco ID/data
+  // Modo de edição - tags editáveis
   return (
-    <div className="flex flex-wrap gap-2 mt-3">
-      {tags.map((tag, index) => (
-        <div key={index} className="relative">
-          {editingTagIndex === index ? (
-            <div className="flex items-center gap-1">
-              <Input
-                value={editingTagValue}
-                onChange={(e) => setEditingTagValue(e.target.value)}
-                className="h-8 w-20 text-xs bg-white/95 text-gray-900 border-0"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleSaveTagEdit();
-                  if (e.key === 'Escape') handleCancelTagEdit();
-                }}
-                onBlur={handleSaveTagEdit}
-                autoFocus
-              />
-            </div>
-          ) : (
-            <div 
-              className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 flex items-center gap-2 cursor-pointer text-gray-900 text-xs font-medium group hover:bg-white transition-all duration-200"
-              onClick={() => handleRemoveTag(index)}
-              onDoubleClick={() => handleEditTag(index)}
-            >
-              <span>{tag}</span>
-              <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          )}
-        </div>
-      ))}
-      
-      {isAddingTag ? (
-        <div className="flex items-center gap-1">
-          <Input
-            value={newTagValue}
-            onChange={(e) => setNewTagValue(e.target.value)}
-            placeholder="Nova tag"
-            className="h-8 w-24 text-xs bg-white/95 text-gray-900 border-0"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleAddTag();
-              if (e.key === 'Escape') setIsAddingTag(false);
-            }}
-            onBlur={handleAddTag}
-            autoFocus
-          />
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsAddingTag(true)}
-          className="h-8 w-8 p-0 bg-white/95 hover:bg-white text-gray-900 rounded-xl transition-all duration-200"
-        >
-          <Plus className="w-4 h-4" />
-        </Button>
-      )}
+    <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag, index) => (
+          <div key={index} className="relative">
+            {editingTagIndex === index ? (
+              <div className="flex items-center gap-1">
+                <Input
+                  value={editingTagValue}
+                  onChange={(e) => setEditingTagValue(e.target.value)}
+                  className="h-9 w-24 text-sm bg-white/95 text-gray-900 border-0"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSaveTagEdit();
+                    if (e.key === 'Escape') handleCancelTagEdit();
+                  }}
+                  onBlur={handleSaveTagEdit}
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <div 
+                className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2 flex items-center gap-2 cursor-pointer text-gray-900 text-sm font-medium group hover:bg-white transition-all duration-200 shadow-sm"
+                onClick={() => handleRemoveTag(index)}
+                onDoubleClick={() => handleEditTag(index)}
+              >
+                <span className="whitespace-nowrap">{tag}</span>
+                <X className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-red-500" />
+              </div>
+            )}
+          </div>
+        ))}
+        
+        {isAddingTag ? (
+          <div className="flex items-center gap-1">
+            <Input
+              value={newTagValue}
+              onChange={(e) => setNewTagValue(e.target.value)}
+              placeholder="Nova tag"
+              className="h-9 w-28 text-sm bg-white/95 text-gray-900 border-0"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddTag();
+                if (e.key === 'Escape') setIsAddingTag(false);
+              }}
+              onBlur={handleAddTag}
+              autoFocus
+            />
+          </div>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsAddingTag(true)}
+            className="h-9 w-9 p-0 bg-white/95 hover:bg-white text-gray-900 rounded-xl transition-all duration-200 shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
