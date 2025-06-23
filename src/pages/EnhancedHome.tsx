@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Moon, Sun } from 'lucide-react';
@@ -170,7 +171,7 @@ const EnhancedHome = () => {
           </div>
 
           {/* Conteúdo Principal */}
-          <div className="py-8 md:py-12 pb-32">
+          <div className="py-8 md:py-12 pb-24 md:pb-32">
             {/* Hero Section - Apenas mobile */}
             <div className="md:hidden py-16 text-center">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">
@@ -182,7 +183,7 @@ const EnhancedHome = () => {
 
               {/* Review Badge - Centralizado e texto corrigido */}
               {reviewsToday.length > 0 && (
-                <div className="mb-12 flex justify-center">
+                <div className="mb-6 flex justify-center">
                   <Button
                     onClick={() => setShowReviewModal(true)}
                     className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-8 py-3 text-base font-semibold transition-all duration-200"
@@ -196,7 +197,7 @@ const EnhancedHome = () => {
 
             {/* Review Badge Desktop - Centralizado e texto corrigido */}
             {reviewsToday.length > 0 && (
-              <div className="hidden md:block mb-8 flex justify-center">
+              <div className="hidden md:block mb-4 flex justify-center">
                 <Button
                   onClick={() => setShowReviewModal(true)}
                   className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-8 py-3 text-base font-semibold transition-all duration-200"

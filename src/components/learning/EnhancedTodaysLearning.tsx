@@ -34,10 +34,6 @@ const EnhancedTodaysLearning = ({
 
   return (
     <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-gray-900 mb-6 md:hidden transition-all duration-300">
-        {compact ? 'Aprendizados' : 'Aprendizados de hoje'}
-      </h3>
-      
       {/* Mobile Layout */}
       <div className="md:hidden space-y-4">
         {entries.map((entry) => (
