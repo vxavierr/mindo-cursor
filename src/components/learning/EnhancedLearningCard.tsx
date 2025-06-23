@@ -150,28 +150,14 @@ const EnhancedLearningCard = ({
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg animate-in slide-in-from-top-2 duration-200"
-                  sideOffset={8}
-                >
-                  <DropdownMenuItem 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEdit();
-                    }} 
-                    className="cursor-pointer hover:bg-gray-100/80 transition-colors"
-                  >
+                <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg">
+                  <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
                     <Edit className="w-4 h-4 mr-2" />
                     Editar
                   </DropdownMenuItem>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <DropdownMenuItem 
-                        onSelect={(e) => e.preventDefault()} 
-                        className="cursor-pointer text-red-600 hover:bg-red-50/80 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
-                      >
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer text-red-600">
                         <Trash2 className="w-4 h-4 mr-2" />
                         Mover para lixeira
                       </DropdownMenuItem>
@@ -259,7 +245,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile com melhorias de cores e legibilidade
+  // Layout mobile com melhorias e botões sempre visíveis
   return (
     <div 
       className={cardClasses}
@@ -271,7 +257,7 @@ const EnhancedLearningCard = ({
       }}
     >
       {/* Overlay para melhor legibilidade */}
-      <div className="absolute inset-0 bg-black/20" />
+      <div className="absolute inset-0 bg-black/10" />
       
       {/* Conteúdo */}
       <div className="relative z-10 flex items-start gap-4 transition-all duration-300">
@@ -289,32 +275,32 @@ const EnhancedLearningCard = ({
         <div className="flex-1 text-white transition-all duration-300">
           {isEditing ? (
             <div className="space-y-3">
-              <div className="border border-white/30 rounded-lg p-2 bg-white/15 backdrop-blur-sm">
+              <div className="border border-white/30 rounded-lg p-2 bg-white/10 backdrop-blur-sm">
                 <Input
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
                   placeholder="Título do aprendizado"
-                  className="bg-white/95 text-gray-900 border-0 text-base font-semibold placeholder:text-gray-500"
+                  className="bg-white/90 text-gray-900 border-0 text-base font-semibold placeholder:text-gray-500"
                 />
               </div>
-              <div className="border border-white/30 rounded-lg p-2 bg-white/15 backdrop-blur-sm">
+              <div className="border border-white/30 rounded-lg p-2 bg-white/10 backdrop-blur-sm">
                 <Textarea
                   value={editedContent}
                   onChange={(e) => setEditedContent(e.target.value)}
                   placeholder="Conteúdo do aprendizado"
-                  className="bg-white/95 text-gray-900 border-0 min-h-[80px] resize-none placeholder:text-gray-500"
+                  className="bg-white/90 text-gray-900 border-0 min-h-[80px] resize-none placeholder:text-gray-500"
                 />
               </div>
             </div>
           ) : (
             <>
               {entry.title && (
-                <h3 className="text-lg font-semibold mb-2 leading-tight transition-all duration-300 text-white drop-shadow-sm">
+                <h3 className="text-lg font-semibold mb-2 leading-tight transition-all duration-300">
                   {entry.title}
                 </h3>
               )}
               <p className={`
-                text-white/95 leading-relaxed text-sm transition-all duration-300 drop-shadow-sm
+                text-white/90 leading-relaxed text-sm transition-all duration-300
                 ${compact ? 'line-clamp-1' : 'line-clamp-2'}
               `}>
                 {entry.content}
@@ -332,7 +318,7 @@ const EnhancedLearningCard = ({
           )}
         </div>
 
-        {/* Ações Mobile - Sempre visíveis com melhor contraste */}
+        {/* Ações Mobile - Sempre visíveis com transições suaves */}
         <div className="flex gap-2 transition-all duration-300 ease-in-out">
           {isEditing ? (
             <>
@@ -341,7 +327,7 @@ const EnhancedLearningCard = ({
                 size="sm"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="w-10 h-10 p-0 bg-white/30 hover:bg-green-500/90 text-white rounded-full transition-all duration-200 backdrop-blur-sm shadow-lg"
+                className="w-10 h-10 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
               >
                 <Check className="w-4 h-4" />
               </Button>
@@ -349,7 +335,7 @@ const EnhancedLearningCard = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleCancel}
-                className="w-10 h-10 p-0 bg-white/30 hover:bg-red-500/90 text-white rounded-full transition-all duration-200 backdrop-blur-sm shadow-lg"
+                className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -359,7 +345,7 @@ const EnhancedLearningCard = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-10 h-10 p-0 bg-white/30 hover:bg-white/40 text-white rounded-full transition-all duration-200 backdrop-blur-sm shadow-lg"
+                className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
                 onClick={() => {/* Implementar compartilhamento futuramente */}}
               >
                 <Share2 className="w-4 h-4" />
@@ -370,29 +356,19 @@ const EnhancedLearningCard = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="w-10 h-10 p-0 bg-white/30 hover:bg-white/40 text-white rounded-full transition-all duration-200 backdrop-blur-sm shadow-lg"
+                    className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="bg-white/98 backdrop-blur-sm border border-gray-200 shadow-xl animate-in slide-in-from-top-2 duration-200"
-                  sideOffset={8}
-                >
-                  <DropdownMenuItem 
-                    onClick={handleEdit} 
-                    className="cursor-pointer hover:bg-gray-100/90 transition-colors text-gray-900"
-                  >
+                <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg">
+                  <DropdownMenuItem onClick={handleEdit} className="cursor-pointer">
                     <Edit className="w-4 h-4 mr-2" />
                     Editar
                   </DropdownMenuItem>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <DropdownMenuItem 
-                        onSelect={(e) => e.preventDefault()} 
-                        className="cursor-pointer text-red-600 hover:bg-red-50/90 transition-colors"
-                      >
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer text-red-600">
                         <Trash2 className="w-4 h-4 mr-2" />
                         Mover para lixeira
                       </DropdownMenuItem>
