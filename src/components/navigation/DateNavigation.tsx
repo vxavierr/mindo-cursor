@@ -54,24 +54,25 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
 
   return (
     <div className="bg-white border-b border-gray-100">
-      <div className="flex justify-between items-center px-4 py-3 w-full">
+      {/* Mobile: scroll horizontal, Desktop: distributed spacing */}
+      <div className="flex overflow-x-auto md:overflow-x-visible md:justify-between items-center px-4 py-3 w-full md:gap-4">
         {dateItems.map((item, index) => (
           <button
             key={index}
             onClick={() => handleDateClick(item)}
             className={`
-              flex flex-col items-center py-3 px-2 rounded-xl transition-all duration-200
-              flex-1 mx-1 min-w-0
+              flex flex-col items-center py-3 px-3 rounded-xl transition-all duration-200
+              flex-shrink-0 md:flex-1 min-w-[70px] md:min-w-0
               ${isSelected(item) 
-                ? 'bg-gray-900 text-white' 
-                : 'text-gray-600 hover:bg-gray-50'
+                ? 'border-2 border-blue-500 bg-blue-50 text-blue-700 font-medium shadow-sm' 
+                : 'text-gray-600 hover:bg-gray-50 border-2 border-transparent'
               }
             `}
           >
-            <span className={`text-xs md:text-sm mb-2 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
+            <span className={`text-xs md:text-sm mb-2 ${isSelected(item) ? 'opacity-90' : 'opacity-70'}`}>
               {item.day}
             </span>
-            <span className="text-lg md:text-2xl font-semibold">
+            <span className={`text-lg md:text-2xl ${isSelected(item) ? 'font-bold' : 'font-semibold'}`}>
               {item.date}
             </span>
           </button>
