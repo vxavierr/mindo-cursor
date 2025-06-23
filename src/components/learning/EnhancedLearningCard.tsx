@@ -32,6 +32,7 @@ const EnhancedLearningCard = ({
   const [editedTags, setEditedTags] = useState([...entry.tags]);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const gradients = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -89,10 +90,10 @@ const EnhancedLearningCard = ({
     setShowDeleteDialog(false);
   };
 
-  // Classes base do card com melhorias - REMOVIDO overflow-hidden no desktop
+  // Classes base do card com melhorias - mantém scale quando dropdown está aberto
   const cardClasses = desktopLayout 
-    ? `relative rounded-3xl p-6 group min-h-[240px] max-h-[400px] flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl cursor-pointer ${isEditing ? 'ring-2 ring-white/50' : ''}`
-    : `relative rounded-3xl p-6 mb-4 overflow-hidden group min-h-[120px] transition-all duration-300 ease-in-out ${isEditing ? 'min-h-[200px]' : ''}`;
+    ? `relative rounded-3xl p-6 group min-h-[240px] max-h-[400px] flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl cursor-pointer ${isEditing ? 'ring-2 ring-white/50' : ''} ${isDropdownOpen ? 'scale-[1.02] shadow-2xl' : ''}`
+    : `relative rounded-3xl p-6 mb-4 group min-h-[120px] transition-all duration-300 ease-in-out ${isEditing ? 'min-h-[200px]' : ''}`;
 
   if (desktopLayout) {
     return (
@@ -109,8 +110,12 @@ const EnhancedLearningCard = ({
           {/* Overlay para melhor legibilidade */}
           <div className="absolute inset-0 bg-black/10 rounded-3xl" />
           
-          {/* Ações Desktop - Com transições suaves */}
-          <div className="absolute top-6 right-6 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out transform translate-y-2 group-hover:translate-y-0">
+          {/* Ações Desktop - Sempre visíveis quando dropdown está aberto */}
+          <div className={`absolute top-6 right-6 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
+            isDropdownOpen || isEditing 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'
+          }`}>
             {isEditing ? (
               <>
                 <Button
@@ -145,7 +150,7 @@ const EnhancedLearningCard = ({
                   <Share2 className="w-4 h-4" />
                 </Button>
                 
-                <DropdownMenu>
+                <DropdownMenu onOpenChange={setIsDropdownOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
@@ -157,16 +162,19 @@ const EnhancedLearningCard = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     align="end" 
-                    className="z-50 bg-white/98 backdrop-blur-sm border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200"
+                    className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
                     sideOffset={8}
                   >
-                    <DropdownMenuItem onClick={handleEdit} className="cursor-pointer hover:bg-gray-50 transition-colors">
+                    <DropdownMenuItem 
+                      onClick={handleEdit} 
+                      className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
+                    >
                       <Edit className="w-4 h-4 mr-2" />
                       Editar
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => setShowDeleteDialog(true)} 
-                      className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                      className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Mover para lixeira
@@ -236,7 +244,7 @@ const EnhancedLearningCard = ({
 
         {/* AlertDialog separado para Desktop */}
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent className="z-50">
+          <AlertDialogContent className="z-[70]">
             <AlertDialogHeader>
               <AlertDialogTitle>Mover para lixeira?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -258,7 +266,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile com melhorias e botões sempre visíveis
+  // Layout mobile com melhorias
   return (
     <>
       <div 
@@ -332,7 +340,7 @@ const EnhancedLearningCard = ({
             )}
           </div>
 
-          {/* Ações Mobile - Sempre visíveis com transições suaves */}
+          {/* Ações Mobile - Sempre visíveis */}
           <div className="flex gap-2 transition-all duration-300 ease-in-out">
             {isEditing ? (
               <>
@@ -365,7 +373,7 @@ const EnhancedLearningCard = ({
                   <Share2 className="w-4 h-4" />
                 </Button>
                 
-                <DropdownMenu>
+                <DropdownMenu onOpenChange={setIsDropdownOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
@@ -377,16 +385,19 @@ const EnhancedLearningCard = ({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent 
                     align="end" 
-                    className="z-50 bg-white/98 backdrop-blur-sm border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200"
+                    className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
                     sideOffset={8}
                   >
-                    <DropdownMenuItem onClick={handleEdit} className="cursor-pointer hover:bg-gray-50 transition-colors">
+                    <DropdownMenuItem 
+                      onClick={handleEdit} 
+                      className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
+                    >
                       <Edit className="w-4 h-4 mr-2" />
                       Editar
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => setShowDeleteDialog(true)} 
-                      className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                      className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Mover para lixeira
@@ -401,7 +412,7 @@ const EnhancedLearningCard = ({
 
       {/* AlertDialog separado para Mobile */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="z-50">
+        <AlertDialogContent className="z-[70]">
           <AlertDialogHeader>
             <AlertDialogTitle>Mover para lixeira?</AlertDialogTitle>
             <AlertDialogDescription>
