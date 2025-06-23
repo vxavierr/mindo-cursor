@@ -35,8 +35,8 @@ const EnhancedTodaysLearning = ({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Mobile: Single column layout */}
+    <div className="space-y-6">
+      {/* Mobile: Stack vertical (1 coluna) */}
       <div className="sm:hidden space-y-4">
         {entries.map((entry) => (
           <EnhancedLearningCard
@@ -45,7 +45,6 @@ const EnhancedTodaysLearning = ({
             onDelete={onDelete}
             onUpdate={onUpdate}
             compact={compact}
-            mobileLayout={true}
           />
         ))}
       </div>
