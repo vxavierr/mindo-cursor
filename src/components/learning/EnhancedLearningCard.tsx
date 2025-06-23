@@ -516,8 +516,8 @@ const EnhancedLearningCard = ({
               Mover para lixeira
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
-      </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
