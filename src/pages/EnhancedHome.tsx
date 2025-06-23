@@ -114,9 +114,9 @@ const EnhancedHome = () => {
       onCreateLearning={handleCreateLearning}
       onReview={handleReview}
     >
-      <div style={{ backgroundColor: '#f5f5f7', minHeight: '100vh' }} className="w-full">
-        {/* Header Full Width */}
-        <header className="w-full py-6 md:py-8 flex justify-between items-center bg-white border-b border-gray-100 px-4 md:px-6 lg:px-8">
+      <div style={{ backgroundColor: '#f5f5f7', minHeight: '100vh' }}>
+        {/* Header Responsivo - Full Width */}
+        <header className="w-full py-6 md:py-8 flex justify-between items-center bg-white border-b border-gray-100 px-6 md:px-8">
           <div className="flex items-center space-x-3">
             <div 
               className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg"
@@ -154,8 +154,8 @@ const EnhancedHome = () => {
 
         {/* Navegação por Data - Full Width */}
         <div className="w-full bg-white border-b border-gray-100">
-          <div className="w-full py-4 md:py-6 px-4 md:px-6 lg:px-8">
-            <div className="w-full max-w-none flex justify-center">
+          <div className="w-full py-4 md:py-6 px-6 md:px-8">
+            <div className="max-w-[600px] mx-auto">
               <DateNavigation 
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}
@@ -166,7 +166,7 @@ const EnhancedHome = () => {
 
         {/* Toggle de Visualização - Full Width */}
         <div className="w-full bg-white border-b border-gray-100">
-          <div className="w-full py-4 flex justify-end px-4 md:px-6 lg:px-8">
+          <div className="w-full py-4 flex justify-end px-6 md:px-8">
             <ViewToggle 
               label="Vista Compacta"
               defaultValue={compactView}
@@ -175,8 +175,8 @@ const EnhancedHome = () => {
           </div>
         </div>
 
-        {/* Hero Section Centralizado - Full Width */}
-        <div className="w-full py-8 md:py-12 text-center px-4 md:px-6 lg:px-8">
+        {/* Hero Section - Aparece em todas as visualizações */}
+        <div className="w-full py-8 md:py-12 text-center px-6 md:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             O que você aprendeu hoje?
           </h2>
@@ -184,9 +184,9 @@ const EnhancedHome = () => {
             Registre e organize seus aprendizados
           </p>
 
-          {/* Review Badge - Sempre Centralizado */}
+          {/* Review Badge - Centralizado */}
           {reviewsToday.length > 0 && (
-            <div className="w-full flex justify-center mb-8">
+            <div className="mb-8 flex justify-center">
               <Button
                 onClick={() => setShowReviewModal(true)}
                 className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-8 py-3 text-base font-semibold transition-all duration-200"
@@ -199,7 +199,7 @@ const EnhancedHome = () => {
         </div>
 
         {/* Conteúdo Principal - Full Width */}
-        <div className="w-full px-4 md:px-6 lg:px-8 pb-24 md:pb-32">
+        <div className="w-full px-6 md:px-8 pb-24 md:pb-32">
           <EnhancedTodaysLearning 
             entries={todaysEntries}
             onDelete={handleDeleteEntry}

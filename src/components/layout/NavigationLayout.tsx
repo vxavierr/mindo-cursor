@@ -18,8 +18,11 @@ const NavigationLayout = ({
   onReview
 }: NavigationLayoutProps) => {
   return (
-    <div className="w-full min-h-screen pb-32 md:pb-40">
-      {/* Main Content Area - Full Width without restrictions */}
+    <div 
+      className="w-full min-h-screen pb-32 md:pb-40"
+      style={{ backgroundColor: '#E8EBF0' }}
+    >
+      {/* Main Content Area - Full Width */}
       <main className="w-full relative">
         {children}
       </main>
