@@ -302,7 +302,7 @@ const EnhancedLearningCard = ({
         }}
       >
         {/* Overlay para melhor legibilidade */}
-        <div className="absolute inset-0 bg-black/10" />
+        <div className="absolute inset-0 bg-black/10 rounded-3xl" />
         
         {/* Conteúdo */}
         <div className="relative z-10 flex items-start gap-4 transition-all duration-300">
