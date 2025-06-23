@@ -1,4 +1,5 @@
 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -199,7 +200,7 @@
   .cards-grid-transition {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-</layer>
+}
 
 @layer utilities {
   /* Custom gradients for the learning theme */
@@ -292,3 +293,4 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
 }
+
