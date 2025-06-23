@@ -36,8 +36,8 @@ const EnhancedLearningCard = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
-  // Estado para controle individual de minimizar/expandir (apenas mobile)
-  const [isMinimized, setIsMinimized] = useState(false);
+  // Estado para controle individual de expansão - padrão é recolhido (false)
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Gradientes mais suaves e legíveis
   const gradients = [
@@ -103,13 +103,11 @@ const EnhancedLearningCard = ({
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('[role="menuitem"]')) return;
     
-    // Apenas no mobile
-    if (!desktopLayout) {
-      setIsMinimized(!isMinimized);
-    }
+    // Alternar estado de expansão do card
+    setIsExpanded(!isExpanded);
   };
 
-  // Função para truncar conteúdo quando minimizado (apenas mobile)
+  // Função para truncar conteúdo quando recolhido
   const getTruncatedContent = (content: string, maxLength: number = 80) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
@@ -117,14 +115,14 @@ const EnhancedLearningCard = ({
 
   const showActions = isEditing || isDropdownOpen || isHovered;
 
-  // Classes base restauradas para desktop
+  // Classes dinâmicas baseadas no estado de expansão
   const cardClasses = desktopLayout 
-    ? `relative rounded-2xl p-6 group transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-xl ${
-        isEditing ? 'ring-2 ring-white/50' : ''
-      } ${isDropdownOpen || isHovered ? 'scale-[1.02] shadow-xl' : ''}`
-    : `relative rounded-2xl p-5 mb-4 group transition-all duration-300 ease-in-out cursor-pointer ${
-        isEditing ? 'min-h-[280px]' : 'min-h-[140px]'
-      }`;
+    ? `relative rounded-2xl p-6 group transition-all duration-500 ease-in-out cursor-pointer hover:scale-[1.02] hover:shadow-xl ${
+        isExpanded ? 'z-10 scale-105 shadow-2xl' : ''
+      } ${isEditing ? 'ring-2 ring-white/50' : ''} ${isDropdownOpen || isHovered ? 'scale-[1.02] shadow-xl' : ''}`
+    : `relative rounded-2xl p-5 mb-4 group transition-all duration-500 ease-in-out cursor-pointer ${
+        isExpanded ? 'z-10 scale-105 shadow-2xl mb-8' : ''
+      } ${isEditing ? 'min-h-[280px]' : isExpanded ? 'min-h-[200px]' : 'min-h-[140px]'}`;
 
   if (desktopLayout) {
     return (
@@ -133,11 +131,17 @@ const EnhancedLearningCard = ({
           className={cardClasses}
           style={{ 
             background: cardGradient,
-            boxShadow: isDropdownOpen || isHovered ? '0 12px 32px rgba(0, 0, 0, 0.15)' : '0 8px 24px rgba(0, 0, 0, 0.10)',
-            transition: 'all 0.3s ease-in-out'
+            boxShadow: isExpanded 
+              ? '0 20px 40px rgba(0, 0, 0, 0.25)' 
+              : isDropdownOpen || isHovered 
+                ? '0 12px 32px rgba(0, 0, 0, 0.15)' 
+                : '0 8px 24px rgba(0, 0, 0, 0.10)',
+            transition: 'all 0.5s ease-in-out',
+            transform: isExpanded ? 'translateY(-8px) scale(1.02)' : undefined
           }}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          onClick={handleCardClick}
         >
           {/* Actions Desktop */}
           <div className={`absolute top-4 right-4 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
@@ -150,7 +154,10 @@ const EnhancedLearningCard = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleSave}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSave();
+                  }}
                   disabled={isSaving}
                   className="w-9 h-9 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                 >
@@ -159,7 +166,10 @@ const EnhancedLearningCard = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={handleCancel}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCancel();
+                  }}
                   className="w-9 h-9 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
                 >
                   <X className="w-4 h-4" />
@@ -184,6 +194,7 @@ const EnhancedLearningCard = ({
                       variant="ghost"
                       size="sm"
                       className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <MoreVertical className="w-4 h-4" />
                     </Button>
@@ -194,14 +205,20 @@ const EnhancedLearningCard = ({
                     sideOffset={8}
                   >
                     <DropdownMenuItem 
-                      onClick={handleEdit} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit();
+                      }} 
                       className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
                     >
                       <Edit className="w-4 h-4 mr-2" />
                       Editar
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => setShowDeleteDialog(true)} 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeleteDialog(true);
+                      }} 
                       className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
@@ -225,7 +242,7 @@ const EnhancedLearningCard = ({
             </div>
           </div>
 
-          {/* Conteúdo Principal - Layout original restaurado */}
+          {/* Conteúdo Principal */}
           <div className="relative z-10 text-white flex-1 flex flex-col min-h-0">
             {isEditing ? (
               <div className="space-y-4">
@@ -236,6 +253,7 @@ const EnhancedLearningCard = ({
                     onChange={(e) => setEditedTitle(e.target.value)}
                     placeholder="Título do aprendizado"
                     className="bg-white/95 text-gray-900 border-0 text-lg font-semibold placeholder:text-gray-500 h-12 text-base"
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
                 
@@ -251,6 +269,7 @@ const EnhancedLearningCard = ({
                       height: 'auto'
                     }}
                     rows={Math.max(4, Math.ceil(editedContent.length / 50))}
+                    onClick={(e) => e.stopPropagation()}
                   />
                 </div>
               </div>
@@ -263,18 +282,18 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                {/* Conteúdo - sempre expandido no desktop */}
+                {/* Conteúdo - truncado quando recolhido, completo quando expandido */}
                 <div className="flex-1 mb-4">
                   <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
-                    {entry.content}
+                    {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
                   </p>
                 </div>
               </>
             )}
             
-            {/* Tags - sempre visíveis e sem cortes */}
+            {/* Tags - sempre visíveis */}
             {!compact && (
-              <div className="mt-auto pt-4">
+              <div className="mt-auto pt-4" onClick={(e) => e.stopPropagation()}>
                 <EditableTags 
                   tags={isEditing ? editedTags : entry.tags}
                   onTagsChange={setEditedTags}
@@ -309,7 +328,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile com clique para expandir/minimizar
+  // Layout mobile com clique para expandir/recolher
   return (
     <>
       <div 
@@ -317,7 +336,11 @@ const EnhancedLearningCard = ({
         style={{ 
           background: cardGradient,
           height: 'auto',
-          transition: 'all 0.3s ease-in-out'
+          transition: 'all 0.5s ease-in-out',
+          transform: isExpanded ? 'translateY(-4px) scale(1.02)' : undefined,
+          boxShadow: isExpanded 
+            ? '0 16px 32px rgba(0, 0, 0, 0.2)' 
+            : '0 8px 24px rgba(0, 0, 0, 0.1)'
         }}
         onClick={handleCardClick}
       >
@@ -454,9 +477,9 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                {/* Conteúdo com controle de minimização individual */}
+                {/* Conteúdo com controle de expansão individual */}
                 <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4">
-                  {isMinimized ? getTruncatedContent(entry.content, 80) : entry.content}
+                  {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
                 </p>
               </>
             )}
@@ -493,8 +516,8 @@ const EnhancedLearningCard = ({
               Mover para lixeira
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        </AlertDialogFooter>
+      </div>
     </>
   );
 };
