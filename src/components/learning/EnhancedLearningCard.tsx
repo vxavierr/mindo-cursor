@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Share2, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
+import { Share2, MoreVertical, Edit, Trash2, Check, X, ArrowDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +15,7 @@ interface EnhancedLearningCardProps {
   gradient?: string;
   compact?: boolean;
   desktopLayout?: boolean;
+  mobileLayout?: boolean;
 }
 
 const EnhancedLearningCard = ({ 
@@ -24,7 +24,8 @@ const EnhancedLearningCard = ({
   onUpdate,
   gradient,
   compact = false,
-  desktopLayout = false
+  desktopLayout = false,
+  mobileLayout = false
 }: EnhancedLearningCardProps) => {
   
   const [isEditing, setIsEditing] = useState(false);
@@ -35,15 +36,13 @@ const EnhancedLearningCard = ({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  
-  // Estado para controle individual de expansão - padrão é recolhido (false)
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Gradientes mais suaves e legíveis
   const gradients = [
-    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', // indigo para purple
+    'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)', // indigo para purple
     'linear-gradient(135deg, #ec4899 0%, #f43f5e 100%)', // pink para rose
-    'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)', // emerald
+    'linear-gradient(135deg, #10b981 0%, #059669 100%)', // emerald
     'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)', // amber para orange
     'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'  // blue
   ];
@@ -97,23 +96,206 @@ const EnhancedLearningCard = ({
   };
 
   const handleCardClick = (e: React.MouseEvent) => {
-    // Prevenir expansão se estiver clicando em botões ou dropdown
     if (isEditing || isDropdownOpen) return;
     
     const target = e.target as HTMLElement;
     if (target.closest('button') || target.closest('[role="menuitem"]')) return;
     
-    // Alternar estado de expansão do card
     setIsExpanded(!isExpanded);
   };
 
-  // Função para truncar conteúdo quando recolhido
   const getTruncatedContent = (content: string, maxLength: number = 120) => {
     if (content.length <= maxLength) return content;
     return content.substring(0, maxLength) + '...';
   };
 
   const showActions = isEditing || isDropdownOpen || isHovered;
+
+  // Layout especifico para mobile - compacto como na imagem
+  if (mobileLayout) {
+    return (
+      <>
+        <div 
+          className="relative rounded-2xl overflow-hidden transition-all duration-300 ease-in-out cursor-pointer"
+          style={{ 
+            background: cardGradient,
+            minHeight: isEditing ? '200px' : '120px'
+          }}
+          onClick={handleCardClick}
+        >
+          <div className="p-4 h-full">
+            <div className="flex items-start justify-between h-full">
+              {/* Left side - ID and Date */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-3 flex flex-col items-center justify-center min-w-[3.5rem] flex-shrink-0 shadow-sm">
+                <span className="text-xs text-gray-500 font-medium tracking-wider uppercase">
+                  #{formatId(entry.numeroId)}
+                </span>
+                <span className="text-sm font-bold text-gray-900 mt-1">
+                  {formatDate(entry.createdAt)}
+                </span>
+              </div>
+
+              {/* Center - Content */}
+              <div className="flex-1 px-4 flex flex-col justify-center text-white">
+                {isEditing ? (
+                  <div className="space-y-3">
+                    <Input
+                      value={editedTitle}
+                      onChange={(e) => setEditedTitle(e.target.value)}
+                      placeholder="Título do aprendizado"
+                      className="bg-white/95 text-gray-900 border-0 text-sm font-semibold placeholder:text-gray-500 h-8"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <Textarea
+                      value={editedContent}
+                      onChange={(e) => setEditedContent(e.target.value)}
+                      placeholder="Descreva seu aprendizado..."
+                      className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-sm min-h-[60px]"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                ) : (
+                  <>
+                    {entry.title && (
+                      <h3 className="text-base font-semibold mb-2 leading-tight text-white drop-shadow-sm line-clamp-1">
+                        {entry.title}
+                      </h3>
+                    )}
+                    
+                    <p className="text-white/90 leading-relaxed text-sm line-clamp-2">
+                      {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
+                    </p>
+                    
+                    {!isExpanded && entry.content.length > 80 && (
+                      <div className="flex items-center gap-1 mt-2 text-white/70">
+                        <span className="text-xs">Ver mais</span>
+                        <ArrowDown className="w-3 h-3" />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Right side - Actions */}
+              <div className="flex flex-col gap-2">
+                {isEditing ? (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSave();
+                      }}
+                      disabled={isSaving}
+                      className="w-8 h-8 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full backdrop-blur-sm border border-white/20"
+                    >
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCancel();
+                      }}
+                      className="w-8 h-8 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full backdrop-blur-sm border border-white/20"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-8 h-8 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full backdrop-blur-sm border border-white/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                    
+                    <DropdownMenu onOpenChange={setIsDropdownOpen}>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-8 h-8 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full backdrop-blur-sm border border-white/20"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <MoreVertical className="w-3 h-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent 
+                        align="end" 
+                        className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
+                        sideOffset={8}
+                      >
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEdit();
+                          }} 
+                          className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowDeleteDialog(true);
+                          }} 
+                          className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Mover para lixeira
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Tags - only show when expanded and not compact */}
+            {!compact && isExpanded && (
+              <div className="mt-4 pt-3 border-t border-white/20" onClick={(e) => e.stopPropagation()}>
+                <EditableTags 
+                  tags={isEditing ? editedTags : entry.tags}
+                  onTagsChange={setEditedTags}
+                  isEditing={isEditing}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* AlertDialog */}
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent className="z-[70]">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Mover para lixeira?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Este aprendizado será movido para a lixeira. Você poderá restaurá-lo a qualquer momento através das configurações.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={handleDelete}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                Mover para lixeira
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
 
   // Layout para desktop com novo design
   if (desktopLayout) {
@@ -318,197 +500,8 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile mantido igual
-  return (
-    <>
-      <div 
-        className="relative rounded-2xl p-5 mb-4 group transition-all duration-500 ease-in-out cursor-pointer"
-        style={{ 
-          background: cardGradient,
-          minHeight: isEditing ? '280px' : isExpanded ? '200px' : '140px',
-          transition: 'all 0.5s ease-in-out',
-          transform: isExpanded ? 'translateY(-4px) scale(1.02)' : undefined,
-          boxShadow: isExpanded 
-            ? '0 16px 32px rgba(0, 0, 0, 0.2)' 
-            : '0 8px 24px rgba(0, 0, 0, 0.1)'
-        }}
-        onClick={handleCardClick}
-      >
-        <div className="relative z-10 transition-all duration-300">
-          {/* Header Mobile */}
-          <div className="flex items-start gap-4 mb-4">
-            {/* Badge ID/Data */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-xl px-3 py-2.5 flex flex-col items-center justify-center min-w-[4rem] flex-shrink-0 shadow-sm">
-              <span className="text-xs text-gray-500 font-medium tracking-wider uppercase">
-                #{formatId(entry.numeroId)}
-              </span>
-              <span className="text-sm font-bold text-gray-900">
-                {formatDate(entry.createdAt)}
-              </span>
-            </div>
-
-            {/* Actions Mobile */}
-            <div className="flex gap-2 ml-auto">
-              {isEditing ? (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSave();
-                    }}
-                    disabled={isSaving}
-                    className="w-10 h-10 p-0 bg-white/20 hover:bg-green-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                  >
-                    <Check className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCancel();
-                    }}
-                    className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-                  
-                  <DropdownMenu onOpenChange={setIsDropdownOpen}>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent 
-                      align="end" 
-                      className="z-[60] bg-white border border-gray-200 shadow-xl animate-in fade-in-0 zoom-in-95 duration-200 min-w-[160px]"
-                      sideOffset={8}
-                    >
-                      <DropdownMenuItem 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit();
-                        }} 
-                        className="cursor-pointer hover:bg-gray-100 transition-colors text-gray-700 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900"
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Editar
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowDeleteDialog(true);
-                        }} 
-                        className="cursor-pointer text-red-600 hover:bg-red-50 hover:text-red-700 focus:bg-red-50 focus:text-red-700 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Mover para lixeira
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Conteúdo Mobile */}
-          <div className="text-white">
-            {isEditing ? (
-              <div className="space-y-4">
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-                  <Input
-                    value={editedTitle}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                    placeholder="Título do aprendizado"
-                    className="bg-white/95 text-gray-900 border-0 text-base font-semibold placeholder:text-gray-500"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-                <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-                  <Textarea
-                    value={editedContent}
-                    onChange={(e) => setEditedContent(e.target.value)}
-                    placeholder="Descreva seu aprendizado..."
-                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base"
-                    style={{ 
-                      minHeight: '100px',
-                      height: 'auto'
-                    }}
-                    rows={Math.max(3, Math.ceil(editedContent.length / 40))}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-              </div>
-            ) : (
-              <>
-                {entry.title && (
-                  <h3 className="text-lg font-semibold mb-3 leading-tight text-white drop-shadow-sm break-words">
-                    {entry.title}
-                  </h3>
-                )}
-                
-                <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4">
-                  {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
-                </p>
-              </>
-            )}
-            
-            {/* Tags Mobile */}
-            {!compact && (
-              <div onClick={(e) => e.stopPropagation()}>
-                <EditableTags 
-                  tags={isEditing ? editedTags : entry.tags}
-                  onTagsChange={setEditedTags}
-                  isEditing={isEditing}
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* AlertDialog Mobile */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="z-[70]">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Mover para lixeira?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Este aprendizado será movido para a lixeira. Você poderá restaurá-lo a qualquer momento através das configurações.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDelete}
-              className="bg-red-500 hover:bg-red-600"
-            >
-              Mover para lixeira
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
+  // Layout mobile antigo (fallback)
+  return null;
 };
 
 export default EnhancedLearningCard;
