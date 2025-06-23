@@ -114,9 +114,6 @@ const EnhancedLearningCard = ({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          {/* Overlay para melhor legibilidade */}
-          <div className="absolute inset-0 bg-black/10 rounded-3xl" />
-          
           {/* Ações Desktop - Controle de visibilidade melhorado */}
           <div className={`absolute top-6 right-6 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
             showActions
@@ -273,7 +270,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile com sombra removida
+  // Layout mobile sem overlay pontiagudo
   return (
     <>
       <div 
@@ -284,9 +281,6 @@ const EnhancedLearningCard = ({
           transition: 'all 0.3s ease-in-out'
         }}
       >
-        {/* Overlay para melhor legibilidade */}
-        <div className="absolute inset-0 bg-black/10" />
-        
         {/* Conteúdo */}
         <div className="relative z-10 flex items-start gap-4 transition-all duration-300">
           {/* ID e Data */}
@@ -433,11 +427,11 @@ const EnhancedLearningCard = ({
             >
               Mover para lixeira
             </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
 };
 
 export default EnhancedLearningCard;
