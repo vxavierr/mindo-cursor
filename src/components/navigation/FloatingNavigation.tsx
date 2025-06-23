@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Home, Settings, Plus, BookOpen, RotateCcw } from 'lucide-react';
 
@@ -103,9 +102,9 @@ const FloatingNavigation = ({
         </div>
       )}
 
-      {/* Mobile: Enhanced responsive navigation */}
-      <div className="md:hidden w-full bg-white border-t border-gray-100 pointer-events-auto">
-        <div className="flex items-center justify-between px-8 py-4 transition-all duration-300">
+      {/* Mobile: Fixed bottom navigation that fills entire width */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 pointer-events-auto z-40">
+        <div className="flex items-center justify-between px-8 py-4">
           {/* Home Button */}
           <button
             onClick={() => handleItemClick('home', '/')}
@@ -124,7 +123,7 @@ const FloatingNavigation = ({
             />
           </button>
 
-          {/* FAB - Enhanced responsive behavior */}
+          {/* FAB */}
           <button
             onClick={handleFabClick}
             className={`
@@ -164,9 +163,9 @@ const FloatingNavigation = ({
         </div>
       </div>
 
-      {/* Desktop: Enhanced responsive floating navigation */}
-      <div className="hidden md:flex justify-center items-center pointer-events-none">
-        <nav className="relative bg-white rounded-[32px] px-6 py-3 pointer-events-auto flex items-center gap-8 transition-all duration-300"
+      {/* Desktop: Floating navigation (unchanged) */}
+      <div className="hidden md:block fixed bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-40">
+        <nav className="relative bg-white rounded-[32px] px-6 py-3 pointer-events-auto flex items-center gap-8 nav-transition"
              style={{
                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)'
              }}>

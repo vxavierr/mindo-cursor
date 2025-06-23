@@ -23,7 +23,7 @@ const ViewToggle = ({
   };
 
   return (
-    <div className={`flex justify-end items-center gap-3 transition-all duration-300 ${className}`}>
+    <div className={`bg-white px-6 py-4 flex justify-end items-center gap-3 border-b border-gray-100 transition-all duration-300 ${className}`}>
       <span className="text-sm text-gray-600 font-medium transition-colors duration-200">
         {label}
       </span>

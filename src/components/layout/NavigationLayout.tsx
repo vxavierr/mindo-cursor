@@ -19,23 +19,21 @@ const NavigationLayout = ({
 }: NavigationLayoutProps) => {
   return (
     <div 
-      className="w-full min-h-screen"
-      style={{ backgroundColor: '#f5f5f7', paddingBottom: '5rem' }}
+      className="w-full min-h-screen pb-32 md:pb-40"
+      style={{ backgroundColor: '#E8EBF0' }}
     >
       {/* Main Content Area - Full Width */}
       <main className="w-full relative">
         {children}
       </main>
       
-      {/* Floating Navigation - Enhanced responsive system */}
-      <div className="responsive-bottom-nav">
-        <FloatingNavigation
-          activeItem={activeNavItem}
-          onNavigate={onNavigate}
-          onCreateLearning={onCreateLearning}
-          onReview={onReview}
-        />
-      </div>
+      {/* Floating Navigation */}
+      <FloatingNavigation
+        activeItem={activeNavItem}
+        onNavigate={onNavigate}
+        onCreateLearning={onCreateLearning}
+        onReview={onReview}
+      />
     </div>
   );
 };

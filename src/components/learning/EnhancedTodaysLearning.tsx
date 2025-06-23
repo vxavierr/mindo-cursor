@@ -49,20 +49,18 @@ const EnhancedTodaysLearning = ({
         ))}
       </div>
 
-      {/* Desktop Grid Layout - Enhanced responsive system */}
-      <div className="hidden md:block">
-        <div className="responsive-cards-grid">
-          {entries.map((entry) => (
-            <EnhancedLearningCard
-              key={entry.id}
-              entry={entry}
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-              compact={compact}
-              desktopLayout={true}
-            />
-          ))}
-        </div>
+      {/* Desktop Grid Layout - Limited to 2 columns with enhanced transitions */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-8 cards-grid-transition">
+        {entries.map((entry) => (
+          <EnhancedLearningCard
+            key={entry.id}
+            entry={entry}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            compact={compact}
+            desktopLayout={true}
+          />
+        ))}
       </div>
     </div>
   );
