@@ -27,8 +27,8 @@ const EnhancedTodaysLearning = ({
           <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 hover:scale-105">
             <span className="text-4xl">📚</span>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 text-transition">Nenhum aprendizado hoje</h3>
-          <p className="text-gray-600 font-medium text-transition">Registre seu primeiro aprendizado do dia</p>
+          <h3 className="text-xl font-semibold text-gray-900 transition-all duration-300">Nenhum aprendizado hoje</h3>
+          <p className="text-gray-600 font-medium transition-all duration-300">Registre seu primeiro aprendizado do dia</p>
         </div>
       </div>
     );
@@ -36,40 +36,30 @@ const EnhancedTodaysLearning = ({
 
   return (
     <div className="space-y-6">
-      {/* Mobile Layout - Enhanced with responsive transitions */}
+      {/* Mobile Layout */}
       <div className="md:hidden space-y-4">
-        {entries.map((entry, index) => (
-          <div 
+        {entries.map((entry) => (
+          <EnhancedLearningCard
             key={entry.id}
-            className="learning-card-animate responsive-card-transition"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <EnhancedLearningCard
-              entry={entry}
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-              compact={compact}
-            />
-          </div>
+            entry={entry}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            compact={compact}
+          />
         ))}
       </div>
 
-      {/* Desktop Grid Layout - Enhanced responsive grid */}
-      <div className="hidden md:grid cards-grid-transition grid-responsive-md lg:grid-responsive-lg xl:grid-responsive-xl">
-        {entries.map((entry, index) => (
-          <div 
+      {/* Desktop Grid Layout - Limited to 2 columns with enhanced transitions */}
+      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-8 cards-grid-transition">
+        {entries.map((entry) => (
+          <EnhancedLearningCard
             key={entry.id}
-            className="learning-card-animate responsive-card-transition"
-            style={{ animationDelay: `${index * 0.1}s` }}
-          >
-            <EnhancedLearningCard
-              entry={entry}
-              onDelete={onDelete}
-              onUpdate={onUpdate}
-              compact={compact}
-              desktopLayout={true}
-            />
-          </div>
+            entry={entry}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            compact={compact}
+            desktopLayout={true}
+          />
         ))}
       </div>
     </div>

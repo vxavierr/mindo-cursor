@@ -1,4 +1,5 @@
 
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -142,7 +143,7 @@
     animation-delay: 0.4s; 
   }
 
-  /* Enhanced hover animations with responsive behavior */
+  /* Enhanced hover animations */
   .card-hover-animation {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -160,34 +161,31 @@
     }
   }
 
-  /* Responsive card transitions - Enhanced */
+  /* Responsive card transitions */
   .responsive-card-transition {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Card content transitions - Enhanced */
+  /* Card content transitions */
   .card-content-transition {
     transition: flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 align-items 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                gap 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                justify-content 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                gap 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Entry number transitions - Enhanced */
+  /* Entry number transitions */
   .entry-number-transition {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                align-items 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Navigation transitions - Enhanced */
+  /* Navigation transitions */
   .nav-transition {
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1),
@@ -195,80 +193,12 @@
                 right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
                 transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Grid container transitions - Enhanced */
+  /* Grid container transitions */
   .cards-grid-transition {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                gap 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Enhanced text transitions */
-  .text-transition {
-    transition: font-size 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                line-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Action buttons transitions */
-  .action-btn-transition {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                position 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                top 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Header transitions */
-  .header-transition {
-    transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Content transitions */
-  .content-transition {
-    transition: padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                margin 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Ultra smooth dropdown transitions */
-  .dropdown-transition {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                opacity 0.2s ease-out,
-                transform 0.2s ease-out;
-  }
-
-  /* Enhanced button press effects */
-  .btn-press-effect {
-    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .btn-press-effect:active {
-    transform: scale(0.95);
-  }
-
-  /* Responsive breakpoint transitions */
-  @media (min-width: 768px) {
-    .responsive-card-transition {
-      transform: translateY(0);
-    }
-    
-    .responsive-card-transition:hover {
-      transform: translateY(-4px) scale(1.02);
-    }
-  }
-
-  /* Ultra-wide screen optimizations */
-  @media (min-width: 1400px) {
-    .cards-grid-transition {
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 2rem;
-    }
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 }
 
@@ -296,41 +226,6 @@
   .dark .glass {
     background: rgba(31, 41, 55, 0.8);
     border: 1px solid rgba(75, 85, 99, 0.2);
-  }
-
-  /* Enhanced responsive utilities */
-  .responsive-padding {
-    @apply px-6 py-4;
-  }
-
-  @media (min-width: 768px) {
-    .responsive-padding {
-      @apply px-8 py-6;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .responsive-padding {
-      @apply px-12 py-8;
-    }
-  }
-
-  /* Smooth container constraints */
-  .container-responsive {
-    @apply w-full mx-auto;
-    max-width: 100%;
-  }
-
-  @media (min-width: 768px) {
-    .container-responsive {
-      max-width: 1200px;
-    }
-  }
-
-  @media (min-width: 1400px) {
-    .container-responsive {
-      max-width: 1400px;
-    }
   }
 }
 
@@ -399,25 +294,3 @@ html {
   background: hsl(var(--primary));
 }
 
-/* Enhanced responsive grid system */
-@media (min-width: 768px) {
-  .grid-responsive-md {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-}
-
-@media (min-width: 1024px) {
-  .grid-responsive-lg {
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: 2rem;
-  }
-}
-
-@media (min-width: 1400px) {
-  .grid-responsive-xl {
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 2.5rem;
-  }
-}
