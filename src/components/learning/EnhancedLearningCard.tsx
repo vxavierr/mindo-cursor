@@ -427,11 +427,11 @@ const EnhancedLearningCard = ({
             >
               Mover para lixeira
             </AlertDialogAction>
-          </AlertDialogContent>
-        </AlertDialog>
-      </>
-    );
-  }
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 };
 
 export default EnhancedLearningCard;
