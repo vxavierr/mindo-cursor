@@ -104,15 +104,14 @@ const FloatingNavigation = ({
       )}
 
       <div className="fixed bottom-0 left-0 right-0 md:bottom-8 md:left-1/2 md:transform md:-translate-x-1/2 md:w-auto flex justify-center p-6 pointer-events-none z-40">
-        {/* Navigation Bar with notch for FAB - Enhanced with transitions */}
-        <nav className="relative bg-white rounded-[28px] md:rounded-[32px] px-16 md:px-6 py-6 md:py-3 pointer-events-auto md:flex md:items-center md:gap-8 nav-transition"
+        {/* Navigation Bar - Removido o recorte do FAB no mobile */}
+        <nav className="relative bg-white rounded-[28px] md:rounded-[32px] px-6 md:px-6 py-6 md:py-3 pointer-events-auto md:flex md:items-center md:gap-8 nav-transition"
              style={{
-               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-               clipPath: window.innerWidth >= 768 ? 'none' : 'polygon(0 0, calc(50% - 45px) 0, calc(50% - 38px) 6px, calc(50% - 30px) 12px, calc(50% - 22px) 18px, calc(50% - 14px) 24px, calc(50% - 6px) 30px, calc(50% + 6px) 30px, calc(50% + 14px) 24px, calc(50% + 22px) 18px, calc(50% + 30px) 12px, calc(50% + 38px) 6px, calc(50% + 45px) 0, 100% 0, 100% 100%, 0 100%)'
+               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)'
              }}>
           
           {/* Navigation Items */}
-          <div className="flex items-center justify-between w-56 md:w-auto md:gap-8 transition-all duration-300">
+          <div className="flex items-center justify-between w-full md:w-auto md:gap-8 transition-all duration-300">
             {/* Home Button */}
             <button
               onClick={() => handleItemClick('home', '/')}
@@ -131,15 +130,14 @@ const FloatingNavigation = ({
               />
             </button>
 
-            {/* FAB - Desktop integrado na nav com melhorias */}
+            {/* FAB - Centralizado no mobile, integrado no desktop */}
             <button
               onClick={handleFabClick}
               className={`
-                w-18 h-18 md:w-14 md:h-14 md:relative md:transform-none rounded-full flex items-center justify-center
+                w-18 h-18 md:w-14 md:h-14 rounded-full flex items-center justify-center
                 transition-all duration-300 ease-out z-10 pointer-events-auto
                 ${pressedFab ? 'scale-95' : 'hover:scale-105'}
                 ${fabMenuOpen ? 'rotate-45' : ''}
-                ${window.innerWidth >= 768 ? '' : 'absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -mt-6'}
               `}
               style={{
                 background: 'linear-gradient(135deg, #6B7BF7 0%, #4B5FDD 100%)',

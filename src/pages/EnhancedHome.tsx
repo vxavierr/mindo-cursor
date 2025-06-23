@@ -180,29 +180,29 @@ const EnhancedHome = () => {
                 Registre e organize seus aprendizados
               </p>
 
-              {/* Review Badge */}
+              {/* Review Badge - Centralizado e texto corrigido */}
               {reviewsToday.length > 0 && (
-                <div className="mb-12">
+                <div className="mb-12 flex justify-center">
                   <Button
                     onClick={() => setShowReviewModal(true)}
                     className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-8 py-3 text-base font-semibold transition-all duration-200"
                     style={{ boxShadow: '0 6px 20px rgba(239, 68, 68, 0.15)' }}
                   >
-                    {reviewsToday.length} revisão{reviewsToday.length > 1 ? 'ões' : ''} pendente{reviewsToday.length > 1 ? 's' : ''}
+                    {reviewsToday.length} revisões pendentes
                   </Button>
                 </div>
               )}
             </div>
 
-            {/* Review Badge Desktop */}
+            {/* Review Badge Desktop - Centralizado e texto corrigido */}
             {reviewsToday.length > 0 && (
-              <div className="hidden md:block mb-8">
+              <div className="hidden md:block mb-8 flex justify-center">
                 <Button
                   onClick={() => setShowReviewModal(true)}
                   className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-8 py-3 text-base font-semibold transition-all duration-200"
                   style={{ boxShadow: '0 6px 20px rgba(239, 68, 68, 0.15)' }}
                 >
-                  {reviewsToday.length} revisão{reviewsToday.length > 1 ? 'ões' : ''} pendente{reviewsToday.length > 1 ? 's' : ''}
+                  {reviewsToday.length} revisões pendentes
                 </Button>
               </div>
             )}
