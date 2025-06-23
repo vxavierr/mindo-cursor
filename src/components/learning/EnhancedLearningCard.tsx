@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Share2, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
+import { Share2, MoreVertical, Edit, Trash2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +35,9 @@ const EnhancedLearningCard = ({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  
+  // Novo estado para controle individual de minimizar/expandir
+  const [isMinimized, setIsMinimized] = useState(false);
 
   // Gradientes mais suaves e legíveis
   const gradients = [
@@ -93,6 +96,16 @@ const EnhancedLearningCard = ({
     setShowDeleteDialog(false);
   };
 
+  const toggleMinimized = () => {
+    setIsMinimized(!isMinimized);
+  };
+
+  // Função para truncar conteúdo quando minimizado
+  const getTruncatedContent = (content: string, maxLength: number = 100) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength) + '...';
+  };
+
   const showActions = isEditing || isDropdownOpen || isHovered;
 
   // Classes base otimizadas para legibilidade
@@ -112,7 +125,7 @@ const EnhancedLearningCard = ({
           style={{ 
             background: cardGradient,
             boxShadow: isDropdownOpen || isHovered ? '0 12px 32px rgba(0, 0, 0, 0.15)' : '0 8px 24px rgba(0, 0, 0, 0.10)',
-            height: 'auto', // Permitir crescimento dinâmico
+            height: 'auto',
             transition: 'all 0.3s ease-in-out'
           }}
           onMouseEnter={() => setIsHovered(true)}
@@ -202,6 +215,16 @@ const EnhancedLearningCard = ({
                 {formatDate(entry.createdAt)}
               </span>
             </div>
+
+            {/* Botão de minimizar/expandir no Desktop */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleMinimized}
+              className="w-9 h-9 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+            >
+              {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+            </Button>
           </div>
 
           {/* Conteúdo Principal com altura dinâmica */}
@@ -242,10 +265,10 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                {/* Conteúdo */}
+                {/* Conteúdo - minimizado ou expandido */}
                 <div className="flex-1 mb-4">
                   <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
-                    {entry.content}
+                    {isMinimized ? getTruncatedContent(entry.content, 150) : entry.content}
                   </p>
                 </div>
               </>
@@ -288,7 +311,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile otimizado
+  // Layout mobile otimizado com controle individual
   return (
     <>
       <div 
@@ -314,6 +337,16 @@ const EnhancedLearningCard = ({
 
             {/* Actions Mobile */}
             <div className="flex gap-2 ml-auto">
+              {/* Botão de minimizar/expandir sempre visível no mobile */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleMinimized}
+                className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+              >
+                {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+              </Button>
+
               {isEditing ? (
                 <>
                   <Button
@@ -414,15 +447,15 @@ const EnhancedLearningCard = ({
                     {entry.title}
                   </h3>
                 )}
-                <p className={`text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4 ${
-                  compact ? 'line-clamp-2' : ''
-                }`}>
-                  {entry.content}
+                
+                {/* Conteúdo com controle de minimização individual */}
+                <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4">
+                  {isMinimized ? getTruncatedContent(entry.content, 80) : entry.content}
                 </p>
               </>
             )}
             
-            {/* Tags Mobile */}
+            {/* Tags Mobile - sempre visíveis */}
             {!compact && (
               <EditableTags 
                 tags={isEditing ? editedTags : entry.tags}
@@ -451,7 +484,7 @@ const EnhancedLearningCard = ({
             >
               Mover para lixeira
             </AlertDialogAction>
-            </AlertDialogFooter>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
