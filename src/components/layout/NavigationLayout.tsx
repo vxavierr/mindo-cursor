@@ -19,12 +19,14 @@ const NavigationLayout = ({
 }: NavigationLayoutProps) => {
   return (
     <div 
-      className="w-full min-h-screen pb-32 md:pb-40"
+      className="w-full min-h-screen pb-28 md:pb-32 lg:pb-40"
       style={{ backgroundColor: '#E8EBF0' }}
     >
-      {/* Main Content Area - Full Width */}
+      {/* Main Content Area */}
       <main className="w-full relative">
-        {children}
+        <div className="max-w-full mx-auto">
+          {children}
+        </div>
       </main>
       
       {/* Floating Navigation */}

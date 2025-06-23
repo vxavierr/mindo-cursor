@@ -53,29 +53,59 @@ const DateNavigation = ({ onDateSelect, selectedDate }: DateNavigationProps) => 
   };
 
   return (
-    <div className="bg-white border-b border-gray-100 w-full">
-      <div className="flex justify-between items-center px-6 md:px-8 py-3 w-full">
-        {dateItems.map((item, index) => (
-          <button
-            key={index}
-            onClick={() => handleDateClick(item)}
-            className={`
-              flex flex-col items-center py-3 px-2 rounded-xl transition-all duration-200
-              flex-1 mx-1 min-w-0
-              ${isSelected(item) 
-                ? 'bg-gray-900 text-white' 
-                : 'text-gray-600 hover:bg-gray-50'
-              }
-            `}
-          >
-            <span className={`text-xs md:text-sm mb-2 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
-              {item.day}
-            </span>
-            <span className="text-lg md:text-2xl font-semibold">
-              {item.date}
-            </span>
-          </button>
-        ))}
+    <div className="w-full bg-white border-b border-gray-100">
+      {/* Mobile: Scroll horizontal */}
+      <div className="md:hidden overflow-x-auto px-4 py-3">
+        <div className="flex space-x-3 min-w-max">
+          {dateItems.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => handleDateClick(item)}
+              className={`
+                flex flex-col items-center py-2 px-3 rounded-xl transition-all duration-200
+                flex-shrink-0 min-w-[60px]
+                ${isSelected(item) 
+                  ? 'bg-gray-900 text-white' 
+                  : 'text-gray-600 hover:bg-gray-50'
+                }
+              `}
+            >
+              <span className={`text-xs mb-1 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
+                {item.day}
+              </span>
+              <span className="text-lg font-semibold">
+                {item.date}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: Todos os dias visíveis */}
+      <div className="hidden md:flex justify-center items-center px-6 lg:px-8 py-4">
+        <div className="flex justify-between items-center w-full max-w-2xl">
+          {dateItems.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => handleDateClick(item)}
+              className={`
+                flex flex-col items-center py-3 px-4 rounded-xl transition-all duration-200
+                flex-1 mx-1 min-w-0
+                ${isSelected(item) 
+                  ? 'bg-gray-900 text-white' 
+                  : 'text-gray-600 hover:bg-gray-50'
+                }
+              `}
+            >
+              <span className={`text-sm mb-2 ${isSelected(item) ? 'opacity-80' : 'opacity-70'}`}>
+                {item.day}
+              </span>
+              <span className="text-xl lg:text-2xl font-semibold">
+                {item.date}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

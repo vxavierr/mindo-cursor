@@ -19,16 +19,16 @@ const EnhancedTodaysLearning = ({
 }: EnhancedTodaysLearningProps) => {
   if (entries.length === 0) {
     return (
-      <div className="text-center py-16 animate-fade-in">
-        <div className="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 hover:scale-105">
-          <Calendar className="w-10 h-10 text-gray-400" strokeWidth={1.5} />
+      <div className="text-center py-12 md:py-16 animate-fade-in">
+        <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 transition-all duration-300 hover:scale-105">
+          <Calendar className="w-8 h-8 md:w-10 md:h-10 text-gray-400" strokeWidth={1.5} />
         </div>
         <div className="space-y-2">
-          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300 hover:scale-105">
-            <span className="text-4xl">📚</span>
+          <div className="w-16 h-16 md:w-20 md:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6 transition-all duration-300 hover:scale-105">
+            <span className="text-3xl md:text-4xl">📚</span>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 transition-all duration-300">Nenhum aprendizado hoje</h3>
-          <p className="text-gray-600 font-medium transition-all duration-300">Registre seu primeiro aprendizado do dia</p>
+          <h3 className="text-lg md:text-xl font-semibold text-gray-900 transition-all duration-300">Nenhum aprendizado hoje</h3>
+          <p className="text-sm md:text-base text-gray-600 font-medium transition-all duration-300">Registre seu primeiro aprendizado do dia</p>
         </div>
       </div>
     );
@@ -36,8 +36,8 @@ const EnhancedTodaysLearning = ({
 
   return (
     <div className="space-y-6">
-      {/* Mobile Layout */}
-      <div className="md:hidden space-y-4">
+      {/* Mobile: Stack vertical (1 coluna) */}
+      <div className="sm:hidden space-y-4">
         {entries.map((entry) => (
           <EnhancedLearningCard
             key={entry.id}
@@ -49,8 +49,22 @@ const EnhancedTodaysLearning = ({
         ))}
       </div>
 
-      {/* Desktop Grid Layout - Limited to 2 columns with enhanced transitions */}
-      <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-8 cards-grid-transition">
+      {/* Tablet: Grid 2 colunas */}
+      <div className="hidden sm:grid lg:hidden grid-cols-2 gap-4">
+        {entries.map((entry) => (
+          <EnhancedLearningCard
+            key={entry.id}
+            entry={entry}
+            onDelete={onDelete}
+            onUpdate={onUpdate}
+            compact={compact}
+            desktopLayout={true}
+          />
+        ))}
+      </div>
+
+      {/* Desktop: Grid 3-4 colunas baseado no tamanho */}
+      <div className="hidden lg:grid xl:grid-cols-4 lg:grid-cols-3 gap-6 cards-grid-transition">
         {entries.map((entry) => (
           <EnhancedLearningCard
             key={entry.id}
