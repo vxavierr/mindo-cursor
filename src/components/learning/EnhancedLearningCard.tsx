@@ -290,7 +290,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile com melhorias - removendo sombra desnecessária
+  // Layout mobile - sem sombra desnecessária
   return (
     <>
       <div 
