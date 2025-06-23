@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Share2, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -34,7 +33,6 @@ const EnhancedLearningCard = ({
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const gradients = [
     'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -92,22 +90,9 @@ const EnhancedLearningCard = ({
     setShowDeleteDialog(false);
   };
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    if (!isDropdownOpen && !isEditing) {
-      setIsHovered(false);
-    }
-  };
-
-  // Verifica se deve mostrar ações (hover, dropdown aberto ou editando)
-  const shouldShowActions = isHovered || isDropdownOpen || isEditing;
-
-  // Classes base do card com melhorias
+  // Classes base do card com melhorias - mantém scale quando dropdown está aberto
   const cardClasses = desktopLayout 
-    ? `relative rounded-3xl p-6 group min-h-[240px] max-h-[400px] flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl cursor-pointer ${isEditing ? 'ring-2 ring-white/50' : ''} ${shouldShowActions ? 'scale-[1.02] shadow-2xl' : ''}`
+    ? `relative rounded-3xl p-6 group min-h-[240px] max-h-[400px] flex flex-col transition-all duration-300 ease-in-out hover:scale-[1.02] hover:shadow-2xl cursor-pointer ${isEditing ? 'ring-2 ring-white/50' : ''} ${isDropdownOpen ? 'scale-[1.02] shadow-2xl' : ''}`
     : `relative rounded-3xl p-6 mb-4 group min-h-[120px] transition-all duration-300 ease-in-out ${isEditing ? 'min-h-[200px]' : ''}`;
 
   if (desktopLayout) {
@@ -117,21 +102,19 @@ const EnhancedLearningCard = ({
           className={cardClasses}
           style={{ 
             background: cardGradient,
-            boxShadow: shouldShowActions ? '0 8px 32px rgba(0, 0, 0, 0.12)' : '0 8px 32px rgba(0, 0, 0, 0.12)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
             height: isEditing ? 'auto' : undefined,
             transition: 'all 0.3s ease-in-out'
           }}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
         >
           {/* Overlay para melhor legibilidade */}
           <div className="absolute inset-0 bg-black/10 rounded-3xl" />
           
-          {/* Ações Desktop - Visíveis quando necessário */}
+          {/* Ações Desktop - Sempre visíveis quando dropdown está aberto */}
           <div className={`absolute top-6 right-6 z-20 flex gap-2 transition-all duration-300 ease-in-out ${
-            shouldShowActions 
+            isDropdownOpen || isEditing 
               ? 'opacity-100 translate-y-0' 
-              : 'opacity-0 translate-y-2'
+              : 'opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'
           }`}>
             {isEditing ? (
               <>
@@ -167,14 +150,7 @@ const EnhancedLearningCard = ({
                   <Share2 className="w-4 h-4" />
                 </Button>
                 
-                <DropdownMenu 
-                  onOpenChange={(open) => {
-                    setIsDropdownOpen(open);
-                    if (!open) {
-                      setIsHovered(false);
-                    }
-                  }}
-                >
+                <DropdownMenu onOpenChange={setIsDropdownOpen}>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
@@ -290,19 +266,20 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile - sem sombra desnecessária
+  // Layout mobile com melhorias
   return (
     <>
       <div 
         className={cardClasses}
         style={{ 
           background: cardGradient,
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)',
           height: isEditing ? 'auto' : undefined,
           transition: 'all 0.3s ease-in-out'
         }}
       >
         {/* Overlay para melhor legibilidade */}
-        <div className="absolute inset-0 bg-black/10 rounded-3xl" />
+        <div className="absolute inset-0 bg-black/10" />
         
         {/* Conteúdo */}
         <div className="relative z-10 flex items-start gap-4 transition-all duration-300">
@@ -451,7 +428,7 @@ const EnhancedLearningCard = ({
               Mover para lixeira
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialog>
+        </AlertDialogContent>
       </AlertDialog>
     </>
   );
