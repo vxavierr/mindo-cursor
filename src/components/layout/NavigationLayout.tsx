@@ -19,11 +19,11 @@ const NavigationLayout = ({
 }: NavigationLayoutProps) => {
   return (
     <div 
-      className="min-h-screen pb-32 md:pb-40"
+      className="w-full min-h-screen pb-32 md:pb-40"
       style={{ backgroundColor: '#E8EBF0' }}
     >
-      {/* Main Content Area */}
-      <main className="relative">
+      {/* Main Content Area - Full Width */}
+      <main className="w-full relative">
         {children}
       </main>
       
