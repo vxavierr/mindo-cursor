@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -89,6 +90,13 @@
 @layer base {
   * {
     @apply border-border;
+    /* Smooth transitions for responsive changes */
+    transition: all 0.3s ease;
+  }
+
+  /* Faster transitions for interactive elements */
+  button, .date-item, .nav-item {
+    transition: all 0.2s ease;
   }
 
   body {
@@ -103,7 +111,7 @@
 }
 
 @layer components {
-  /* Custom animations for smooth learning experience */
+  /* Enhanced animations for smooth learning experience */
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out;
   }
@@ -115,7 +123,83 @@
   .animate-scale-in {
     animation: scaleIn 0.2s ease-out;
   }
-}
+
+  /* Staggered animation for cards */
+  .learning-card-animate {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .learning-card-animate:nth-child(1) { 
+    animation-delay: 0.1s; 
+  }
+  .learning-card-animate:nth-child(2) { 
+    animation-delay: 0.2s; 
+  }
+  .learning-card-animate:nth-child(3) { 
+    animation-delay: 0.3s; 
+  }
+  .learning-card-animate:nth-child(4) { 
+    animation-delay: 0.4s; 
+  }
+
+  /* Enhanced hover animations */
+  .card-hover-animation {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover-animation:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+
+  /* Desktop enhanced hover */
+  @media (min-width: 768px) {
+    .card-hover-animation:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+    }
+  }
+
+  /* Responsive card transitions */
+  .responsive-card-transition {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Card content transitions */
+  .card-content-transition {
+    transition: flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                align-items 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                gap 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Entry number transitions */
+  .entry-number-transition {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                flex-direction 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Navigation transitions */
+  .nav-transition {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                bottom 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                left 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                right 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                border-radius 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Grid container transitions */
+  .cards-grid-transition {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</layer>
 
 @layer utilities {
   /* Custom gradients for the learning theme */
@@ -174,6 +258,15 @@
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 

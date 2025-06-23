@@ -61,7 +61,7 @@ const FloatingNavigation = ({
       {/* Background overlay when FAB menu is open */}
       {fabMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-all duration-300"
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 transition-all duration-300 animate-fade-in"
           onClick={handleOverlayClick}
         />
       )}
@@ -74,7 +74,7 @@ const FloatingNavigation = ({
             className="flex items-center space-x-4 animate-scale-in"
             style={{ animationDelay: '0.1s' }}
           >
-            <span className="text-base font-medium text-gray-800 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100">
+            <span className="text-base font-medium text-gray-800 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 transition-all duration-200 hover:scale-105">
               Revisar
             </span>
             <button
@@ -90,7 +90,7 @@ const FloatingNavigation = ({
             className="flex items-center space-x-4 animate-scale-in"
             style={{ animationDelay: '0.2s' }}
           >
-            <span className="text-base font-medium text-gray-800 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100">
+            <span className="text-base font-medium text-gray-800 bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-gray-100 transition-all duration-200 hover:scale-105">
               Novo aprendizado
             </span>
             <button
@@ -104,15 +104,15 @@ const FloatingNavigation = ({
       )}
 
       <div className="fixed bottom-0 left-0 right-0 md:bottom-8 md:left-1/2 md:transform md:-translate-x-1/2 md:w-auto flex justify-center p-6 pointer-events-none z-40">
-        {/* Navigation Bar with notch for FAB */}
-        <nav className="relative bg-white rounded-[28px] md:rounded-[32px] px-16 md:px-6 py-6 md:py-3 pointer-events-auto md:flex md:items-center md:gap-8"
+        {/* Navigation Bar with notch for FAB - Enhanced with transitions */}
+        <nav className="relative bg-white rounded-[28px] md:rounded-[32px] px-16 md:px-6 py-6 md:py-3 pointer-events-auto md:flex md:items-center md:gap-8 nav-transition"
              style={{
                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
                clipPath: window.innerWidth >= 768 ? 'none' : 'polygon(0 0, calc(50% - 45px) 0, calc(50% - 38px) 6px, calc(50% - 30px) 12px, calc(50% - 22px) 18px, calc(50% - 14px) 24px, calc(50% - 6px) 30px, calc(50% + 6px) 30px, calc(50% + 14px) 24px, calc(50% + 22px) 18px, calc(50% + 30px) 12px, calc(50% + 38px) 6px, calc(50% + 45px) 0, 100% 0, 100% 100%, 0 100%)'
              }}>
           
           {/* Navigation Items */}
-          <div className="flex items-center justify-between w-56 md:w-auto md:gap-8">
+          <div className="flex items-center justify-between w-56 md:w-auto md:gap-8 transition-all duration-300">
             {/* Home Button */}
             <button
               onClick={() => handleItemClick('home', '/')}
@@ -131,7 +131,7 @@ const FloatingNavigation = ({
               />
             </button>
 
-            {/* FAB - Desktop integrado na nav */}
+            {/* FAB - Desktop integrado na nav com melhorias */}
             <button
               onClick={handleFabClick}
               className={`

@@ -45,7 +45,7 @@ const EnhancedLearningCard = ({
   if (desktopLayout) {
     return (
       <div 
-        className="relative rounded-3xl p-6 overflow-hidden group hover:scale-[1.02] transition-all duration-300 min-h-[200px] flex flex-col"
+        className="relative rounded-3xl p-6 overflow-hidden group min-h-[200px] flex flex-col responsive-card-transition card-hover-animation learning-card-animate"
         style={{ 
           background: cardGradient,
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
@@ -55,11 +55,11 @@ const EnhancedLearningCard = ({
         <div className="absolute inset-0 bg-black/10" />
         
         {/* Ações Desktop - Posição absoluta no topo direito */}
-        <div className="absolute top-6 right-6 z-10 flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-6 right-6 z-10 flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
           <Button
             variant="ghost"
             size="sm"
-            className="w-8 h-8 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full"
+            className="w-8 h-8 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200"
             onClick={() => {/* Implementar compartilhamento */}}
           >
             <Share2 className="w-4 h-4" />
@@ -70,7 +70,7 @@ const EnhancedLearningCard = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-8 h-8 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-colors"
+                className="w-8 h-8 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -97,7 +97,7 @@ const EnhancedLearningCard = ({
 
         {/* Header do Card */}
         <div className="relative z-10 flex justify-between items-start mb-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-3">
+          <div className="bg-white/95 backdrop-blur-sm rounded-xl px-4 py-2 flex items-center gap-3 entry-number-transition">
             <span className="text-xs text-gray-500 font-medium tracking-wider">
               #{formatId(entry.numeroId)}
             </span>
@@ -110,11 +110,11 @@ const EnhancedLearningCard = ({
         {/* Conteúdo Principal - Flex crescer para ocupar espaço */}
         <div className="relative z-10 text-white flex-1 flex flex-col justify-center min-h-[100px]">
           {entry.title && (
-            <h3 className="text-xl font-semibold mb-3 leading-tight">
+            <h3 className="text-xl font-semibold mb-3 leading-tight transition-all duration-300">
               {entry.title}
             </h3>
           )}
-          <p className="text-white/90 leading-relaxed text-[15px] line-clamp-3">
+          <p className="text-white/90 leading-relaxed text-[15px] line-clamp-3 transition-all duration-300">
             {entry.content}
           </p>
           
@@ -124,7 +124,7 @@ const EnhancedLearningCard = ({
               {entry.tags.slice(0, 3).map((tag, index) => (
                 <span 
                   key={index}
-                  className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium"
+                  className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium transition-all duration-200 hover:bg-white/30"
                 >
                   {tag}
                 </span>
@@ -141,10 +141,10 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile original
+  // Layout mobile original com melhorias
   return (
     <div 
-      className="relative rounded-3xl p-6 mb-4 overflow-hidden group hover:scale-[1.02] transition-all duration-300"
+      className="relative rounded-3xl p-6 mb-4 overflow-hidden group responsive-card-transition card-hover-animation learning-card-animate"
       style={{ 
         background: cardGradient,
         boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
@@ -154,9 +154,9 @@ const EnhancedLearningCard = ({
       <div className="absolute inset-0 bg-black/10" />
       
       {/* Conteúdo */}
-      <div className="relative z-10 flex items-center gap-4">
+      <div className="relative z-10 flex items-center gap-4 card-content-transition">
         {/* ID e Data */}
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 flex flex-col items-center justify-center min-w-[4rem] flex-shrink-0">
+        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-3 flex flex-col items-center justify-center min-w-[4rem] flex-shrink-0 entry-number-transition">
           <span className="text-xs text-gray-500 font-medium tracking-wider">
             #{formatId(entry.numeroId)}
           </span>
@@ -166,14 +166,14 @@ const EnhancedLearningCard = ({
         </div>
 
         {/* Conteúdo Principal */}
-        <div className="flex-1 text-white">
+        <div className="flex-1 text-white transition-all duration-300">
           {entry.title && (
-            <h3 className="text-lg font-semibold mb-2 leading-tight">
+            <h3 className="text-lg font-semibold mb-2 leading-tight transition-all duration-300">
               {entry.title}
             </h3>
           )}
           <p className={`
-            text-white/90 leading-relaxed text-sm
+            text-white/90 leading-relaxed text-sm transition-all duration-300
             ${compact ? 'line-clamp-1' : 'line-clamp-2'}
           `}>
             {entry.content}
@@ -185,7 +185,7 @@ const EnhancedLearningCard = ({
               {entry.tags.slice(0, 3).map((tag, index) => (
                 <span 
                   key={index}
-                  className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium"
+                  className="px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium transition-all duration-200 hover:bg-white/30"
                 >
                   {tag}
                 </span>
@@ -200,11 +200,11 @@ const EnhancedLearningCard = ({
         </div>
 
         {/* Ações Mobile */}
-        <div className="flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300">
           <Button
             variant="ghost"
             size="sm"
-            className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full"
+            className="w-10 h-10 p-0 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200"
             onClick={() => {/* Implementar compartilhamento */}}
           >
             <Share2 className="w-4 h-4" />
@@ -215,7 +215,7 @@ const EnhancedLearningCard = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-colors"
+                className="w-10 h-10 p-0 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all duration-200"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

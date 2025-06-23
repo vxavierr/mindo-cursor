@@ -23,26 +23,26 @@ const ViewToggle = ({
   };
 
   return (
-    <div className={`bg-white px-6 py-4 flex justify-end items-center gap-3 border-b border-gray-100 ${className}`}>
-      <span className="text-sm text-gray-600 font-medium">
+    <div className={`bg-white px-6 py-4 flex justify-end items-center gap-3 border-b border-gray-100 transition-all duration-300 ${className}`}>
+      <span className="text-sm text-gray-600 font-medium transition-colors duration-200">
         {label}
       </span>
       <button
         onClick={handleToggle}
         className={`
-          relative w-12 h-7 rounded-full transition-all duration-300 ease-in-out
+          relative w-12 h-7 rounded-full transition-all duration-300 ease-in-out hover:scale-105
           ${isToggled 
-            ? 'bg-green-500' 
-            : 'bg-gray-300'
+            ? 'bg-green-500 shadow-lg shadow-green-500/25' 
+            : 'bg-gray-300 hover:bg-gray-400'
           }
         `}
         aria-label={`${label} ${isToggled ? 'ativado' : 'desativado'}`}
       >
         <div
           className={`
-            absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ease-in-out
+            absolute top-1 w-5 h-5 bg-white rounded-full transition-all duration-300 ease-in-out shadow-sm
             ${isToggled 
-              ? 'translate-x-6' 
+              ? 'translate-x-6 shadow-md' 
               : 'translate-x-1'
             }
           `}
