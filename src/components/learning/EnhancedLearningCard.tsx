@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Share2, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -325,7 +324,7 @@ const EnhancedLearningCard = ({
         className="relative rounded-2xl p-5 mb-4 group transition-all duration-500 ease-in-out cursor-pointer"
         style={{ 
           background: cardGradient,
-          minHeight: isEditing ? '280px' : isExpanded ? '200px' : '140px',
+          minHeight: isEditing ? '280px' : isExpanded ? '200px' : '120px',
           transition: 'all 0.5s ease-in-out',
           transform: isExpanded ? 'translateY(-4px) scale(1.02)' : undefined,
           boxShadow: isExpanded 
