@@ -452,7 +452,7 @@ const EnhancedLearningCard = ({
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialog>
-      </div>
+      </AlertDialog>
     </>
   );
 };
