@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -153,24 +154,31 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   if (reviews.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className={isMobile ? "max-w-[95vw] max-h-[90vh] m-2" : "max-w-lg"}>
-          <DialogHeader>
-            <DialogTitle className="text-xl md:text-2xl font-bold flex items-center justify-center gap-2">
-              <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-green-500" />
-              Tudo em dia!
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-4 md:py-6">
-            <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-3 md:mb-4">
-              Você não tem revisões pendentes hoje.
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
-              Continue aprendendo e volte depois para suas próximas revisões!
-            </p>
+        <DialogContent className="w-full max-w-lg mx-auto border-0 bg-gray-900 text-white shadow-2xl">
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <div className="text-center space-y-6 p-8">
+              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
+                <CheckCircle className="w-10 h-10 text-green-400" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white mb-3">
+                  Tudo em dia! 🎉
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  Você não tem revisões pendentes hoje.
+                </p>
+                <p className="text-sm text-gray-400">
+                  Continue aprendendo e volte depois para suas próximas revisões!
+                </p>
+              </div>
+              <Button 
+                onClick={onClose} 
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
+              >
+                Fechar
+              </Button>
+            </div>
           </div>
-          <Button onClick={onClose} className="w-full">
-            Fechar
-          </Button>
         </DialogContent>
       </Dialog>
     );
@@ -178,188 +186,204 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={isMobile 
-        ? "max-w-[95vw] max-h-[95vh] m-2 p-4 overflow-hidden flex flex-col" 
-        : "max-w-3xl max-h-[90vh] overflow-y-auto"
-      }>
-        <DialogHeader className={isMobile ? "pb-3" : ""}>
-          <DialogTitle className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold flex items-center justify-between`}>
-            <div className="flex items-center gap-2">
-              <Brain className={`${isMobile ? 'w-5 h-5' : 'w-6 h-6'}`} />
-              <span className={isMobile ? 'text-sm' : ''}>
-                Revisão {currentIndex + 1} de {reviews.length}
-              </span>
-            </div>
-            <Badge variant="outline" className={isMobile ? "text-xs px-2 py-1" : ""}>
-              #{formatId(currentReview?.numeroId)}
-            </Badge>
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className={`
+        w-full border-0 bg-gray-900 text-white shadow-2xl overflow-visible
+        ${isMobile 
+          ? 'max-w-[95vw] mx-2 rounded-2xl' 
+          : 'max-w-2xl mx-auto rounded-3xl'
+        }
+      `}>
+        {/* Wrapper centralizado */}
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="w-full space-y-6 p-6">
+            
+            {/* Header */}
+            <DialogHeader className="text-center space-y-4">
+              <DialogTitle className="flex items-center justify-center gap-3 text-xl font-bold">
+                <Brain className="w-6 h-6 text-blue-400" />
+                <span>Revisão {currentIndex + 1} de {reviews.length}</span>
+                <Badge variant="outline" className="bg-blue-500/20 border-blue-400 text-blue-300">
+                  #{formatId(currentReview?.numeroId)}
+                </Badge>
+              </DialogTitle>
+            </DialogHeader>
 
-        <div className={isMobile ? "flex-1 overflow-hidden flex flex-col" : ""}>
-          {!showQuestions ? (
-            <div className={`space-y-4 ${isMobile ? 'flex-1 flex flex-col' : 'space-y-6'}`}>
-              <Card className={`${isMobile ? 'p-4 flex-1 overflow-y-auto' : 'p-6'} bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-0`}>
-                <div className={`space-y-3 ${isMobile ? 'space-y-2' : 'space-y-4'}`}>
-                  <div className="flex items-center justify-between">
-                    <div className={`flex items-center gap-2 ${isMobile ? 'text-xs' : 'text-sm'} text-gray-600 dark:text-gray-400`}>
-                      <Calendar className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                      {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
-                        day: '2-digit',
-                        month: '2-digit'
-                      })}
-                      • {getDaysFromCreation(currentReview.createdAt)} dias atrás
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-yellow-600`} />
-                      <Badge className={`${isMobile ? 'text-xs px-2 py-0.5' : ''} bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200`}>
-                        Step {currentReview.step + 1}
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  {currentReview.title && (
-                    <div>
-                      <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold text-gray-900 dark:text-white mb-2`}>
-                        {currentReview.title}
-                      </h3>
-                    </div>
-                  )}
-                  
-                  <div>
-                    <h4 className={`${isMobile ? 'text-sm' : 'text-md'} font-medium text-gray-800 dark:text-gray-200 mb-2`}>
-                      Conteúdo para revisar:
-                    </h4>
-                    <p className={`text-gray-800 dark:text-gray-200 leading-relaxed ${isMobile ? 'text-sm' : ''}`}>
-                      {currentReview.content}
-                    </p>
-                  </div>
-
-                  {currentReview.context && (
-                    <div className={`${isMobile ? 'pt-2' : 'pt-3'} border-t border-gray-200 dark:border-gray-700`}>
-                      <p className={`text-gray-600 dark:text-gray-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                        <strong>Contexto:</strong> {currentReview.context}
-                      </p>
-                    </div>
-                  )}
-
-                  {currentReview.tags.length > 0 && (
-                    <div className={`flex items-center gap-2 ${isMobile ? 'pt-1' : 'pt-2'}`}>
-                      <Tag className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-gray-400`} />
-                      {currentReview.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline" className={isMobile ? "text-xs px-1 py-0.5" : "text-xs"}>
-                          {tag}
+            {!showQuestions ? (
+              /* Card de Revisão - Sem Scroll Interno */
+              <div className="space-y-6">
+                <Card className="w-full overflow-visible bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-gray-700/50 backdrop-blur-sm rounded-2xl p-6">
+                  <div className="space-y-4">
+                    {/* Meta Info */}
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit'
+                        })}
+                        • {getDaysFromCreation(currentReview.createdAt)} dias atrás
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-yellow-400" />
+                        <Badge className="bg-yellow-500/20 border-yellow-400 text-yellow-300">
+                          Step {currentReview.step + 1}
                         </Badge>
-                      ))}
+                      </div>
                     </div>
-                  )}
-                </div>
-              </Card>
+                    
+                    {/* Título */}
+                    {currentReview.title && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-2 break-words">
+                          {currentReview.title}
+                        </h3>
+                      </div>
+                    )}
+                    
+                    {/* Conteúdo Principal */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-200 mb-3">
+                        Conteúdo para revisar:
+                      </h4>
+                      <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                        <p className="text-gray-100 leading-relaxed break-words whitespace-pre-wrap">
+                          {currentReview.content}
+                        </p>
+                      </div>
+                    </div>
 
-              <div className={`text-center ${isMobile ? 'space-y-3 pb-2' : 'space-y-4'}`}>
-                <p className={`text-gray-600 dark:text-gray-400 ${isMobile ? 'text-sm' : ''}`}>
-                  Leia o conteúdo acima e prepare-se para responder algumas perguntas.
-                </p>
-                
-                <div className={`flex justify-center gap-3 ${isMobile ? 'gap-2' : ''}`}>
-                  <Button 
-                    variant="outline" 
-                    onClick={skipReview}
-                    className={isMobile ? "text-sm px-3 py-2" : ""}
-                  >
-                    Pular Esta
-                  </Button>
-                  <Button 
-                    onClick={startReview}
-                    className={`bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white ${isMobile ? 'text-sm px-3 py-2' : ''}`}
-                  >
-                    Iniciar Revisão
-                    <ArrowRight className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} ml-2`} />
-                  </Button>
+                    {/* Contexto */}
+                    {currentReview.context && (
+                      <div className="pt-3 border-t border-gray-700/50">
+                        <p className="text-gray-300 text-sm break-words">
+                          <strong className="text-gray-200">Contexto:</strong> {currentReview.context}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Tags */}
+                    {currentReview.tags.length > 0 && (
+                      <div className="flex items-center gap-2 pt-2 flex-wrap">
+                        <Tag className="w-4 h-4 text-gray-400" />
+                        {currentReview.tags.map((tag, index) => (
+                          <Badge key={index} variant="outline" className="text-xs bg-gray-700/50 border-gray-600 text-gray-300">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </Card>
+
+                {/* Instruções e Botões */}
+                <div className="text-center space-y-4">
+                  <p className="text-gray-300">
+                    Leia o conteúdo acima e prepare-se para responder algumas perguntas.
+                  </p>
+                  
+                  <div className="flex justify-center gap-3 flex-wrap">
+                    <Button 
+                      variant="outline" 
+                      onClick={skipReview}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    >
+                      Pular Esta
+                    </Button>
+                    <Button 
+                      onClick={startReview}
+                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-6"
+                    >
+                      Iniciar Revisão
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ) : (
-            <div className={`space-y-4 ${isMobile ? 'flex-1 flex flex-col space-y-3' : 'space-y-6'}`}>
-              <div className="flex items-center justify-between">
-                <h3 className={`${isMobile ? 'text-base' : 'text-lg'} font-semibold`}>
-                  Pergunta {questionIndex + 1} de {questions.length}
-                </h3>
-                <div className={`${isMobile ? 'w-20' : 'w-32'} bg-gray-200 dark:bg-gray-700 rounded-full h-2`}>
-                  <div 
-                    className="bg-gradient-to-r from-green-500 to-blue-600 h-2 rounded-full transition-all"
-                    style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }}
+            ) : (
+              /* Tela de Perguntas */
+              <div className="space-y-6">
+                {/* Progress */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">
+                    Pergunta {questionIndex + 1} de {questions.length}
+                  </h3>
+                  <div className="w-32 bg-gray-700 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-green-500 to-blue-600 h-2 rounded-full transition-all"
+                      style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Pergunta */}
+                <Card className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-gray-700/50 p-6 rounded-2xl">
+                  <p className="text-lg text-gray-100 break-words">
+                    {questions[questionIndex]}
+                  </p>
+                </Card>
+
+                {/* Resposta */}
+                <div className="space-y-3">
+                  <Label htmlFor="answer" className="text-gray-200">Sua resposta:</Label>
+                  <Textarea
+                    id="answer"
+                    value={currentAnswer}
+                    onChange={(e) => setCurrentAnswer(e.target.value)}
+                    placeholder="Digite sua resposta aqui..."
+                    className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 rounded-xl min-h-[120px] resize-none"
                   />
                 </div>
-              </div>
 
-              <Card className={`${isMobile ? 'p-4' : 'p-6'} bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border-0`}>
-                <p className={`${isMobile ? 'text-sm' : 'text-lg'} text-gray-800 dark:text-gray-200`}>
-                  {questions[questionIndex]}
-                </p>
-              </Card>
+                {/* Botões de Navegação */}
+                <div className="flex justify-between items-center flex-wrap gap-3">
+                  <Button 
+                    variant="outline" 
+                    onClick={prevQuestion}
+                    disabled={questionIndex === 0}
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Anterior
+                  </Button>
 
-              <div className={`space-y-2 ${isMobile ? 'flex-1 flex flex-col' : ''}`}>
-                <Label htmlFor="answer" className={isMobile ? "text-sm" : ""}>Sua resposta:</Label>
-                <Textarea
-                  id="answer"
-                  value={currentAnswer}
-                  onChange={(e) => setCurrentAnswer(e.target.value)}
-                  placeholder="Digite sua resposta aqui..."
-                  className={`${isMobile ? 'min-h-[80px] flex-1 text-sm' : 'min-h-[120px]'}`}
-                />
-              </div>
-
-              <div className="flex justify-between items-center">
-                <Button 
-                  variant="outline" 
-                  onClick={prevQuestion}
-                  disabled={questionIndex === 0}
-                  className={isMobile ? "text-sm px-3 py-2" : ""}
-                >
-                  <ArrowLeft className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} mr-2`} />
-                  Anterior
-                </Button>
-
-                <div className={`flex gap-2 ${isMobile ? 'gap-1' : ''}`}>
-                  {questionIndex === questions.length - 1 && (
-                    <>
+                  <div className="flex gap-2 flex-wrap">
+                    {questionIndex === questions.length - 1 ? (
+                      <>
+                        <Button 
+                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
+                          variant="outline"
+                          className="border-red-400 text-red-400 hover:bg-red-500/20 text-xs px-3"
+                        >
+                          Difícil
+                        </Button>
+                        <Button 
+                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
+                          variant="outline"
+                          className="border-yellow-400 text-yellow-400 hover:bg-yellow-500/20 text-xs px-3"
+                        >
+                          Médio
+                        </Button>
+                        <Button 
+                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
+                          className="bg-green-500 hover:bg-green-600 text-white text-xs px-3"
+                        >
+                          Fácil
+                        </Button>
+                      </>
+                    ) : (
                       <Button 
-                        onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
-                        variant="outline"
-                        className={`border-red-200 text-red-600 hover:bg-red-50 ${isMobile ? 'text-xs px-2 py-2' : ''}`}
+                        onClick={nextQuestion}
+                        className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white"
                       >
-                        Difícil
+                        Próxima
+                        <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
-                      <Button 
-                        onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
-                        variant="outline"
-                        className={`border-yellow-200 text-yellow-600 hover:bg-yellow-50 ${isMobile ? 'text-xs px-2 py-2' : ''}`}
-                      >
-                        Médio
-                      </Button>
-                      <Button 
-                        onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
-                        className={`bg-green-500 hover:bg-green-600 text-white ${isMobile ? 'text-xs px-2 py-2' : ''}`}
-                      >
-                        Fácil
-                      </Button>
-                    </>
-                  )}
-                  
-                  {questionIndex < questions.length - 1 && (
-                    <Button 
-                      onClick={nextQuestion}
-                      className={`bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white ${isMobile ? 'text-sm px-3 py-2' : ''}`}
-                    >
-                      Próxima
-                      <ArrowRight className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} ml-2`} />
-                    </Button>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
