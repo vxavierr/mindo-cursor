@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { CheckCircle, ArrowRight, ArrowLeft, Calendar, Tag, Brain, Clock } from 'lucide-react';
+import { CheckCircle, ArrowRight, ArrowLeft, Calendar, Tag, Brain, Clock, X } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -154,30 +154,42 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   if (reviews.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-full max-w-lg mx-auto border-0 bg-gray-900 text-white shadow-2xl">
-          <div className="flex items-center justify-center min-h-[60vh]">
-            <div className="text-center space-y-6 p-8">
-              <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-10 h-10 text-green-400" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-white mb-3">
-                  Tudo em dia! 🎉
-                </h2>
-                <p className="text-gray-300 mb-6">
-                  Você não tem revisões pendentes hoje.
-                </p>
-                <p className="text-sm text-gray-400">
-                  Continue aprendendo e volte depois para suas próximas revisões!
-                </p>
-              </div>
-              <Button 
-                onClick={onClose} 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl"
-              >
-                Fechar
-              </Button>
+        <DialogContent className={`
+          border-0 shadow-2xl overflow-visible animate-scale-in
+          ${isMobile 
+            ? 'w-[90vw] max-w-none mx-4 rounded-2xl bg-white p-6' 
+            : 'max-w-md mx-auto rounded-3xl bg-white p-8'
+          }
+        `}>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 rounded-full p-2 bg-gray-100 hover:bg-gray-200 transition-colors"
+          >
+            <X className="w-4 h-4 text-gray-600" />
+          </button>
+
+          <div className="text-center space-y-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                Tudo em dia! 🎉
+              </h2>
+              <p className="text-gray-600 mb-6 text-lg">
+                Você não tem revisões pendentes hoje.
+              </p>
+              <p className="text-sm text-gray-500">
+                Continue aprendendo e volte depois para suas próximas revisões!
+              </p>
+            </div>
+            <Button 
+              onClick={onClose} 
+              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl text-base font-medium shadow-lg hover:shadow-xl transition-all"
+            >
+              Fechar
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -187,203 +199,220 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`
-        w-full border-0 bg-gray-900 text-white shadow-2xl overflow-visible
+        border-0 shadow-2xl overflow-visible animate-scale-in
         ${isMobile 
-          ? 'max-w-[95vw] mx-2 rounded-2xl' 
-          : 'max-w-2xl mx-auto rounded-3xl'
+          ? 'w-[90vw] max-w-none mx-4 rounded-2xl bg-white' 
+          : 'max-w-lg mx-auto rounded-3xl bg-white'
         }
       `}>
-        {/* Wrapper centralizado */}
-        <div className="flex items-center justify-center min-h-[80vh]">
-          <div className="w-full space-y-6 p-6">
-            
-            {/* Header */}
-            <DialogHeader className="text-center space-y-4">
-              <DialogTitle className="flex items-center justify-center gap-3 text-xl font-bold">
-                <Brain className="w-6 h-6 text-blue-400" />
-                <span>Revisão {currentIndex + 1} de {reviews.length}</span>
-                <Badge variant="outline" className="bg-blue-500/20 border-blue-400 text-blue-300">
-                  #{formatId(currentReview?.numeroId)}
-                </Badge>
-              </DialogTitle>
-            </DialogHeader>
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 rounded-full p-2 bg-gray-100 hover:bg-gray-200 transition-colors z-10"
+        >
+          <X className="w-4 h-4 text-gray-600" />
+        </button>
 
-            {!showQuestions ? (
-              /* Card de Revisão - Sem Scroll Interno */
-              <div className="space-y-6">
-                <Card className="w-full overflow-visible bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-gray-700/50 backdrop-blur-sm rounded-2xl p-6">
-                  <div className="space-y-4">
-                    {/* Meta Info */}
-                    <div className="flex items-center justify-between flex-wrap gap-3">
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
-                        <Calendar className="w-4 h-4" />
+        <div className={`space-y-6 ${isMobile ? 'p-4' : 'p-8'}`}>
+          
+          {/* Header */}
+          <DialogHeader className="text-center space-y-4">
+            <DialogTitle className="flex items-center justify-center gap-3 text-2xl font-bold text-gray-900">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                <Brain className="w-5 h-5 text-blue-600" />
+              </div>
+              <span>Revisão {currentIndex + 1} de {reviews.length}</span>
+            </DialogTitle>
+            <Badge className="bg-gradient-to-r from-blue-500 to-purple-600 text-white border-0 px-4 py-2 text-sm font-medium">
+              #{formatId(currentReview?.numeroId)}
+            </Badge>
+          </DialogHeader>
+
+          {!showQuestions ? (
+            /* Card de Revisão */
+            <div className="space-y-6">
+              <Card className="w-full overflow-visible bg-gradient-to-br from-gray-50 to-blue-50/30 border border-gray-200 rounded-2xl p-6 shadow-sm">
+                <div className="space-y-5">
+                  {/* Meta Info */}
+                  <div className="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-gray-200">
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <span className="font-medium">
                         {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
                           day: '2-digit',
                           month: '2-digit'
                         })}
                         • {getDaysFromCreation(currentReview.createdAt)} dias atrás
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-yellow-400" />
-                        <Badge className="bg-yellow-500/20 border-yellow-400 text-yellow-300">
-                          Step {currentReview.step + 1}
-                        </Badge>
-                      </div>
+                      </span>
                     </div>
-                    
-                    {/* Título */}
-                    {currentReview.title && (
-                      <div>
-                        <h3 className="text-lg font-semibold text-white mb-2 break-words">
-                          {currentReview.title}
-                        </h3>
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <Clock className="w-4 h-4 text-yellow-600" />
                       </div>
-                    )}
-                    
-                    {/* Conteúdo Principal */}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-200 mb-3">
-                        Conteúdo para revisar:
-                      </h4>
-                      <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
-                        <p className="text-gray-100 leading-relaxed break-words whitespace-pre-wrap">
-                          {currentReview.content}
-                        </p>
-                      </div>
+                      <Badge className="bg-yellow-100 border-yellow-200 text-yellow-800 text-xs px-3 py-1">
+                        Step {currentReview.step + 1}
+                      </Badge>
                     </div>
-
-                    {/* Contexto */}
-                    {currentReview.context && (
-                      <div className="pt-3 border-t border-gray-700/50">
-                        <p className="text-gray-300 text-sm break-words">
-                          <strong className="text-gray-200">Contexto:</strong> {currentReview.context}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Tags */}
-                    {currentReview.tags.length > 0 && (
-                      <div className="flex items-center gap-2 pt-2 flex-wrap">
-                        <Tag className="w-4 h-4 text-gray-400" />
-                        {currentReview.tags.map((tag, index) => (
-                          <Badge key={index} variant="outline" className="text-xs bg-gray-700/50 border-gray-600 text-gray-300">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
                   </div>
-                </Card>
+                  
+                  {/* Título */}
+                  {currentReview.title && (
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 break-words leading-relaxed">
+                        {currentReview.title}
+                      </h3>
+                    </div>
+                  )}
+                  
+                  {/* Conteúdo Principal */}
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                      Conteúdo para revisar:
+                    </h4>
+                    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
+                      <p className="text-gray-800 leading-relaxed break-words whitespace-pre-wrap text-base">
+                        {currentReview.content}
+                      </p>
+                    </div>
+                  </div>
 
-                {/* Instruções e Botões */}
-                <div className="text-center space-y-4">
-                  <p className="text-gray-300">
+                  {/* Contexto */}
+                  {currentReview.context && (
+                    <div className="pt-3 border-t border-gray-200">
+                      <p className="text-gray-600 text-sm break-words leading-relaxed">
+                        <strong className="text-gray-800 font-semibold">Contexto:</strong> {currentReview.context}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Tags */}
+                  {currentReview.tags.length > 0 && (
+                    <div className="flex items-center gap-2 pt-2 flex-wrap">
+                      <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Tag className="w-3 h-3 text-purple-600" />
+                      </div>
+                      {currentReview.tags.map((tag, index) => (
+                        <Badge key={index} className="text-xs bg-purple-100 border-purple-200 text-purple-700 px-3 py-1 rounded-full">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              {/* Instruções e Botões */}
+              <div className="text-center space-y-6">
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
+                  <p className="text-blue-800 font-medium">
                     Leia o conteúdo acima e prepare-se para responder algumas perguntas.
                   </p>
-                  
-                  <div className="flex justify-center gap-3 flex-wrap">
-                    <Button 
-                      variant="outline" 
-                      onClick={skipReview}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
-                    >
-                      Pular Esta
-                    </Button>
-                    <Button 
-                      onClick={startReview}
-                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-6"
-                    >
-                      Iniciar Revisão
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </div>
                 </div>
-              </div>
-            ) : (
-              /* Tela de Perguntas */
-              <div className="space-y-6">
-                {/* Progress */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">
-                    Pergunta {questionIndex + 1} de {questions.length}
-                  </h3>
-                  <div className="w-32 bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-blue-600 h-2 rounded-full transition-all"
-                      style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Pergunta */}
-                <Card className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-gray-700/50 p-6 rounded-2xl">
-                  <p className="text-lg text-gray-100 break-words">
-                    {questions[questionIndex]}
-                  </p>
-                </Card>
-
-                {/* Resposta */}
-                <div className="space-y-3">
-                  <Label htmlFor="answer" className="text-gray-200">Sua resposta:</Label>
-                  <Textarea
-                    id="answer"
-                    value={currentAnswer}
-                    onChange={(e) => setCurrentAnswer(e.target.value)}
-                    placeholder="Digite sua resposta aqui..."
-                    className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 rounded-xl min-h-[120px] resize-none"
-                  />
-                </div>
-
-                {/* Botões de Navegação */}
-                <div className="flex justify-between items-center flex-wrap gap-3">
+                
+                <div className="flex justify-center gap-3 flex-wrap">
                   <Button 
                     variant="outline" 
-                    onClick={prevQuestion}
-                    disabled={questionIndex === 0}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
+                    onClick={skipReview}
+                    className="border-gray-300 text-gray-600 hover:bg-gray-100 px-6 py-2 rounded-xl"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Anterior
+                    Pular Esta
                   </Button>
-
-                  <div className="flex gap-2 flex-wrap">
-                    {questionIndex === questions.length - 1 ? (
-                      <>
-                        <Button 
-                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
-                          variant="outline"
-                          className="border-red-400 text-red-400 hover:bg-red-500/20 text-xs px-3"
-                        >
-                          Difícil
-                        </Button>
-                        <Button 
-                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
-                          variant="outline"
-                          className="border-yellow-400 text-yellow-400 hover:bg-yellow-500/20 text-xs px-3"
-                        >
-                          Médio
-                        </Button>
-                        <Button 
-                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
-                          className="bg-green-500 hover:bg-green-600 text-white text-xs px-3"
-                        >
-                          Fácil
-                        </Button>
-                      </>
-                    ) : (
-                      <Button 
-                        onClick={nextQuestion}
-                        className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white"
-                      >
-                        Próxima
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    )}
-                  </div>
+                  <Button 
+                    onClick={startReview}
+                    className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-8 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all font-medium"
+                  >
+                    Iniciar Revisão
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* Tela de Perguntas */
+            <div className="space-y-6">
+              {/* Progress */}
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900">
+                  Pergunta {questionIndex + 1} de {questions.length}
+                </h3>
+                <div className="w-32 bg-gray-200 rounded-full h-3">
+                  <div 
+                    className="bg-gradient-to-r from-green-500 to-blue-600 h-3 rounded-full transition-all duration-300"
+                    style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Pergunta */}
+              <Card className="bg-gradient-to-r from-green-50 to-blue-50 border border-blue-200 p-6 rounded-2xl shadow-sm">
+                <p className="text-lg text-gray-800 break-words leading-relaxed font-medium">
+                  {questions[questionIndex]}
+                </p>
+              </Card>
+
+              {/* Resposta */}
+              <div className="space-y-3">
+                <Label htmlFor="answer" className="text-gray-700 font-semibold">Sua resposta:</Label>
+                <Textarea
+                  id="answer"
+                  value={currentAnswer}
+                  onChange={(e) => setCurrentAnswer(e.target.value)}
+                  placeholder="Digite sua resposta aqui..."
+                  className="bg-white border-gray-300 text-gray-800 placeholder:text-gray-400 rounded-xl min-h-[120px] resize-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
+              </div>
+
+              {/* Botões de Navegação */}
+              <div className="flex justify-between items-center flex-wrap gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={prevQuestion}
+                  disabled={questionIndex === 0}
+                  className="border-gray-300 text-gray-600 hover:bg-gray-100 rounded-xl"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Anterior
+                </Button>
+
+                <div className="flex gap-2 flex-wrap">
+                  {questionIndex === questions.length - 1 ? (
+                    <>
+                      <Button 
+                        onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
+                        variant="outline"
+                        className="border-red-300 text-red-600 hover:bg-red-50 text-xs px-3 py-2 rounded-xl"
+                      >
+                        Difícil
+                      </Button>
+                      <Button 
+                        onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
+                        variant="outline"
+                        className="border-yellow-300 text-yellow-600 hover:bg-yellow-50 text-xs px-3 py-2 rounded-xl"
+                      >
+                        Médio
+                      </Button>
+                      <Button 
+                        onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
+                        className="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded-xl shadow-lg"
+                      >
+                        Fácil
+                      </Button>
+                    </>
+                  ) : (
+                    <Button 
+                      onClick={nextQuestion}
+                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all font-medium"
+                    >
+                      Próxima
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
