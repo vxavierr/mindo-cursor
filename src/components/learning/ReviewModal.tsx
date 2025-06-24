@@ -190,7 +190,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
         w-full border-0 bg-gray-900 text-white shadow-2xl overflow-visible
         ${isMobile 
           ? 'max-w-[95vw] mx-2 rounded-2xl' 
-          : 'max-w-4xl mx-auto rounded-3xl'
+          : 'max-w-2xl mx-auto rounded-3xl'
         }
       `}>
         {/* Wrapper centralizado */}
@@ -209,27 +209,23 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
             </DialogHeader>
 
             {!showQuestions ? (
-              /* Card de Revisão Expandido */
+              /* Card de Revisão - Sem Scroll Interno */
               <div className="space-y-6">
-                <Card className="w-full overflow-visible bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-gray-700/50 backdrop-blur-sm rounded-2xl p-8">
-                  <div className="space-y-6">
+                <Card className="w-full overflow-visible bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-gray-700/50 backdrop-blur-sm rounded-2xl p-6">
+                  <div className="space-y-4">
                     {/* Meta Info */}
-                    <div className="flex items-center justify-between flex-wrap gap-4">
-                      <div className="flex items-center gap-3 text-sm text-gray-300">
-                        <Calendar className="w-5 h-5" />
-                        <span className="font-medium">
-                          {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          })}
-                        </span>
-                        <span className="text-gray-400">•</span>
-                        <span>{getDaysFromCreation(currentReview.createdAt)} dias atrás</span>
+                    <div className="flex items-center justify-between flex-wrap gap-3">
+                      <div className="flex items-center gap-2 text-sm text-gray-300">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
+                          day: '2-digit',
+                          month: '2-digit'
+                        })}
+                        • {getDaysFromCreation(currentReview.createdAt)} dias atrás
                       </div>
-                      <div className="flex items-center gap-3">
-                        <Clock className="w-5 h-5 text-yellow-400" />
-                        <Badge className="bg-yellow-500/20 border-yellow-400 text-yellow-300 px-3 py-1">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-yellow-400" />
+                        <Badge className="bg-yellow-500/20 border-yellow-400 text-yellow-300">
                           Step {currentReview.step + 1}
                         </Badge>
                       </div>
@@ -237,21 +233,20 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
                     
                     {/* Título */}
                     {currentReview.title && (
-                      <div className="border-b border-gray-700/30 pb-4">
-                        <h3 className="text-2xl font-bold text-white mb-2 break-words leading-relaxed">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white mb-2 break-words">
                           {currentReview.title}
                         </h3>
                       </div>
                     )}
                     
                     {/* Conteúdo Principal */}
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-gray-200 flex items-center gap-2">
-                        <Brain className="w-5 h-5 text-blue-400" />
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-200 mb-3">
                         Conteúdo para revisar:
                       </h4>
-                      <div className="bg-gray-800/60 rounded-xl p-6 border border-gray-700/40">
-                        <p className="text-gray-100 leading-relaxed break-words whitespace-pre-wrap text-lg">
+                      <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/30">
+                        <p className="text-gray-100 leading-relaxed break-words whitespace-pre-wrap">
                           {currentReview.content}
                         </p>
                       </div>
@@ -259,143 +254,126 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
 
                     {/* Contexto */}
                     {currentReview.context && (
-                      <div className="pt-4 border-t border-gray-700/40">
-                        <div className="bg-blue-900/30 rounded-xl p-4 border border-blue-700/30">
-                          <h5 className="text-blue-200 font-medium mb-2 flex items-center gap-2">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            Contexto:
-                          </h5>
-                          <p className="text-blue-100 break-words leading-relaxed">
-                            {currentReview.context}
-                          </p>
-                        </div>
+                      <div className="pt-3 border-t border-gray-700/50">
+                        <p className="text-gray-300 text-sm break-words">
+                          <strong className="text-gray-200">Contexto:</strong> {currentReview.context}
+                        </p>
                       </div>
                     )}
 
                     {/* Tags */}
                     {currentReview.tags.length > 0 && (
-                      <div className="pt-4 border-t border-gray-700/40">
-                        <div className="flex items-center gap-3 flex-wrap">
-                          <div className="flex items-center gap-2 text-gray-400">
-                            <Tag className="w-4 h-4" />
-                            <span className="font-medium">Tags:</span>
-                          </div>
-                          <div className="flex flex-wrap gap-2">
-                            {currentReview.tags.map((tag, index) => (
-                              <Badge key={index} variant="outline" className="text-sm bg-gray-700/60 border-gray-600 text-gray-300 px-3 py-1">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
+                      <div className="flex items-center gap-2 pt-2 flex-wrap">
+                        <Tag className="w-4 h-4 text-gray-400" />
+                        {currentReview.tags.map((tag, index) => (
+                          <Badge key={index} variant="outline" className="text-xs bg-gray-700/50 border-gray-600 text-gray-300">
+                            {tag}
+                          </Badge>
+                        ))}
                       </div>
                     )}
                   </div>
                 </Card>
 
                 {/* Instruções e Botões */}
-                <div className="text-center space-y-6">
-                  <div className="bg-green-900/30 rounded-xl p-4 border border-green-700/30">
-                    <p className="text-green-100 text-lg font-medium">
-                      📚 Leia o conteúdo acima com atenção e prepare-se para responder algumas perguntas sobre o que aprendeu.
-                    </p>
-                  </div>
+                <div className="text-center space-y-4">
+                  <p className="text-gray-300">
+                    Leia o conteúdo acima e prepare-se para responder algumas perguntas.
+                  </p>
                   
-                  <div className="flex justify-center gap-4 flex-wrap">
+                  <div className="flex justify-center gap-3 flex-wrap">
                     <Button 
                       variant="outline" 
                       onClick={skipReview}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 px-6 py-3"
+                      className="border-gray-600 text-gray-300 hover:bg-gray-700"
                     >
                       Pular Esta
                     </Button>
                     <Button 
                       onClick={startReview}
-                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-8 py-3 text-lg font-medium"
+                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-6"
                     >
                       Iniciar Revisão
-                      <ArrowRight className="w-5 h-5 ml-2" />
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </div>
                 </div>
               </div>
             ) : (
-              /* Tela de Perguntas Expandida */
+              /* Tela de Perguntas */
               <div className="space-y-6">
                 {/* Progress */}
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-lg font-semibold text-white">
                     Pergunta {questionIndex + 1} de {questions.length}
                   </h3>
-                  <div className="w-40 bg-gray-700 rounded-full h-3">
+                  <div className="w-32 bg-gray-700 rounded-full h-2">
                     <div 
-                      className="bg-gradient-to-r from-green-500 to-blue-600 h-3 rounded-full transition-all duration-300"
+                      className="bg-gradient-to-r from-green-500 to-blue-600 h-2 rounded-full transition-all"
                       style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }}
                     />
                   </div>
                 </div>
 
                 {/* Pergunta */}
-                <Card className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-gray-700/50 p-8 rounded-2xl">
-                  <p className="text-xl text-gray-100 break-words leading-relaxed font-medium">
+                <Card className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-gray-700/50 p-6 rounded-2xl">
+                  <p className="text-lg text-gray-100 break-words">
                     {questions[questionIndex]}
                   </p>
                 </Card>
 
                 {/* Resposta */}
-                <div className="space-y-4">
-                  <Label htmlFor="answer" className="text-lg text-gray-200 font-medium">Sua resposta:</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="answer" className="text-gray-200">Sua resposta:</Label>
                   <Textarea
                     id="answer"
                     value={currentAnswer}
                     onChange={(e) => setCurrentAnswer(e.target.value)}
-                    placeholder="Digite sua resposta aqui... Seja detalhado e explique com suas próprias palavras."
-                    className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 rounded-xl min-h-[150px] resize-none text-lg p-4"
+                    placeholder="Digite sua resposta aqui..."
+                    className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 rounded-xl min-h-[120px] resize-none"
                   />
                 </div>
 
                 {/* Botões de Navegação */}
-                <div className="flex justify-between items-center flex-wrap gap-4">
+                <div className="flex justify-between items-center flex-wrap gap-3">
                   <Button 
                     variant="outline" 
                     onClick={prevQuestion}
                     disabled={questionIndex === 0}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700 px-6 py-3"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-700"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Anterior
                   </Button>
 
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-2 flex-wrap">
                     {questionIndex === questions.length - 1 ? (
                       <>
                         <Button 
                           onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
                           variant="outline"
-                          className="border-red-400 text-red-400 hover:bg-red-500/20 px-4 py-2"
+                          className="border-red-400 text-red-400 hover:bg-red-500/20 text-xs px-3"
                         >
-                          😓 Difícil
+                          Difícil
                         </Button>
                         <Button 
                           onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
                           variant="outline"
-                          className="border-yellow-400 text-yellow-400 hover:bg-yellow-500/20 px-4 py-2"
+                          className="border-yellow-400 text-yellow-400 hover:bg-yellow-500/20 text-xs px-3"
                         >
-                          🤔 Médio
+                          Médio
                         </Button>
                         <Button 
                           onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
-                          className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 font-medium"
+                          className="bg-green-500 hover:bg-green-600 text-white text-xs px-3"
                         >
-                          😊 Fácil
+                          Fácil
                         </Button>
                       </>
                     ) : (
                       <Button 
                         onClick={nextQuestion}
-                        className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-8 py-3 font-medium"
+                        className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white"
                       >
                         Próxima
                         <ArrowRight className="w-4 h-4 ml-2" />
