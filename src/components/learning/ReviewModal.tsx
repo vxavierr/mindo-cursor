@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -154,7 +153,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   if (reviews.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-full max-w-md mx-auto border-0 bg-gray-900 text-white shadow-2xl fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        <DialogContent className="w-full max-w-md border-0 bg-gray-900 text-white shadow-2xl">
           <div className="flex items-center justify-center min-h-[50vh]">
             <div className="text-center space-y-6 p-6">
               <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
@@ -188,10 +187,9 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`
         w-full border-0 bg-gray-900 text-white shadow-2xl overflow-hidden
-        fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2
         ${isMobile 
-          ? 'max-w-[95vw] max-h-[90vh] mx-2 rounded-2xl' 
-          : 'max-w-4xl max-h-[85vh] mx-auto rounded-3xl'
+          ? 'max-w-[95vw] max-h-[90vh] rounded-2xl' 
+          : 'max-w-4xl max-h-[85vh] rounded-3xl'
         }
       `}>
         {/* Container com scroll controlado */}
