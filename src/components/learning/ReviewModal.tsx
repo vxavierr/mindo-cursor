@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -29,9 +28,9 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
     const topicReference = title ? `"${title}"` : 'este tema';
     
     return [
-      `O que posso recordar sobre ${topicReference} sem consultar fontes?`,
-      `Como este conteúdo se relaciona com o que já sei e onde posso aplicá-lo?`,
-      `Quando e como devo revisar este material novamente?`
+      `O que eu sei sobre ${topicReference}?`,
+      `Por que este conteúdo é importante ou verdadeiro?`,
+      `Como posso aplicar ou exemplificar este conhecimento na prática?`
     ];
   };
 
