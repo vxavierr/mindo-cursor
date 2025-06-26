@@ -50,17 +50,13 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   };
 
   const generateQuestions = (content: string, title?: string) => {
-    const baseQuestions = [
-      `Explique com suas palavras: ${content.length > 80 ? content.substring(0, 80) + '...' : content}`,
-      `Qual a aplicação prática deste conhecimento?`,
-      `Quais são os pontos-chave que você deve lembrar?`
+    const topicReference = title ? `"${title}"` : 'este tema';
+    
+    return [
+      `O que posso recordar sobre ${topicReference} sem consultar fontes?`,
+      `Como este conteúdo se relaciona com o que já sei e onde posso aplicá-lo?`,
+      `Quando e como devo revisar este material novamente?`
     ];
-
-    if (title) {
-      baseQuestions.unshift(`Explique o conceito: ${title}`);
-    }
-
-    return baseQuestions.slice(0, content.length > 100 ? 3 : 2);
   };
 
   const startReview = () => {
@@ -281,7 +277,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
                 {/* Instruções e Botões */}
                 <div className="text-center space-y-4">
                   <p className="text-gray-300 text-sm sm:text-base px-2">
-                    Leia o conteúdo acima e prepare-se para responder algumas perguntas.
+                    Leia o conteúdo acima e prepare-se para responder três perguntas baseadas em técnicas de aprendizagem comprovadas.
                   </p>
                   
                   <div className="flex justify-center gap-3 flex-wrap px-2">
