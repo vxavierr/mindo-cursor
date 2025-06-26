@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Share2, MoreVertical, Edit, Trash2, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { LearningEntry } from '@/hooks/useCleanLearning';
 import EditableTags from '@/components/ui/EditableTags';
+import RichTextEditor from '@/components/ui/RichTextEditor';
+import RichTextViewer from '@/components/ui/RichTextViewer';
 
 interface EnhancedLearningCardProps {
   entry: LearningEntry;
@@ -247,12 +248,11 @@ const EnhancedLearningCard = ({
                 </div>
                 
                 <div className="bg-white/15 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex-1">
-                  <Textarea
-                    value={editedContent}
-                    onChange={(e) => setEditedContent(e.target.value)}
+                  <RichTextEditor
+                    content={editedContent}
+                    onChange={setEditedContent}
                     placeholder="Descreva seu aprendizado..."
-                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base leading-relaxed h-full min-h-[120px]"
-                    onClick={(e) => e.stopPropagation()}
+                    className="bg-white/95 text-gray-900 border-0 min-h-[120px]"
                   />
                 </div>
               </div>
@@ -267,9 +267,16 @@ const EnhancedLearningCard = ({
                 
                 {/* Conteúdo */}
                 <div className="flex-1 mb-4">
-                  <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
-                    {isExpanded ? entry.content : getTruncatedContent(entry.content, 120)}
-                  </p>
+                  {isExpanded ? (
+                    <RichTextViewer 
+                      content={entry.content} 
+                      className="text-white/95 leading-relaxed text-base break-words prose-white" 
+                    />
+                  ) : (
+                    <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap">
+                      {getTruncatedContent(entry.content, 120)}
+                    </p>
+                  )}
                   
                   {/* Indicador de mais conteúdo */}
                   {!isExpanded && entry.content.length > 120 && (
@@ -318,7 +325,7 @@ const EnhancedLearningCard = ({
     );
   }
 
-  // Layout mobile mantido igual
+  // Layout mobile mantido com RichTextEditor/Viewer
   return (
     <>
       <div 
@@ -445,17 +452,11 @@ const EnhancedLearningCard = ({
                   />
                 </div>
                 <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 border border-white/20">
-                  <Textarea
-                    value={editedContent}
-                    onChange={(e) => setEditedContent(e.target.value)}
+                  <RichTextEditor
+                    content={editedContent}
+                    onChange={setEditedContent}
                     placeholder="Descreva seu aprendizado..."
-                    className="bg-white/95 text-gray-900 border-0 resize-none placeholder:text-gray-500 text-base"
-                    style={{ 
-                      minHeight: '100px',
-                      height: 'auto'
-                    }}
-                    rows={Math.max(3, Math.ceil(editedContent.length / 40))}
-                    onClick={(e) => e.stopPropagation()}
+                    className="bg-white/95 text-gray-900 border-0 min-h-[100px]"
                   />
                 </div>
               </div>
@@ -467,9 +468,16 @@ const EnhancedLearningCard = ({
                   </h3>
                 )}
                 
-                <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4">
-                  {isExpanded ? entry.content : getTruncatedContent(entry.content, 80)}
-                </p>
+                {isExpanded ? (
+                  <RichTextViewer 
+                    content={entry.content} 
+                    className="text-white/95 leading-relaxed text-base break-words prose-white mb-4" 
+                  />
+                ) : (
+                  <p className="text-white/95 leading-relaxed text-base break-words whitespace-pre-wrap mb-4">
+                    {getTruncatedContent(entry.content, 80)}
+                  </p>
+                )}
               </>
             )}
             
@@ -504,7 +512,7 @@ const EnhancedLearningCard = ({
             >
               Mover para lixeira
             </AlertDialogAction>
-          </AlertDialogFooter>
+            </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>

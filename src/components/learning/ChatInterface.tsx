@@ -2,9 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
 import { Send, Lightbulb, BookOpen, Target, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface ChatInterfaceProps {
   onAddEntry: (content: string, context?: string) => void;
@@ -20,7 +20,6 @@ const ChatInterface = ({ onAddEntry }: ChatInterfaceProps) => {
       timestamp: new Date()
     }
   ]);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -176,12 +175,11 @@ const ChatInterface = ({ onAddEntry }: ChatInterfaceProps) => {
       <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl">
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">
-            <Textarea
-              ref={textareaRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
+            <RichTextEditor
+              content={message}
+              onChange={setMessage}
               placeholder="Digite aqui... Ex: 'Aprendi que React hooks permitem usar estado em componentes funcionais'"
-              className="min-h-[100px] resize-none bg-transparent border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
+              className="min-h-[100px] bg-transparent border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400"
               disabled={isProcessing}
             />
             <div className="flex justify-between items-center">
