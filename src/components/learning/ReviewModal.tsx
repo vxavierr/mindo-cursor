@@ -1,38 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { CheckCircle, ArrowRight, ArrowLeft, Calendar, Tag, Brain, Clock } from 'lucide-react';
+import { Brain } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-interface LearningEntry {
-  id: string;
-  numeroId: number;
-  title: string;
-  content: string;
-  context?: string;
-  tags: string[];
-  createdAt: string;
-  step: number;
-  reviews: Array<{ 
-    date: string; 
-    questions?: string[]; 
-    answers?: string[]; 
-    step?: number;
-    difficulty?: 'easy' | 'medium' | 'hard';
-  }>;
-}
-
-interface ReviewModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  reviews: LearningEntry[];
-  onCompleteReview: (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => void;
-}
+import { LearningEntry, ReviewModalProps } from './types/review';
+import EmptyReviewState from './EmptyReviewState';
+import ReviewCard from './ReviewCard';
+import QuestionCard from './QuestionCard';
 
 const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -138,45 +114,15 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
     }
   };
 
-  const getDaysFromCreation = (createdAt: string) => {
-    const created = new Date(createdAt);
-    const now = new Date();
-    return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
+  const handleCompleteReviewWithAnswers = (difficulty: 'easy' | 'medium' | 'hard') => {
+    const finalAnswers = [...answers.slice(0, questionIndex), currentAnswer];
+    completeReview(finalAnswers, difficulty);
   };
 
   if (!isOpen) return null;
 
   if (reviews.length === 0) {
-    return (
-      <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="w-full max-w-md border-0 bg-gray-900 text-white shadow-2xl">
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <div className="text-center space-y-6 p-6">
-              <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="w-8 h-8 text-green-400" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-white mb-3">
-                  Tudo em dia! 🎉
-                </h2>
-                <p className="text-gray-300 mb-4 text-sm">
-                  Você não tem revisões pendentes hoje.
-                </p>
-                <p className="text-xs text-gray-400">
-                  Continue aprendendo e volte depois para suas próximas revisões!
-                </p>
-              </div>
-              <Button 
-                onClick={onClose} 
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl"
-              >
-                Fechar
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
+    return <EmptyReviewState isOpen={isOpen} onClose={onClose} />;
   }
 
   return (
@@ -204,183 +150,23 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
             </DialogHeader>
 
             {!showQuestions ? (
-              /* Card de Revisão - Otimizado */
-              <div className="space-y-4 sm:space-y-6">
-                <Card className="w-full bg-gradient-to-br from-blue-900/40 to-purple-900/40 border border-gray-700/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6">
-                  <div className="space-y-4">
-                    {/* Meta Info */}
-                    <div className="flex items-center justify-between flex-wrap gap-2 text-xs sm:text-sm">
-                      <div className="flex items-center gap-2 text-gray-300">
-                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
-                        <span>
-                          {new Date(currentReview.createdAt).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit'
-                          })}
-                          • {getDaysFromCreation(currentReview.createdAt)} dias atrás
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-yellow-400" />
-                        <Badge className="bg-yellow-500/20 border-yellow-400 text-yellow-300 text-xs">
-                          Step {currentReview.step + 1}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    {/* Título */}
-                    {currentReview.title && (
-                      <div>
-                        <h3 className="text-base sm:text-lg font-semibold text-white mb-2 break-words leading-tight">
-                          {currentReview.title}
-                        </h3>
-                      </div>
-                    )}
-                    
-                    {/* Conteúdo Principal */}
-                    <div>
-                      <h4 className="text-xs sm:text-sm font-medium text-gray-200 mb-3">
-                        Conteúdo para revisar:
-                      </h4>
-                      <div className="bg-gray-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-700/30">
-                        <p className="text-sm sm:text-base text-gray-100 leading-relaxed break-words whitespace-pre-wrap">
-                          {currentReview.content}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Contexto */}
-                    {currentReview.context && (
-                      <div className="pt-3 border-t border-gray-700/50">
-                        <p className="text-gray-300 text-xs sm:text-sm break-words leading-relaxed">
-                          <strong className="text-gray-200">Contexto:</strong> {currentReview.context}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Tags */}
-                    {currentReview.tags.length > 0 && (
-                      <div className="flex items-start gap-2 pt-2 flex-wrap">
-                        <Tag className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 mt-0.5" />
-                        <div className="flex flex-wrap gap-1 sm:gap-2">
-                          {currentReview.tags.map((tag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs bg-gray-700/50 border-gray-600 text-gray-300">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </Card>
-
-                {/* Instruções e Botões */}
-                <div className="text-center space-y-4">
-                  <p className="text-gray-300 text-sm sm:text-base px-2">
-                    Leia o conteúdo acima e prepare-se para responder três perguntas baseadas em técnicas de aprendizagem comprovadas.
-                  </p>
-                  
-                  <div className="flex justify-center gap-3 flex-wrap px-2">
-                    <Button 
-                      variant="outline" 
-                      onClick={skipReview}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 text-sm px-4"
-                    >
-                      Pular Esta
-                    </Button>
-                    <Button 
-                      onClick={startReview}
-                      className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white px-4 sm:px-6 text-sm"
-                    >
-                      Iniciar Revisão
-                      <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-2" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              <ReviewCard 
+                review={currentReview}
+                currentIndex={currentIndex}
+                totalReviews={reviews.length}
+                onStartReview={startReview}
+                onSkipReview={skipReview}
+              />
             ) : (
-              /* Tela de Perguntas */
-              <div className="space-y-4 sm:space-y-6">
-                {/* Progress */}
-                <div className="flex items-center justify-between gap-4">
-                  <h3 className="text-base sm:text-lg font-semibold text-white">
-                    Pergunta {questionIndex + 1} de {questions.length}
-                  </h3>
-                  <div className="w-20 sm:w-32 bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="bg-gradient-to-r from-green-500 to-blue-600 h-2 rounded-full transition-all"
-                      style={{ width: `${((questionIndex + 1) / questions.length) * 100}%` }}
-                    />
-                  </div>
-                </div>
-
-                {/* Pergunta */}
-                <Card className="bg-gradient-to-r from-green-900/40 to-blue-900/40 border border-gray-700/50 p-4 sm:p-6 rounded-xl sm:rounded-2xl">
-                  <p className="text-sm sm:text-lg text-gray-100 break-words leading-relaxed">
-                    {questions[questionIndex]}
-                  </p>
-                </Card>
-
-                {/* Resposta */}
-                <div className="space-y-3">
-                  <Label htmlFor="answer" className="text-gray-200 text-sm">Sua resposta:</Label>
-                  <Textarea
-                    id="answer"
-                    value={currentAnswer}
-                    onChange={(e) => setCurrentAnswer(e.target.value)}
-                    placeholder="Digite sua resposta aqui..."
-                    className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 rounded-xl min-h-[100px] sm:min-h-[120px] resize-none text-sm"
-                  />
-                </div>
-
-                {/* Botões de Navegação */}
-                <div className="flex justify-between items-center flex-wrap gap-3">
-                  <Button 
-                    variant="outline" 
-                    onClick={prevQuestion}
-                    disabled={questionIndex === 0}
-                    className="border-gray-600 text-gray-300 hover:bg-gray-700 text-sm px-3"
-                  >
-                    <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    Anterior
-                  </Button>
-
-                  <div className="flex gap-2 flex-wrap">
-                    {questionIndex === questions.length - 1 ? (
-                      <>
-                        <Button 
-                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'hard')}
-                          variant="outline"
-                          className="border-red-400 text-red-400 hover:bg-red-500/20 text-xs px-2 sm:px-3"
-                        >
-                          Difícil
-                        </Button>
-                        <Button 
-                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'medium')}
-                          variant="outline"
-                          className="border-yellow-400 text-yellow-400 hover:bg-yellow-500/20 text-xs px-2 sm:px-3"
-                        >
-                          Médio
-                        </Button>
-                        <Button 
-                          onClick={() => completeReview([...answers.slice(0, questionIndex), currentAnswer], 'easy')}
-                          className="bg-green-500 hover:bg-green-600 text-white text-xs px-2 sm:px-3"
-                        >
-                          Fácil
-                        </Button>
-                      </>
-                    ) : (
-                      <Button 
-                        onClick={nextQuestion}
-                        className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-400 hover:to-blue-500 text-white text-sm px-4"
-                      >
-                        Próxima
-                        <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 ml-2" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <QuestionCard 
+                questions={questions}
+                questionIndex={questionIndex}
+                currentAnswer={currentAnswer}
+                onAnswerChange={setCurrentAnswer}
+                onNextQuestion={nextQuestion}
+                onPrevQuestion={prevQuestion}
+                onCompleteReview={handleCompleteReviewWithAnswers}
+              />
             )}
           </div>
         </div>
