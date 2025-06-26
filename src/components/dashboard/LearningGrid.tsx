@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Tag, TrendingUp } from 'lucide-react';
 import { useMemo } from 'react';
-import RichTextViewer from '@/components/ui/RichTextViewer';
 
 interface LearningEntry {
   id: string;
@@ -89,10 +88,9 @@ const LearningGrid = ({ entries }: LearningGridProps) => {
             </div>
             
             <div className="mb-4">
-              <RichTextViewer 
-                content={entry.content} 
-                className="text-gray-900 dark:text-white text-lg leading-relaxed font-light"
-              />
+              <p className="text-gray-900 dark:text-white text-lg leading-relaxed font-light">
+                {entry.content}
+              </p>
               {entry.context && (
                 <p className="text-gray-500 dark:text-gray-400 mt-3 text-sm">
                   {entry.context}

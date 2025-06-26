@@ -3,10 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Mic, MicOff, X, Plus, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface AddLearningModalProps {
   isOpen: boolean;
@@ -148,14 +148,15 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, existingTags }: AddLearningM
               O que você aprendeu? *
             </Label>
             <div className="relative">
-              <RichTextEditor
-                content={content}
-                onChange={setContent}
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
                 placeholder="Aprendi que... / Hoje descobri que... / Entendi como..."
-                className="min-h-[120px]"
-                disabled={isProcessing}
+                className="min-h-[120px] resize-none"
+                required
               />
-              <div className="absolute top-3 right-3 flex gap-2">
+              <div className="absolute bottom-3 right-3 flex gap-2">
                 <Button
                   type="button"
                   size="sm"
@@ -183,11 +184,12 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, existingTags }: AddLearningM
             <Label htmlFor="context" className="text-base font-medium">
               Contexto (opcional)
             </Label>
-            <RichTextEditor
-              content={context}
-              onChange={setContext}
+            <Textarea
+              id="context"
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
               placeholder="Onde aprendeu, fonte, situação..."
-              className="min-h-[80px]"
+              className="min-h-[80px] resize-none"
             />
           </div>
 

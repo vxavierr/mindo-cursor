@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Calendar, Tag } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import RichTextViewer from '@/components/ui/RichTextViewer';
 
 interface LearningEntry {
   id: string;
@@ -58,7 +57,7 @@ const TodaysLearning = ({ entries, onDelete }: TodaysLearningProps) => {
       </h2>
       
       {entries.map((entry) => (
-        <Card key={entry.id} className="p-6 border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
+        <Card key={entry.id} className="p-6 border border-gray-100 dark: bg-white dark:bg-gray-900 hover:border-gray-200 dark:hover:border-gray-700 transition-all duration-200">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-center space-x-3">
               <span className="text-sm font-mono text-gray-400 dark:text-gray-500">
@@ -105,12 +104,9 @@ const TodaysLearning = ({ entries, onDelete }: TodaysLearningProps) => {
             </h3>
           )}
           
-          <div className="mb-4">
-            <RichTextViewer 
-              content={entry.content} 
-              className="text-gray-700 dark:text-gray-300 leading-relaxed"
-            />
-          </div>
+          <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+            {entry.content}
+          </p>
           
           {entry.context && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 italic">
