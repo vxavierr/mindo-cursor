@@ -4,6 +4,7 @@ import { Trash2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { LearningEntry } from '@/hooks/useCleanLearning';
+import RichTextViewer from '@/components/ui/RichTextViewer';
 
 interface CleanTodaysLearningProps {
   entries: LearningEntry[];
@@ -86,9 +87,12 @@ const CleanTodaysLearning = ({ entries, onDelete }: CleanTodaysLearningProps) =>
             )}
 
             {/* Conteúdo */}
-            <p className="text-gray-700 leading-relaxed mb-4 text-base">
-              {entry.content}
-            </p>
+            <div className="mb-4">
+              <RichTextViewer 
+                content={entry.content} 
+                className="text-gray-700 leading-relaxed text-base"
+              />
+            </div>
 
             {/* Tags */}
             {entry.tags && entry.tags.length > 0 && (

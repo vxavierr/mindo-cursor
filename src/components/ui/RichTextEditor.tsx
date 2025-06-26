@@ -170,12 +170,7 @@ const RichTextEditor = ({
       
       <EditorContent 
         editor={editor} 
-        className="prose prose-sm dark:prose-invert max-w-none p-3 min-h-[120px] focus-within:outline-none"
-        style={{
-          '& .ProseMirror': {
-            outline: 'none',
-          }
-        }}
+        className="prose prose-sm dark:prose-invert max-w-none p-3 min-h-[120px] focus-within:outline-none [&_.ProseMirror]:outline-none"
       />
     </div>
   );
