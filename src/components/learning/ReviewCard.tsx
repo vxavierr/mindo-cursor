@@ -3,7 +3,6 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Tag, Clock, ArrowRight } from 'lucide-react';
-import RichTextViewer from '@/components/ui/RichTextViewer';
 import { LearningEntry } from './types/review';
 
 interface ReviewCardProps {
@@ -64,19 +63,18 @@ const ReviewCard = ({ review, currentIndex, totalReviews, onStartReview, onSkipR
               Conteúdo para revisar:
             </h4>
             <div className="bg-gray-800/50 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-700/30">
-              <div className="text-sm sm:text-base text-gray-100 leading-relaxed break-words">
-                <RichTextViewer content={review.content} />
-              </div>
+              <p className="text-sm sm:text-base text-gray-100 leading-relaxed break-words whitespace-pre-wrap">
+                {review.content}
+              </p>
             </div>
           </div>
 
           {/* Contexto */}
           {review.context && (
             <div className="pt-3 border-t border-gray-700/50">
-              <div className="text-gray-300 text-xs sm:text-sm break-words leading-relaxed">
-                <strong className="text-gray-200">Contexto:</strong>{' '}
-                <RichTextViewer content={review.context} />
-              </div>
+              <p className="text-gray-300 text-xs sm:text-sm break-words leading-relaxed">
+                <strong className="text-gray-200">Contexto:</strong> {review.context}
+              </p>
             </div>
           )}
 

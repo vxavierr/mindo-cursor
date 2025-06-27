@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import RichTextEditor from '@/components/ui/RichTextEditor';
+import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2, Send } from 'lucide-react';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
 import { useToast } from '@/hooks/use-toast';
@@ -178,12 +178,13 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
         
         <div className="space-y-4">
           <div className="relative">
-            <RichTextEditor
-              content={content}
-              onChange={setContent}
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Descreva o que você aprendeu hoje..."
-              minHeight="120px"
-              className="text-[15px] leading-relaxed"
+              className="min-h-[120px] text-[15px] leading-relaxed border-gray-200 dark:border-gray-700 focus:border-gray-300 dark:focus:border-gray-600 resize-none"
+              disabled={isProcessing}
             />
             
             <div className="absolute bottom-3 right-3 flex items-center space-x-2">

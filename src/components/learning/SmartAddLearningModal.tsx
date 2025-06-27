@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import RichTextEditor from '@/components/ui/RichTextEditor';
+import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAI } from '@/hooks/useAI';
@@ -146,13 +146,14 @@ const SmartAddLearningModal = ({ isOpen, onClose, onAdd }: SmartAddLearningModal
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <div className="relative">
-              <RichTextEditor
-                content={content}
-                onChange={setContent}
+              <Textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
                 placeholder="Descreva seu aprendizado..."
-                minHeight="120px"
+                className="min-h-[120px] resize-none pr-20"
+                required
               />
-              <div className="absolute top-3 right-3 flex gap-2">
+              <div className="absolute bottom-3 right-3 flex gap-2">
                 <Button
                   type="button"
                   size="sm"
