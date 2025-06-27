@@ -9,7 +9,7 @@ import Underline from '@tiptap/extension-underline'
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
-import { lowlight } from 'lowlight'
+import { createLowlight } from 'lowlight'
 import { 
   Bold, 
   Italic, 
@@ -28,6 +28,8 @@ import {
   ListTodo,
   CodeSquare
 } from 'lucide-react'
+
+const lowlight = createLowlight()
 
 const MenuButton = ({ 
   onClick, 
