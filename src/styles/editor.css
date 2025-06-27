@@ -1,0 +1,139 @@
+
+/* Remover bordas e ajustar estilos */
+.rich-text-editor .ProseMirror {
+  min-height: 100px;
+  outline: none;
+  padding: 0.5rem 0.75rem;
+}
+
+.rich-text-editor .ProseMirror:focus {
+  outline: none;
+}
+
+/* Placeholder */
+.rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Menu flutuante */
+.tippy-box {
+  background-color: transparent !important;
+}
+
+/* Seleção de texto */
+.ProseMirror ::selection {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Remover qualquer borda padrão */
+.rich-text-editor {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Estilos do Editor */
+.ProseMirror {
+  min-height: 200px;
+  outline: none;
+}
+
+.ProseMirror h1 {
+  font-size: 2em;
+  font-weight: 700;
+  margin: 0.67em 0;
+}
+
+.ProseMirror h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin: 0.75em 0;
+}
+
+.ProseMirror h3 {
+  font-size: 1.17em;
+  font-weight: 600;
+  margin: 0.83em 0;
+}
+
+.ProseMirror p {
+  margin: 0.5em 0;
+}
+
+.ProseMirror mark {
+  background-color: #ffd43b;
+  padding: 0.125em 0;
+}
+
+.ProseMirror code {
+  background-color: #f1f3f5;
+  color: #e03131;
+  padding: 0.25em 0.5em;
+  border-radius: 0.25em;
+  font-size: 0.875em;
+}
+
+.ProseMirror pre {
+  background: #0d0d0d;
+  color: #fff;
+  font-family: 'JetBrainsMono', monospace;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+}
+
+.ProseMirror pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: 0.8rem;
+}
+
+.ProseMirror blockquote {
+  padding-left: 1rem;
+  border-left: 3px solid #e9ecef;
+  margin: 1rem 0;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.ProseMirror li {
+  margin: 0.25rem 0;
+}
+
+/* Lista de Tarefas */
+.ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+
+.ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+}
+
+.ProseMirror ul[data-type="taskList"] li > label {
+  flex: 0 0 auto;
+  margin-right: 0.5rem;
+  user-select: none;
+}
+
+.ProseMirror ul[data-type="taskList"] li > div {
+  flex: 1 1 auto;
+}
+
+/* Comando Slash */
+.ProseMirror .mention {
+  background-color: #f1f3f5;
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  color: #495057;
+}
