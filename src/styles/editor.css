@@ -1,15 +1,43 @@
 
-/* Estilos do Editor Rich Text */
+/* Remover bordas e ajustar estilos - Editor limpo estilo Notion */
 .rich-text-editor .ProseMirror {
+  min-height: 100px;
   outline: none;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: transparent;
 }
 
+.rich-text-editor .ProseMirror:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Placeholder */
 .rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
   color: #9ca3af;
   pointer-events: none;
   height: 0;
+}
+
+/* Seleção de texto */
+.rich-text-editor .ProseMirror ::selection {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* Remover qualquer borda padrão */
+.rich-text-editor {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+/* Menu flutuante */
+.tippy-box {
+  background-color: transparent !important;
 }
 
 .rich-text-editor .ProseMirror h1 {
@@ -114,6 +142,17 @@
   color: #9ca3af;
 }
 
+/* Links */
+.rich-text-editor .ProseMirror a {
+  color: #3b82f6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.rich-text-editor .ProseMirror a:hover {
+  color: #1d4ed8;
+}
+
 /* Estilos para modo escuro */
 @media (prefers-color-scheme: dark) {
   .rich-text-editor .ProseMirror code {
@@ -124,6 +163,14 @@
   .rich-text-editor .ProseMirror blockquote {
     border-left-color: #4b5563;
     color: #9ca3af;
+  }
+
+  .rich-text-editor .ProseMirror a {
+    color: #60a5fa;
+  }
+
+  .rich-text-editor .ProseMirror a:hover {
+    color: #93c5fd;
   }
 }
 
@@ -173,6 +220,15 @@
   color: #9ca3af;
 }
 
+.prose a {
+  color: #3b82f6;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #1d4ed8;
+}
+
 /* Dark mode para prose */
 .dark .prose code {
   background-color: #374151;
@@ -182,4 +238,12 @@
 .dark .prose blockquote {
   border-left-color: #4b5563;
   color: #9ca3af;
+}
+
+.dark .prose a {
+  color: #60a5fa;
+}
+
+.dark .prose a:hover {
+  color: #93c5fd;
 }
