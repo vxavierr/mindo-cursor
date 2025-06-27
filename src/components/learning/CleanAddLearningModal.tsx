@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2, Send } from 'lucide-react';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
 import { useToast } from '@/hooks/use-toast';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface CleanAddLearningModalProps {
   isOpen: boolean;
@@ -178,16 +178,14 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
         
         <div className="space-y-4">
           <div className="relative">
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              onKeyDown={handleKeyDown}
+            <RichTextEditor
+              content={content}
+              onChange={setContent}
               placeholder="Descreva o que você aprendeu hoje..."
-              className="min-h-[120px] text-[15px] leading-relaxed border-gray-200 dark:border-gray-700 focus:border-gray-300 dark:focus:border-gray-600 resize-none"
-              disabled={isProcessing}
+              className="min-h-[120px]"
             />
             
-            <div className="absolute bottom-3 right-3 flex items-center space-x-2">
+            <div className="absolute bottom-3 right-3 flex items-center space-x-2 z-10">
               {content.trim() && (
                 <Button
                   type="button"
@@ -232,7 +230,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
 
           <div className="flex justify-between items-center pt-2">
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Título e tags serão gerados automaticamente pela IA
+              Título e tags serão gerados automaticamente pela IA. Selecione texto para formatar.
             </p>
             
             <div className="flex space-x-2">

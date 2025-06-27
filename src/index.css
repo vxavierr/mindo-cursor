@@ -1,8 +1,8 @@
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import './styles/editor.css';
 
 /* SpaceLearn Design System - Colors and gradients inspired by clean learning apps */
 
@@ -293,4 +293,3 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--primary));
 }
-

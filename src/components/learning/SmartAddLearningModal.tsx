@@ -2,10 +2,10 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAI } from '@/hooks/useAI';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface SmartAddLearningModalProps {
   isOpen: boolean;
@@ -146,14 +146,13 @@ const SmartAddLearningModal = ({ isOpen, onClose, onAdd }: SmartAddLearningModal
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <div className="relative">
-              <Textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+              <RichTextEditor
+                content={content}
+                onChange={setContent}
                 placeholder="Descreva seu aprendizado..."
-                className="min-h-[120px] resize-none pr-20"
-                required
+                className="min-h-[120px] border rounded-lg"
               />
-              <div className="absolute bottom-3 right-3 flex gap-2">
+              <div className="absolute bottom-3 right-3 flex gap-2 z-10">
                 <Button
                   type="button"
                   size="sm"
@@ -176,7 +175,7 @@ const SmartAddLearningModal = ({ isOpen, onClose, onAdd }: SmartAddLearningModal
               </div>
             </div>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              Use o botão IA para melhorar o texto ou o microfone para gravar áudio
+              Use o botão IA para melhorar o texto ou o microfone para gravar áudio. Selecione texto para formatar.
             </p>
           </div>
 
