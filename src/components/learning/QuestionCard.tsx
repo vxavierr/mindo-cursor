@@ -1,8 +1,8 @@
 
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface QuestionCardProps {
@@ -52,12 +52,12 @@ const QuestionCard = ({
       {/* Resposta */}
       <div className="space-y-3">
         <Label htmlFor="answer" className="text-gray-200 text-sm">Sua resposta:</Label>
-        <Textarea
-          id="answer"
-          value={currentAnswer}
-          onChange={(e) => onAnswerChange(e.target.value)}
+        <RichTextEditor
+          content={currentAnswer}
+          onChange={onAnswerChange}
           placeholder="Digite sua resposta aqui..."
-          className="bg-gray-800 border-gray-600 text-white placeholder:text-gray-400 rounded-xl min-h-[100px] sm:min-h-[120px] resize-none text-sm"
+          minHeight="120px"
+          className="bg-gray-800 border-gray-600"
         />
       </div>
 
