@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import RichTextEditor from '@/components/ui/RichTextEditor';
+import { Textarea } from '@/components/ui/textarea';
 import { Mic, MicOff, Sparkles, Loader2, Send } from 'lucide-react';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
 import { useToast } from '@/hooks/use-toast';
@@ -177,12 +177,14 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
         </DialogHeader>
         
         <div className="space-y-4">
-          <div className="relative" onKeyDown={handleKeyDown}>
-            <RichTextEditor
-              content={content}
-              onChange={setContent}
+          <div className="relative">
+            <Textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Descreva o que você aprendeu hoje..."
-              className="min-h-[120px] text-[15px] leading-relaxed"
+              className="min-h-[120px] text-[15px] leading-relaxed border-gray-200 dark:border-gray-700 focus:border-gray-300 dark:focus:border-gray-600 resize-none"
+              disabled={isProcessing}
             />
             
             <div className="absolute bottom-3 right-3 flex items-center space-x-2">
@@ -230,7 +232,7 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
 
           <div className="flex justify-between items-center pt-2">
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Título e tags serão gerados automaticamente pela IA. Selecione texto para formatar.
+              Título e tags serão gerados automaticamente pela IA
             </p>
             
             <div className="flex space-x-2">
