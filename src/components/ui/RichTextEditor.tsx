@@ -1,4 +1,3 @@
-
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -28,7 +27,7 @@ import {
   Highlighter,
   Quote
 } from 'lucide-react'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useEffect } from 'react'
 
 interface RichTextEditorProps {
   content?: string
@@ -89,6 +88,13 @@ export default function RichTextEditor({
       },
     },
   })
+
+  // Atualiza o conteúdo do editor se a prop content mudar externamente
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || '', false)
+    }
+  }, [content, editor])
 
   const setLink = useCallback(() => {
     if (linkUrl === '') {

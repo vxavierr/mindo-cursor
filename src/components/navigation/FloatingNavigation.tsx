@@ -1,6 +1,7 @@
-
 import React, { useState } from 'react';
-import { Home, Settings, Plus, BookOpen, RotateCcw } from 'lucide-react';
+import { Home, Settings, Plus, BookOpen, RotateCcw, Flame } from 'lucide-react';
+import { useLearningCardLayout } from '@/components/learning/LearningCardLayoutContext';
+import { useToast } from '@/components/ui/use-toast';
 
 interface FloatingNavigationProps {
   activeItem?: string;
@@ -18,6 +19,13 @@ const FloatingNavigation = ({
   const [pressedItem, setPressedItem] = useState<string | null>(null);
   const [pressedFab, setPressedFab] = useState(false);
   const [fabMenuOpen, setFabMenuOpen] = useState(false);
+  const { layout, setLayout } = useLearningCardLayout();
+  const { toast } = useToast();
+  const layouts: Array<{ value: 'clean' | 'default' | 'enhanced', label: string }> = [
+    { value: 'default', label: 'Padrão' },
+    { value: 'clean', label: 'Clean' },
+    { value: 'enhanced', label: 'Colorido' },
+  ];
 
   console.log('FloatingNavigation props:', { onCreateLearning, onReview });
 
@@ -54,6 +62,17 @@ const FloatingNavigation = ({
   const handleOverlayClick = () => {
     console.log('Overlay clicked, closing menu');
     setFabMenuOpen(false);
+  };
+
+  const handleLayoutToggle = () => {
+    const currentIdx = layouts.findIndex(l => l.value === layout);
+    const nextIdx = (currentIdx + 1) % layouts.length;
+    setLayout(layouts[nextIdx].value);
+    toast({
+      title: `Layout dos cards alterado`,
+      description: `Agora em modo: ${layouts[nextIdx].label}`,
+      duration: 2000
+    });
   };
 
   return (
@@ -165,12 +184,11 @@ const FloatingNavigation = ({
       </div>
 
       {/* Desktop: Floating navigation - Menor */}
-      <div className="hidden md:block fixed bottom-6 lg:bottom-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-40">
-        <nav className="relative bg-white rounded-[28px] lg:rounded-[32px] px-4 lg:px-6 py-2 lg:py-3 pointer-events-auto flex items-center gap-6 lg:gap-8 nav-transition"
+      <div className="hidden md:block fixed bottom-6 lg:bottom-8 left-1/2 transform -translate-x-1/2 z-40">
+        <nav className="relative bg-white rounded-[28px] lg:rounded-[32px] px-4 lg:px-6 py-2 lg:py-3 flex items-center gap-6 lg:gap-8 nav-transition pointer-events-auto"
              style={{
                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)'
              }}>
-          
           {/* Navigation Items */}
           <div className="flex items-center gap-6 lg:gap-8 transition-all duration-300">
             {/* Home Button */}

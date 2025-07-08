@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +11,7 @@ export const useEnhancedAI = () => {
     try {
       console.log('Melhorando texto:', content.substring(0, 100) + '...');
       
-      const { data, error } = await supabase.functions.invoke('process-with-ai', {
+      const { data, error } = await supabase.functions.invoke('enhance-text', {
         body: { 
           text: content, 
           action: 'improve'
@@ -20,7 +19,7 @@ export const useEnhancedAI = () => {
       });
 
       if (error) {
-        console.error('Erro na função process-with-ai:', error);
+        console.error('Erro na função enhance-text:', error);
         throw error;
       }
 
@@ -44,7 +43,7 @@ export const useEnhancedAI = () => {
       console.log('Gerando título e tags para:', content.substring(0, 100) + '...');
       
       // Gerar título
-      const { data: titleData, error: titleError } = await supabase.functions.invoke('process-with-ai', {
+      const { data: titleData, error: titleError } = await supabase.functions.invoke('enhance-text', {
         body: { 
           text: content, 
           action: 'generate_title'
@@ -57,7 +56,7 @@ export const useEnhancedAI = () => {
       }
 
       // Gerar tags
-      const { data: tagsData, error: tagsError } = await supabase.functions.invoke('process-with-ai', {
+      const { data: tagsData, error: tagsError } = await supabase.functions.invoke('enhance-text', {
         body: { 
           text: content, 
           action: 'generate_tags'

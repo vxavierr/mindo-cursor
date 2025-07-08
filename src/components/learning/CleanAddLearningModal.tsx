@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -111,8 +110,9 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
     try {
       console.log('Melhorando texto...');
       const improvedText = await improveText(content);
+      console.log('Texto melhorado recebido:', improvedText);
       if (improvedText && improvedText !== content) {
-        setContent(improvedText);
+        setContent(improvedText || '');
         toast({
           title: "Texto melhorado!",
           description: "O conteúdo foi aprimorado pela IA"

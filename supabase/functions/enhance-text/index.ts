@@ -1,4 +1,3 @@
-
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -57,7 +56,7 @@ ${text}`;
         break;
         
       case 'generate_title':
-        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 60 caracteres. Retorne APENAS o título, sem aspas, explicações ou formatação extra:
+        prompt = `Gere um título conciso e descritivo para este aprendizado em português. Máximo 40 caracteres. Retorne APENAS o título, sem aspas, explicações ou formatação extra:
 
 ${text}`;
         break;
@@ -129,7 +128,7 @@ ${text}`;
     );
 
   } catch (error) {
-    console.error('Error in process-with-ai function:', error);
+    console.error('Error in enhance-text function:', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { 

@@ -1,19 +1,30 @@
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Brain, Moon, Sun, Menu } from 'lucide-react';
+import { Brain, Moon, Sun, Menu, Brush } from 'lucide-react';
 import CleanAddLearningModal from '@/components/learning/CleanAddLearningModal';
-import EnhancedTodaysLearning from '@/components/learning/EnhancedTodaysLearning';
 import ReviewModal from '@/components/learning/ReviewModal';
 import NavigationLayout from '@/components/layout/NavigationLayout';
 import DateNavigation from '@/components/navigation/DateNavigation';
 import ViewToggle from '@/components/ui/ViewToggle';
 import StreakBadge from '@/components/ui/StreakBadge';
-import { useCleanLearning } from '@/hooks/useCleanLearning';
-import { useReviewSystem } from '@/hooks/useReviewSystem';
+import { useLearningEngine } from '@/hooks/useLearningEngine';
 import { useNotifications } from '@/hooks/useNotifications';
+import LearningCardList from '@/components/learning/LearningCardList';
+import { useLearningCardLayout } from '@/components/learning/LearningCardLayoutContext';
+import { useToast } from '@/components/ui/use-toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from "@/components/ui/dropdown-menu";
+
 
 const EnhancedHome = () => {
+
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') === 'dark';
@@ -28,21 +39,32 @@ const EnhancedHome = () => {
 
   const {
     learningEntries,
-    todaysEntries,
     loading,
     addLearningEntry,
     updateLearningEntry,
-    deleteEntry,
-    completeReview
-  } = useCleanLearning();
-
-  const { reviewsToday } = useReviewSystem(learningEntries);
+    getTodaysEntries,
+    getReviewsToday,
+    completeReview,
+    improveText,
+    generateTitleAndTags,
+    transcribeAudio,
+    isProcessing,
+    moveToTrash
+  } = useLearningEngine();
 
   const {
     permission,
     requestPermission,
     scheduleDailyReminder
   } = useNotifications();
+
+  const { layout, setLayout } = useLearningCardLayout();
+  const { toast } = useToast();
+  const layouts = [
+    { value: 'default', label: 'Padrão' },
+    { value: 'clean', label: 'Clean' },
+    { value: 'enhanced', label: 'Colorido' },
+  ];
 
   useEffect(() => {
     if (darkMode) {
@@ -55,10 +77,10 @@ const EnhancedHome = () => {
   }, [darkMode]);
 
   useEffect(() => {
-    if (reviewsToday.length > 0) {
-      scheduleDailyReminder(reviewsToday.length);
+    if (getReviewsToday.length > 0) {
+      scheduleDailyReminder(getReviewsToday.length);
     }
-  }, [reviewsToday.length, scheduleDailyReminder]);
+  }, [getReviewsToday.length, scheduleDailyReminder]);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -89,9 +111,7 @@ const EnhancedHome = () => {
     setShowReviewModal(true);
   };
 
-  const handleDeleteEntry = async (entryId: string) => {
-    await deleteEntry(entryId);
-  };
+
 
   if (loading) {
     return (
@@ -130,7 +150,67 @@ const EnhancedHome = () => {
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-3">
-            <StreakBadge days={0} label="Hoje" />
+            {/* <StreakBadge days={0} label="Hoje" /> */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-tr from-orange-400 to-pink-500 text-white shadow-md hover:scale-105 transition-all duration-200 border-0"
+                  aria-label="Alternar layout dos cards"
+                  style={{ fontWeight: 'bold' }}
+                >
+                  <Brush className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="w-56 animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                side="bottom" 
+                align="center"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel>Estilo dos Cards</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={layout === 'default'}
+                  onCheckedChange={() => {
+                    setLayout('default');
+                    toast({
+                      title: `Layout dos cards alterado`,
+                      description: `Agora em modo: Padrão`,
+                      duration: 2000
+                    });
+                  }}
+                >
+                  Padrão
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={layout === 'clean'}
+                  onCheckedChange={() => {
+                    setLayout('clean');
+                    toast({
+                      title: `Layout dos cards alterado`,
+                      description: `Agora em modo: Clean`,
+                      duration: 2000
+                    });
+                  }}
+                >
+                  Clean
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={layout === 'enhanced'}
+                  onCheckedChange={() => {
+                    setLayout('enhanced');
+                    toast({
+                      title: `Layout dos cards alterado`,
+                      description: `Agora em modo: Colorido`,
+                      duration: 2000
+                    });
+                  }}
+                >
+                  Colorido
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             {permission !== 'granted' && (
               <Button
@@ -155,7 +235,67 @@ const EnhancedHome = () => {
 
           {/* Mobile Menu */}
           <div className="md:hidden flex items-center space-x-2">
-            <StreakBadge days={0} label="" />
+            {/* <StreakBadge days={0} label="" /> */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gradient-to-tr from-orange-400 to-pink-500 text-white shadow-md hover:scale-105 transition-all duration-200 border-0"
+                  aria-label="Alternar layout dos cards"
+                  style={{ fontWeight: 'bold' }}
+                >
+                  <Brush className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent 
+                className="w-56 animate-in fade-in-0 zoom-in-95 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+                side="bottom" 
+                align="center"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel>Estilo dos Cards</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={layout === 'default'}
+                  onCheckedChange={() => {
+                    setLayout('default');
+                    toast({
+                      title: `Layout dos cards alterado`,
+                      description: `Agora em modo: Padrão`,
+                      duration: 2000
+                    });
+                  }}
+                >
+                  Padrão
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={layout === 'clean'}
+                  onCheckedChange={() => {
+                    setLayout('clean');
+                    toast({
+                      title: `Layout dos cards alterado`,
+                      description: `Agora em modo: Clean`,
+                      duration: 2000
+                    });
+                  }}
+                >
+                  Clean
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={layout === 'enhanced'}
+                  onCheckedChange={() => {
+                    setLayout('enhanced');
+                    toast({
+                      title: `Layout dos cards alterado`,
+                      description: `Agora em modo: Colorido`,
+                      duration: 2000
+                    });
+                  }}
+                >
+                  Colorido
+                </DropdownMenuCheckboxItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="sm"
@@ -192,23 +332,14 @@ const EnhancedHome = () => {
           )}
         </header>
 
+
+
         {/* Navegação por Data */}
         <div className="w-full bg-white border-b border-gray-100">
           <DateNavigation 
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
           />
-        </div>
-
-        {/* Toggle de Visualização */}
-        <div className="w-full bg-white border-b border-gray-100">
-          <div className="w-full py-3 md:py-4 flex justify-end px-4 md:px-6 lg:px-8">
-            <ViewToggle 
-              label="Vista Compacta"
-              defaultValue={compactView}
-              onChange={setCompactView}
-            />
-          </div>
         </div>
 
         {/* Hero Section */}
@@ -222,14 +353,14 @@ const EnhancedHome = () => {
             </p>
 
             {/* Review Badge */}
-            {reviewsToday.length > 0 && (
+            {getReviewsToday.length > 0 && (
               <div className="mb-6 md:mb-8 flex justify-center">
                 <Button
                   onClick={() => setShowReviewModal(true)}
                   className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-6 md:px-8 py-2 md:py-3 text-sm md:text-base font-semibold transition-all duration-200"
                   style={{ boxShadow: '0 6px 20px rgba(239, 68, 68, 0.15)' }}
                 >
-                  {reviewsToday.length} revisões pendentes
+                  {getReviewsToday.length} revisões pendentes
                 </Button>
               </div>
             )}
@@ -239,11 +370,13 @@ const EnhancedHome = () => {
         {/* Conteúdo Principal */}
         <div className="w-full px-4 md:px-6 lg:px-8 pb-24 md:pb-32">
           <div className="max-w-7xl mx-auto">
-            <EnhancedTodaysLearning 
-              entries={todaysEntries}
-              onDelete={handleDeleteEntry}
-              onUpdate={handleUpdateLearning}
-              compact={compactView}
+            <LearningCardList
+              entries={getTodaysEntries().filter(e => e.step !== -1)}
+              onDelete={async (entryId) => {
+                const entry = learningEntries.find(e => e.id === entryId);
+                if (entry) await moveToTrash(entry);
+              }}
+              desktopLayout={true}
             />
           </div>
         </div>
@@ -259,7 +392,7 @@ const EnhancedHome = () => {
         <ReviewModal
           isOpen={showReviewModal}
           onClose={() => setShowReviewModal(false)}
-          reviews={reviewsToday}
+          reviews={getReviewsToday().filter(e => e.step !== -1)}
           onCompleteReview={handleCompleteReview}
         />
       </div>
