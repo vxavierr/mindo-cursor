@@ -5,9 +5,7 @@ import CleanAddLearningModal from '@/components/learning/CleanAddLearningModal';
 import ReviewModal from '@/components/learning/ReviewModal';
 import NavigationLayout from '@/components/layout/NavigationLayout';
 import DateNavigation from '@/components/navigation/DateNavigation';
-import ViewToggle from '@/components/ui/ViewToggle';
-import StreakBadge from '@/components/ui/StreakBadge';
-import { useLearningEngine } from '@/hooks/useLearningEngine';
+import { useLearning } from '@/hooks/useLearning';
 import { useNotifications } from '@/hooks/useNotifications';
 import LearningCardList from '@/components/learning/LearningCardList';
 import { useLearningCardLayout } from '@/components/learning/LearningCardLayoutContext';
@@ -15,16 +13,13 @@ import { useToast } from '@/components/ui/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 
-
-const EnhancedHome = () => {
-
+const Home = () => {
   const [darkMode, setDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem('theme') === 'dark';
@@ -33,24 +28,19 @@ const EnhancedHome = () => {
   });
   const [showAddModal, setShowAddModal] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [compactView, setCompactView] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const {
     learningEntries,
+    todaysEntries,
+    reviewsToday,
     loading,
     addLearningEntry,
     updateLearningEntry,
-    getTodaysEntries,
-    getReviewsToday,
     completeReview,
-    improveText,
-    generateTitleAndTags,
-    transcribeAudio,
-    isProcessing,
-    moveToTrash
-  } = useLearningEngine();
+    deleteEntry
+  } = useLearning();
 
   const {
     permission,
@@ -60,11 +50,6 @@ const EnhancedHome = () => {
 
   const { layout, setLayout } = useLearningCardLayout();
   const { toast } = useToast();
-  const layouts = [
-    { value: 'default', label: 'Padrão' },
-    { value: 'clean', label: 'Clean' },
-    { value: 'enhanced', label: 'Colorido' },
-  ];
 
   useEffect(() => {
     if (darkMode) {
@@ -77,10 +62,10 @@ const EnhancedHome = () => {
   }, [darkMode]);
 
   useEffect(() => {
-    if (getReviewsToday.length > 0) {
-      scheduleDailyReminder(getReviewsToday.length);
+    if (reviewsToday.length > 0) {
+      scheduleDailyReminder(reviewsToday.length);
     }
-  }, [getReviewsToday.length, scheduleDailyReminder]);
+  }, [reviewsToday.length, scheduleDailyReminder]);
 
   const toggleTheme = () => {
     setDarkMode(!darkMode);
@@ -110,8 +95,6 @@ const EnhancedHome = () => {
   const handleReview = () => {
     setShowReviewModal(true);
   };
-
-
 
   if (loading) {
     return (
@@ -150,7 +133,6 @@ const EnhancedHome = () => {
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-3">
-            {/* <StreakBadge days={0} label="Hoje" /> */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -235,7 +217,6 @@ const EnhancedHome = () => {
 
           {/* Mobile Menu */}
           <div className="md:hidden flex items-center space-x-2">
-            {/* <StreakBadge days={0} label="" /> */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -332,8 +313,6 @@ const EnhancedHome = () => {
           )}
         </header>
 
-
-
         {/* Navegação por Data */}
         <div className="w-full bg-white border-b border-gray-100">
           <DateNavigation 
@@ -353,14 +332,14 @@ const EnhancedHome = () => {
             </p>
 
             {/* Review Badge */}
-            {getReviewsToday.length > 0 && (
+            {reviewsToday.length > 0 && (
               <div className="mb-6 md:mb-8 flex justify-center">
                 <Button
                   onClick={() => setShowReviewModal(true)}
                   className="bg-white hover:bg-red-50 text-red-700 border-2 border-red-200 hover:border-red-300 rounded-full px-6 md:px-8 py-2 md:py-3 text-sm md:text-base font-semibold transition-all duration-200"
                   style={{ boxShadow: '0 6px 20px rgba(239, 68, 68, 0.15)' }}
                 >
-                  {getReviewsToday.length} revisões pendentes
+                  {reviewsToday.length} revisões pendentes
                 </Button>
               </div>
             )}
@@ -371,11 +350,11 @@ const EnhancedHome = () => {
         <div className="w-full px-4 md:px-6 lg:px-8 pb-24 md:pb-32">
           <div className="max-w-7xl mx-auto">
             <LearningCardList
-              entries={getTodaysEntries().filter(e => e.step !== -1)}
+              entries={todaysEntries.filter(e => e.step !== -1)}
               onDelete={async (entryId) => {
-                const entry = learningEntries.find(e => e.id === entryId);
-                if (entry) await moveToTrash(entry);
+                await deleteEntry(entryId);
               }}
+              onUpdate={handleUpdateLearning}
               desktopLayout={true}
             />
           </div>
@@ -392,7 +371,7 @@ const EnhancedHome = () => {
         <ReviewModal
           isOpen={showReviewModal}
           onClose={() => setShowReviewModal(false)}
-          reviews={getReviewsToday().filter(e => e.step !== -1)}
+          reviews={reviewsToday.filter(e => e.step !== -1)}
           onCompleteReview={handleCompleteReview}
         />
       </div>
@@ -400,4 +379,4 @@ const EnhancedHome = () => {
   );
 };
 
-export default EnhancedHome;
+export default Home; 

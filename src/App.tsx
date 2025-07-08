@@ -10,7 +10,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
-import EnhancedHome from "@/pages/EnhancedHome";
+import Home from "@/pages/Home";
 import { LearningCardLayoutProvider } from '@/components/learning/LearningCardLayoutContext';
 
 const queryClient = new QueryClient();
@@ -23,7 +23,7 @@ function App() {
         <LearningCardLayoutProvider>
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<EnhancedHome />} />
+              <Route path="/" element={<Home />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/reviews" element={<ReviewsPage />} />
