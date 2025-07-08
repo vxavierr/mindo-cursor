@@ -189,7 +189,7 @@ export const useCleanLearning = () => {
         title: "Alterações salvas!",
         description: "O aprendizado foi atualizado com sucesso."
       });
-
+      console.log('updateLearningEntry: sucesso!');
       return true;
     } catch (error) {
       console.error('Erro inesperado ao atualizar entrada:', error);
