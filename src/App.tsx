@@ -17,38 +17,10 @@ import Home from "@/pages/Home";
 import { LearningCardLayoutProvider } from '@/components/learning/LearningCardLayoutContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import Header from '@/components/layout/Header';
-
-// Hook para detectar dispositivos móveis
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      const isSmallScreen = window.innerWidth < 768;
-      setIsMobile(isTouchDevice && isSmallScreen);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  return isMobile;
-}
-
-// Componente para controlar quando mostrar o Header
+// Componente principal de rotas
 function AppContent() {
-  const location = useLocation();
-  const isMobile = useIsMobile();
-  
-  // Não mostrar header na página de auth se for mobile
-  const shouldShowHeader = !(location.pathname === '/auth' && isMobile);
-
   return (
     <>
-      {shouldShowHeader && <Header />}
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
