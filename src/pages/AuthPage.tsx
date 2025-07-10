@@ -1,13 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SignInCard from '@/components/ui/sign-in-card-2';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Hook para detectar dispositivos móveis
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth < 768;
+      setIsMobile(isTouchDevice && isSmallScreen);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
+
 export default function AuthPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Se o usuário já estiver logado, redireciona
   useEffect(() => {
@@ -17,6 +37,12 @@ export default function AuthPage() {
     }
   }, [user, navigate, location]);
 
+  // Se for mobile, renderiza sem padding e sem background (o componente já tem)
+  if (isMobile) {
+    return <SignInCard />;
+  }
+
+  // Versão desktop com background e layout centralizado
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-black relative overflow-hidden">
       {/* Background gradient effect */}

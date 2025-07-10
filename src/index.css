@@ -104,6 +104,25 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Remove margins and paddings for mobile auth page */
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+  
+  /* Ensure mobile auth takes full screen */
+  @media (max-width: 767px) {
+    #root {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      min-height: 100dvh; /* Use dynamic viewport height for mobile */
+    }
   }
   
   /* Custom font for better readability */
