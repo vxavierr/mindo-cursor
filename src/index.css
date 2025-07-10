@@ -1,8 +1,9 @@
 
+@import './styles/editor.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import './styles/editor.css';
 
 /* SpaceLearn Design System - Colors and gradients inspired by clean learning apps */
 
