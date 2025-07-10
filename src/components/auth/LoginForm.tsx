@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface LoginFormProps {
-  onLogin: (user: any) => void;
+  onLogin?: (user: any) => void;
 }
 
 const LoginForm = ({ onLogin }: LoginFormProps) => {
@@ -16,32 +17,23 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const { signIn } = useAuth();
+  const navigate = useNavigate();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate authentication
-    setTimeout(() => {
-      if (email && password) {
-        const mockUser = {
-          id: '1',
-          name: email.split('@')[0],
-          email: email
-        };
-        onLogin(mockUser);
-        toast({
-          title: "Login realizado com sucesso!",
-          description: `Bem-vindo de volta, ${mockUser.name}!`
-        });
-      } else {
-        toast({
-          title: "Erro no login",
-          description: "Por favor, preencha todos os campos.",
-          variant: "destructive"
-        });
+    const { error } = await signIn(email, password);
+    
+    if (!error) {
+      if (onLogin) {
+        onLogin({ email });
       }
-      setIsLoading(false);
-    }, 1000);
+      navigate('/');
+    }
+    
+    setIsLoading(false);
   };
 
   return (

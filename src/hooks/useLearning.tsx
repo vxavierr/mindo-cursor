@@ -3,10 +3,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SpacedRepetitionEngine, ReviewData } from '@/utils/spacedRepetition';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface LearningEntry {
   id: string;
-  numeroId: number;
   title: string;
   content: string;
   context?: string;
@@ -29,6 +29,7 @@ export const useLearning = () => {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   const ai = useEnhancedAI();
+  const { user } = useAuth();
 
   // Helper function to safely convert Json to Review array
   const convertJsonToReviews = (jsonData: any) => {
@@ -59,10 +60,20 @@ export const useLearning = () => {
       setLoading(true);
       console.log('Carregando entradas ativas...');
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('revisoes')
         .select('*')
-        .order('numero_id', { ascending: false });
+        .order('data_criacao', { ascending: false });
+
+      // Se o usuário estiver logado, filtrar por usuário
+      if (user?.id) {
+        query = query.eq('usuario_id', user.id);
+      } else {
+        // Se não estiver logado, mostrar apenas entradas sem usuário
+        query = query.is('usuario_id', null);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Erro ao carregar entradas:', error);
@@ -78,7 +89,6 @@ export const useLearning = () => {
 
       const entries: LearningEntry[] = data?.map(item => ({
         id: item.id,
-        numeroId: item.numero_id,
         title: item.titulo || '',
         content: item.conteudo,
         context: item.contexto || '',
@@ -107,6 +117,9 @@ export const useLearning = () => {
   const addLearningEntry = async (content: string, title: string, tags: string[], context?: string) => {
     try {
       console.log('Adicionando nova entrada...');
+      console.log('Usuário atual:', user?.id || 'Não autenticado');
+      
+      const agora = new Date().toISOString();
       const newEntry = {
         titulo: title,
         conteudo: content,
@@ -114,12 +127,19 @@ export const useLearning = () => {
         tags: tags || [],
         step: 0,
         revisoes: serializeReviews([]),
-        data_criacao: new Date().toISOString(),
-        data_ultima_revisao: new Date().toISOString(),
-        usuario_id: null,
+        data_criacao: agora,
+        data_ultima_revisao: agora,
+        usuario_id: user?.id || null,
         status: 'ativo',
-        hora_criacao: new Date().toISOString()
+        hora_criacao: agora
       };
+
+      // Log do objeto antes de inserir
+      console.log('📝 Inserindo nova entrada - Objeto:', JSON.stringify(newEntry, null, 2));
+      console.log('📝 Verificação - titulo presente:', !!newEntry.titulo);
+      console.log('📝 Verificação - conteudo presente:', !!newEntry.conteudo);
+      console.log('📝 Verificação - usuario_id presente:', !!newEntry.usuario_id);
+      console.log('📝 Verificação - usuario_id valor:', newEntry.usuario_id);
 
       const { data, error } = await supabase
         .from('revisoes')
@@ -142,7 +162,6 @@ export const useLearning = () => {
       // Atualizar estado local
       const newLearningEntry: LearningEntry = {
         id: data.id,
-        numeroId: data.numero_id,
         title: data.titulo,
         content: data.conteudo,
         context: data.contexto,
@@ -158,7 +177,7 @@ export const useLearning = () => {
 
       toast({
         title: "Aprendizado salvo!",
-        description: `Aprendizado #${String(data.numero_id).padStart(4, '0')} foi salvo com sucesso.`
+        description: "Aprendizado foi salvo com sucesso."
       });
     } catch (error) {
       console.error('Erro inesperado ao adicionar entrada:', error);
@@ -191,10 +210,20 @@ export const useLearning = () => {
       if (updates.step !== undefined) updateData.step = updates.step;
       updateData.data_ultima_revisao = new Date().toISOString();
 
-      const { error } = await supabase
+      let query = supabase
         .from('revisoes')
         .update(updateData)
         .eq('id', entryId);
+
+      // Se o usuário estiver logado, verificar se a entrada pertence a ele
+      if (user?.id) {
+        query = query.eq('usuario_id', user.id);
+      } else {
+        // Se não estiver logado, verificar se a entrada não tem usuário
+        query = query.is('usuario_id', null);
+      }
+
+      const { error } = await query;
 
       if (error) {
         console.error('Erro ao atualizar entrada:', error);
@@ -209,7 +238,7 @@ export const useLearning = () => {
       // Atualizar estado local
       setLearningEntries(prev => 
         prev.map(entry => 
-          entry.id === entryId 
+          entry.id === entryId
             ? { 
                 ...entry, 
                 title: updates.title !== undefined ? updates.title : entry.title,
@@ -249,68 +278,100 @@ export const useLearning = () => {
       // Encontrar a entrada a ser movida
       const entryToMove = learningEntries.find(e => e.id === entryId);
       if (!entryToMove) {
-        console.error('Entrada não encontrada:', entryId);
+        console.error('Entrada não encontrada na lista local:', entryId);
+        toast({
+          title: "Erro",
+          description: "Aprendizado não encontrado",
+          variant: "destructive"
+        });
         return false;
       }
 
-      // Remover otimisticamente da lista local primeiro
-      setLearningEntries(prev => prev.filter(e => e.id !== entryId));
-
-      // Converter entrada para formato da lixeira
+      // 1. PRIMEIRO: Inserir na lixeira (usando UUID como id_lixeira)
+      const agora = new Date().toISOString();
       const entryForTrash = {
+        id_lixeira: entryToMove.id, // UUID original preservado
         conteudo: entryToMove.content,
-        titulo: entryToMove.title,
-        tags: entryToMove.tags,
-        data_criacao: entryToMove.createdAt,
-        contexto: entryToMove.context || '',
+        titulo: entryToMove.title || null,
+        contexto: entryToMove.context || null,
+        tags: entryToMove.tags || [],
         step: entryToMove.step,
         revisoes: serializeReviews(entryToMove.reviews),
+        data_criacao: entryToMove.createdAt,
+        data_exclusao: agora,
+        hora_exclusao: agora,
+        usuario_id: entryToMove.userId || null, // Manter o usuario_id original
       };
 
-      // Inserir na lixeira
+      console.log('🗑️ Inserindo na lixeira:', { 
+        id_lixeira: entryForTrash.id_lixeira, 
+        usuario_id: entryForTrash.usuario_id 
+      });
+
       const { error: insertError } = await supabase
         .from('lixeira_aprendizados')
         .insert([entryForTrash]);
 
       if (insertError) {
-        console.error('Erro ao mover para lixeira:', insertError);
-        // Reverter a remoção otimista se houve erro
-        setLearningEntries(prev => [...prev, entryToMove].sort((a, b) => b.numeroId - a.numeroId));
+        console.error('Erro ao inserir na lixeira:', insertError);
         toast({
           title: "Erro ao mover para lixeira",
-          description: "Verifique sua conexão e tente novamente",
+          description: `Falha na inserção: ${insertError.message}`,
           variant: "destructive"
         });
         return false;
       }
 
-      // Remover da tabela principal
-      const { error: deleteError } = await supabase
+      // 2. SEGUNDO: Remover da tabela principal (usando apenas o UUID)
+      console.log('🗑️ Removendo da tabela principal:', entryToMove.id);
+      
+      let deleteQuery = supabase
         .from('revisoes')
         .delete()
-        .eq('id', entryId);
+        .eq('id', entryToMove.id); // Usar UUID direto
+
+      // Aplicar filtro de usuário apenas se o usuário estiver logado
+      if (user?.id && entryToMove.userId) {
+        deleteQuery = deleteQuery.eq('usuario_id', user.id);
+      } else if (!user?.id && !entryToMove.userId) {
+        // Para usuários não logados, filtrar entradas sem usuário
+        deleteQuery = deleteQuery.is('usuario_id', null);
+      }
+
+      const { error: deleteError, count } = await deleteQuery;
 
       if (deleteError) {
         console.error('Erro ao remover da tabela principal:', deleteError);
+        // Tentar remover da lixeira para reverter
+        await supabase
+          .from('lixeira_aprendizados')
+          .delete()
+          .eq('id_lixeira', entryToMove.id);
+        
         toast({
-          title: "Erro ao excluir",
-          description: "Verifique sua conexão e tente novamente",
+          title: "Erro ao remover da tabela principal",
+          description: `Falha na remoção: ${deleteError.message}`,
           variant: "destructive"
         });
         return false;
       }
 
+      // 3. TERCEIRO: Atualizar estado local (remoção otimista)
+      setLearningEntries(prev => prev.filter(e => e.id !== entryId));
+
       toast({
         title: "Aprendizado excluído",
-        description: "O aprendizado foi movido para a lixeira."
+        description: "O aprendizado foi movido para a lixeira com sucesso."
       });
 
+      console.log('✅ Entrada movida para lixeira com sucesso:', entryToMove.id);
       return true;
+
     } catch (error) {
-      console.error('Erro inesperado ao excluir entrada:', error);
+      console.error('Erro inesperado ao mover para lixeira:', error);
       toast({
         title: "Erro inesperado",
-        description: "Tente novamente",
+        description: "Tente novamente em alguns segundos",
         variant: "destructive"
       });
       return false;
@@ -322,39 +383,58 @@ export const useLearning = () => {
     try {
       console.log('Restaurando entrada da lixeira:', entryId);
       
-      // Buscar entrada na lixeira
-      const { data: trashEntry, error: fetchError } = await supabase
+      // 1. PRIMEIRO: Buscar entrada na lixeira usando UUID
+      let query = supabase
         .from('lixeira_aprendizados')
         .select('*')
-        .eq('id_lixeira', entryId)
-        .single();
+        .eq('id_lixeira', entryId); // Usar UUID diretamente
+
+      // Aplicar filtro de usuário se necessário
+      if (user?.id) {
+        // Se usuário logado, filtrar por sua propriedade
+        query = query.eq('usuario_id', user.id);
+      } else {
+        // Se não logado, apenas entradas sem usuário
+        query = query.is('usuario_id', null);
+      }
+
+      const { data: trashEntry, error: fetchError } = await query.single();
 
       if (fetchError || !trashEntry) {
-        console.error('Erro ao buscar entrada na lixeira:', fetchError);
+        console.error('Erro ao buscar na lixeira:', fetchError);
         toast({
           title: "Erro ao restaurar",
-          description: "Entrada não encontrada na lixeira",
+          description: "Aprendizado não encontrado na lixeira ou sem permissão",
           variant: "destructive"
         });
         return false;
       }
 
-      // Inserir de volta na tabela principal
+      console.log('🔄 Restaurando entrada:', { 
+        id_lixeira: trashEntry.id_lixeira,
+        usuario_id: trashEntry.usuario_id
+      });
+
+      // 2. SEGUNDO: Inserir de volta na tabela principal com UUID original
+      const agora = new Date().toISOString();
+      const restoredData = {
+        id: trashEntry.id_lixeira, // Restaurar com UUID original
+        titulo: trashEntry.titulo,
+        conteudo: trashEntry.conteudo,
+        contexto: trashEntry.contexto,
+        tags: trashEntry.tags || [],
+        step: trashEntry.step || 0,
+        revisoes: trashEntry.revisoes,
+        data_criacao: trashEntry.data_criacao,
+        data_ultima_revisao: agora,
+        usuario_id: trashEntry.usuario_id, // Manter o usuario_id original
+        status: 'ativo',
+        hora_criacao: agora
+      };
+
       const { data: restoredEntry, error: insertError } = await supabase
         .from('revisoes')
-        .insert([{
-          titulo: trashEntry.titulo,
-          conteudo: trashEntry.conteudo,
-          contexto: trashEntry.contexto,
-          tags: trashEntry.tags,
-          step: trashEntry.step || 0,
-          revisoes: trashEntry.revisoes,
-          data_criacao: trashEntry.data_criacao,
-          data_ultima_revisao: new Date().toISOString(),
-          usuario_id: null,
-          status: 'ativo',
-          hora_criacao: new Date().toISOString()
-        }])
+        .insert([restoredData])
         .select()
         .single();
 
@@ -362,13 +442,13 @@ export const useLearning = () => {
         console.error('Erro ao restaurar entrada:', insertError);
         toast({
           title: "Erro ao restaurar",
-          description: "Verifique sua conexão e tente novamente",
+          description: `Falha na restauração: ${insertError.message}`,
           variant: "destructive"
         });
         return false;
       }
 
-      // Remover da lixeira
+      // 3. TERCEIRO: Remover da lixeira usando UUID
       const { error: deleteError } = await supabase
         .from('lixeira_aprendizados')
         .delete()
@@ -376,9 +456,21 @@ export const useLearning = () => {
 
       if (deleteError) {
         console.error('Erro ao remover da lixeira:', deleteError);
+        // Tentar reverter a inserção na tabela principal
+        await supabase
+          .from('revisoes')
+          .delete()
+          .eq('id', trashEntry.id_lixeira);
+        
+        toast({
+          title: "Erro ao limpar lixeira",
+          description: "Restauração revertida por falha na limpeza",
+          variant: "destructive"
+        });
+        return false;
       }
 
-      // Recarregar entradas para incluir a restaurada
+      // 4. QUARTO: Recarregar entradas para incluir a restaurada
       await loadEntries();
 
       toast({
@@ -386,12 +478,14 @@ export const useLearning = () => {
         description: "O aprendizado foi restaurado com sucesso."
       });
 
+      console.log('✅ Entrada restaurada com sucesso:', entryId);
       return true;
+
     } catch (error) {
       console.error('Erro inesperado ao restaurar entrada:', error);
       toast({
         title: "Erro inesperado",
-        description: "Tente novamente",
+        description: "Tente novamente em alguns segundos",
         variant: "destructive"
       });
       return false;
@@ -401,18 +495,39 @@ export const useLearning = () => {
   // Exclusão permanente da lixeira
   const permanentlyDeleteEntry = async (entryId: string) => {
     try {
-      console.log('Excluindo entrada permanentemente da lixeira:', entryId);
+      console.log('Excluindo permanentemente da lixeira:', entryId);
       
-      const { error } = await supabase
+      // Excluir da lixeira usando UUID diretamente
+      let deleteQuery = supabase
         .from('lixeira_aprendizados')
         .delete()
-        .eq('id_lixeira', entryId);
+        .eq('id_lixeira', entryId); // Usar UUID direto
+
+      // Aplicar filtro de usuário se necessário
+      if (user?.id) {
+        // Se usuário logado, verificar propriedade
+        deleteQuery = deleteQuery.eq('usuario_id', user.id);
+      } else {
+        // Se não logado, apenas entradas sem usuário
+        deleteQuery = deleteQuery.is('usuario_id', null);
+      }
+
+      const { error, count } = await deleteQuery;
 
       if (error) {
         console.error('Erro ao excluir permanentemente:', error);
         toast({
           title: "Erro ao excluir permanentemente",
-          description: "Verifique sua conexão e tente novamente",
+          description: `Falha na exclusão: ${error.message}`,
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      if (count === 0) {
+        toast({
+          title: "Aprendizado não encontrado",
+          description: "O aprendizado pode já ter sido excluído ou você não tem permissão",
           variant: "destructive"
         });
         return false;
@@ -420,15 +535,17 @@ export const useLearning = () => {
 
       toast({
         title: "Aprendizado excluído permanentemente",
-        description: "O aprendizado foi excluído definitivamente."
+        description: "O aprendizado foi excluído definitivamente da lixeira."
       });
 
+      console.log('✅ Entrada excluída permanentemente:', entryId);
       return true;
+
     } catch (error) {
       console.error('Erro inesperado ao excluir permanentemente:', error);
       toast({
         title: "Erro inesperado",
-        description: "Tente novamente",
+        description: "Tente novamente em alguns segundos",
         variant: "destructive"
       });
       return false;
@@ -523,7 +640,7 @@ export const useLearning = () => {
 
   useEffect(() => {
     loadEntries();
-  }, []);
+  }, [user?.id]);
 
   return {
     // Estado

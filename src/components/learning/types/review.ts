@@ -1,7 +1,6 @@
 
 export interface LearningEntry {
   id: string;
-  numeroId: number;
   title: string;
   content: string;
   context?: string;

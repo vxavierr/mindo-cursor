@@ -20,9 +20,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
 
   const currentReview = reviews[currentIndex];
 
-  const formatId = (numeroId: number) => {
-    return String(numeroId).padStart(4, '0');
-  };
+
 
   const generateQuestions = (content: string, title?: string) => {
     const topicReference = title ? `"${title}"` : 'este tema';
@@ -74,7 +72,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
     
     toast({
       title: "Revisão concluída!",
-      description: `Aprendizado #${formatId(currentReview.numeroId)} revisado com sucesso.`
+      description: "Revisão concluída com sucesso."
     });
 
     if (currentIndex < reviews.length - 1) {
@@ -142,9 +140,7 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
               <DialogTitle className="flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-xl font-bold flex-wrap">
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
                 <span className="text-sm sm:text-base">Revisão {currentIndex + 1} de {reviews.length}</span>
-                <Badge variant="outline" className="bg-blue-500/20 border-blue-400 text-blue-300 text-xs">
-                  #{formatId(currentReview?.numeroId)}
-                </Badge>
+
               </DialogTitle>
             </DialogHeader>
 

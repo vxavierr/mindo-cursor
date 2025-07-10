@@ -21,6 +21,7 @@ export type Database = {
           step: number | null
           tags: string[] | null
           titulo: string | null
+          usuario_id: string | null
         }
         Insert: {
           conteudo: string
@@ -33,6 +34,7 @@ export type Database = {
           step?: number | null
           tags?: string[] | null
           titulo?: string | null
+          usuario_id?: string | null
         }
         Update: {
           conteudo?: string
@@ -45,6 +47,7 @@ export type Database = {
           step?: number | null
           tags?: string[] | null
           titulo?: string | null
+          usuario_id?: string | null
         }
         Relationships: []
       }
@@ -80,7 +83,6 @@ export type Database = {
           data_ultima_revisao: string
           hora_criacao: string | null
           id: string
-          numero_id: number
           revisoes: Json
           status: string | null
           step: number
@@ -95,7 +97,6 @@ export type Database = {
           data_ultima_revisao?: string
           hora_criacao?: string | null
           id?: string
-          numero_id?: number
           revisoes?: Json
           status?: string | null
           step?: number
@@ -110,7 +111,6 @@ export type Database = {
           data_ultima_revisao?: string
           hora_criacao?: string | null
           id?: string
-          numero_id?: number
           revisoes?: Json
           status?: string | null
           step?: number

@@ -13,9 +13,6 @@ interface ReviewCardProps {
 }
 
 const ReviewCard = ({ review, currentIndex, totalReviews, onStartReview, onSkipReview }: ReviewCardProps) => {
-  const formatId = (numeroId: number) => {
-    return String(numeroId).padStart(4, '0');
-  };
 
   const getDaysFromCreation = (createdAt: string) => {
     const created = new Date(createdAt);

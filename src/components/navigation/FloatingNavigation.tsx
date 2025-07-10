@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Home, Settings, Plus, BookOpen, RotateCcw, Flame } from 'lucide-react';
 import { useLearningCardLayout } from '@/components/learning/LearningCardLayoutContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 interface FloatingNavigationProps {
   activeItem?: string;

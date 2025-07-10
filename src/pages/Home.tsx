@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Brain, Moon, Sun, Menu, Brush } from 'lucide-react';
-import CleanAddLearningModal from '@/components/learning/CleanAddLearningModal';
+import AddLearningModal from '@/components/learning/AddLearningModal';
 import ReviewModal from '@/components/learning/ReviewModal';
 import NavigationLayout from '@/components/layout/NavigationLayout';
 import DateNavigation from '@/components/navigation/DateNavigation';
@@ -9,7 +9,7 @@ import { useLearning } from '@/hooks/useLearning';
 import { useNotifications } from '@/hooks/useNotifications';
 import LearningCardList from '@/components/learning/LearningCardList';
 import { useLearningCardLayout } from '@/components/learning/LearningCardLayoutContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -361,7 +361,7 @@ const Home = () => {
         </div>
 
         {/* Add Learning Modal */}
-        <CleanAddLearningModal 
+        <AddLearningModal 
           isOpen={showAddModal}
           onClose={() => setShowAddModal(false)}
           onAdd={handleAddLearning}

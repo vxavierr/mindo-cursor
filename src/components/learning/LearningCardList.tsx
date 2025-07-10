@@ -4,7 +4,6 @@ import { useLearningCardLayout } from './LearningCardLayoutContext';
 
 interface LearningEntry {
   id: string;
-  numeroId: number;
   title: string;
   content: string;
   context?: string;

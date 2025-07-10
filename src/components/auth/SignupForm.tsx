@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 interface SignupFormProps {
-  onSignup: (user: any) => void;
+  onSignup?: (user: any) => void;
 }
 
 const SignupForm = ({ onSignup }: SignupFormProps) => {
@@ -17,6 +18,8 @@ const SignupForm = ({ onSignup }: SignupFormProps) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,28 +35,13 @@ const SignupForm = ({ onSignup }: SignupFormProps) => {
       return;
     }
 
-    // Simulate registration
-    setTimeout(() => {
-      if (name && email && password) {
-        const mockUser = {
-          id: '1',
-          name: name,
-          email: email
-        };
-        onSignup(mockUser);
-        toast({
-          title: "Conta criada com sucesso!",
-          description: `Bem-vindo, ${name}! Sua jornada de aprendizado começou.`
-        });
-      } else {
-        toast({
-          title: "Erro no cadastro",
-          description: "Por favor, preencha todos os campos.",
-          variant: "destructive"
-        });
-      }
-      setIsLoading(false);
-    }, 1000);
+    const { error } = await signUp(email, password, name);
+    
+    if (!error && onSignup) {
+      onSignup({ name, email });
+    }
+    
+    setIsLoading(false);
   };
 
   return (

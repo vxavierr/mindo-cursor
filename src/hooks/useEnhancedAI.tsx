@@ -27,11 +27,15 @@ export const useEnhancedAI = () => {
       return data.result || content;
     } catch (error) {
       console.error('Erro ao melhorar texto:', error);
+      try {
       toast({
         title: "Erro ao melhorar texto",
         description: "Verifique sua conexão e tente novamente",
         variant: "destructive"
       });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
       return content;
     } finally {
       setIsProcessing(false);
@@ -113,6 +117,10 @@ export const useEnhancedAI = () => {
 
       if (error) {
         console.error('Erro na função transcribe-audio:', error);
+        // Tratar erro 429 (Too Many Requests) especificamente
+        if (error.message && error.message.includes('429')) {
+          throw new Error('Muitas solicitações. Aguarde um momento e tente novamente.');
+        }
         throw error;
       }
 
@@ -120,11 +128,15 @@ export const useEnhancedAI = () => {
       return data.text || '';
     } catch (error) {
       console.error('Erro na transcrição:', error);
+      try {
       toast({
         title: "Erro na transcrição",
         description: "Verifique o microfone e tente novamente",
         variant: "destructive"
       });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
       return '';
     } finally {
       setIsProcessing(false);

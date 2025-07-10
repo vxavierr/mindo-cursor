@@ -6,13 +6,14 @@ import { useEnhancedAI } from '@/hooks/useEnhancedAI';
 import { useToast } from '@/hooks/use-toast';
 import RichTextEditor from '@/components/ui/RichTextEditor';
 
-interface CleanAddLearningModalProps {
+interface AddLearningModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (content: string, title: string, tags: string[]) => void;
+  context?: string; // Contexto opcional para melhorar a geração de título e tags
 }
 
-const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModalProps) => {
+const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalProps) => {
   const [content, setContent] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
@@ -43,24 +44,43 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
           
           if (transcribedText && transcribedText.trim()) {
             setContent(prev => prev + (prev ? ' ' : '') + transcribedText);
-            toast({
-              title: "Áudio transcrito!",
-              description: "O texto foi adicionado com sucesso"
-            });
+            try {
+              toast({
+                title: "Áudio transcrito!",
+                description: "O texto foi adicionado com sucesso"
+              });
+            } catch (toastError) {
+              console.error('Erro no toast:', toastError);
+            }
           } else {
-            toast({
-              title: "Nenhum texto detectado",
-              description: "Tente falar mais alto ou mais próximo do microfone",
-              variant: "destructive"
-            });
+            try {
+              toast({
+                title: "Nenhum texto detectado",
+                description: "Tente falar mais alto ou digite manualmente",
+                variant: "destructive"
+              });
+            } catch (toastError) {
+              console.error('Erro no toast:', toastError);
+            }
           }
         } catch (error) {
           console.error('Erro na transcrição:', error);
-          toast({
-            title: "Erro na transcrição",
-            description: "Verifique sua conexão e tente novamente",
-            variant: "destructive"
-          });
+          try {
+            const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+            let description = "Verifique sua conexão e tente novamente";
+            
+            if (errorMessage.includes('429') || errorMessage.includes('Muitas solicitações')) {
+              description = "Muitas solicitações. Aguarde um momento e tente novamente";
+            }
+            
+            toast({
+              title: "Erro na transcrição",
+              description,
+              variant: "destructive"
+            });
+          } catch (toastError) {
+            console.error('Erro no toast:', toastError);
+          }
         }
         
         stream.getTracks().forEach(track => track.stop());
@@ -70,17 +90,25 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
       setMediaRecorder(recorder);
       setIsRecording(true);
 
-      toast({
-        title: "Gravação iniciada",
-        description: "Fale agora..."
-      });
+      try {
+        toast({
+          title: "Gravação iniciada",
+          description: "Fale agora..."
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
     } catch (error) {
       console.error('Erro ao iniciar gravação:', error);
-      toast({
-        title: "Erro no microfone",
-        description: "Verifique as permissões do microfone",
-        variant: "destructive"
-      });
+      try {
+        toast({
+          title: "Erro no microfone",
+          description: "Verifique as permissões do microfone",
+          variant: "destructive"
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
     }
   };
 
@@ -90,73 +118,105 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
       setIsRecording(false);
       setMediaRecorder(null);
       
-      toast({
-        title: "Gravação finalizada",
-        description: "Processando áudio..."
-      });
+      try {
+        toast({
+          title: "Gravação finalizada",
+          description: "Processando áudio..."
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
     }
   };
 
   const handleImproveText = async () => {
     if (!content.trim()) {
-      toast({
-        title: "Nenhum texto para melhorar",
-        description: "Digite algum conteúdo primeiro",
-        variant: "destructive"
-      });
+      try {
+        toast({
+          title: "Nenhum texto para melhorar",
+          description: "Digite algum conteúdo primeiro",
+          variant: "destructive"
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
       return;
     }
     
     try {
       console.log('Melhorando texto...');
-      const improvedText = await improveText(content);
+      // Incluir contexto se fornecido
+      const textToImprove = context ? `${context}\n\n${content}` : content;
+      const improvedText = await improveText(textToImprove);
       console.log('Texto melhorado recebido:', improvedText);
       if (improvedText && improvedText !== content) {
         setContent(improvedText || '');
-        toast({
-          title: "Texto melhorado!",
-          description: "O conteúdo foi aprimorado pela IA"
-        });
+        try {
+          toast({
+            title: "Texto melhorado!",
+            description: "O conteúdo foi aprimorado pela IA"
+          });
+        } catch (toastError) {
+          console.error('Erro no toast:', toastError);
+        }
       }
     } catch (error) {
       console.error('Erro ao melhorar texto:', error);
-      toast({
-        title: "Erro na melhoria do texto",
-        description: "Verifique sua conexão e tente novamente",
-        variant: "destructive"
-      });
+      try {
+        toast({
+          title: "Erro na melhoria do texto",
+          description: "Verifique sua conexão e tente novamente",
+          variant: "destructive"
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
     }
   };
 
   const handleSubmit = async () => {
     if (!content.trim()) {
-      toast({
-        title: "Conteúdo obrigatório",
-        description: "Por favor, adicione algum conteúdo",
-        variant: "destructive"
-      });
+      try {
+        toast({
+          title: "Conteúdo obrigatório",
+          description: "Por favor, adicione algum conteúdo",
+          variant: "destructive"
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
       return;
     }
 
     try {
       console.log('Gerando título e tags...');
-      const { title, tags } = await generateTitleAndTags(content);
+      // Incluir contexto se fornecido para melhor geração de título e tags
+      const contentWithContext = context ? `${context}\n\n${content}` : content;
+      const { title, tags } = await generateTitleAndTags(contentWithContext);
       
       onAdd(content.trim(), title, tags);
       setContent('');
       onClose();
       
-      toast({
-        title: "Aprendizado salvo!",
-        description: "Título e tags foram gerados automaticamente"
-      });
+      try {
+        toast({
+          title: "Aprendizado salvo!",
+          description: "Título e tags foram gerados automaticamente"
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      toast({
-        title: "Erro ao salvar",
-        description: "Verifique sua conexão e tente novamente",
-        variant: "destructive"
-      });
+      try {
+        toast({
+          title: "Erro ao salvar",
+          description: "Verifique sua conexão e tente novamente",
+          variant: "destructive"
+        });
+      } catch (toastError) {
+        console.error('Erro no toast:', toastError);
+      }
     }
   };
 
@@ -177,6 +237,14 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
         </DialogHeader>
         
         <div className="space-y-4">
+          {context && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+              <p className="text-sm text-blue-700 dark:text-blue-300">
+                <strong>Contexto:</strong> {context}
+              </p>
+            </div>
+          )}
+          
           <div className="relative">
             <RichTextEditor
               content={content}
@@ -268,4 +336,4 @@ const CleanAddLearningModal = ({ isOpen, onClose, onAdd }: CleanAddLearningModal
   );
 };
 
-export default CleanAddLearningModal;
+export default AddLearningModal; 
