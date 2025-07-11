@@ -53,6 +53,7 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { UserDropdown } from '@/components/ui/UserDropdown';
+import MindoReviewScreen from '@/components/learning/MindoReviewScreen';
 
 // Mobile Home Component
 function MobileHome({
@@ -71,7 +72,8 @@ function MobileHome({
   setShowNotifications,
   notifications,
   onUpdateLearning,
-  onDeleteLearning
+  onDeleteLearning,
+  navigateToReviews
 }: any) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
@@ -219,7 +221,7 @@ function MobileHome({
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleReview}
+              onClick={navigateToReviews}
               className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-xl rounded-2xl p-4 border border-orange-500/30 relative overflow-hidden cursor-pointer"
             >
               <div className="flex items-center justify-between">
@@ -304,13 +306,19 @@ function MobileHome({
           <div className="flex items-center justify-around">
             {[
               { icon: BookOpen, label: 'Home', id: 'home' },
+              { icon: RefreshCw, label: 'Revisões', id: 'reviews' },
               { icon: Search, label: 'Buscar', id: 'search' },
               { icon: TrendingUp, label: 'Progresso', id: 'progress' },
               { icon: Settings, label: 'Config', id: 'settings' }
             ].map(tab => (
               <button
                 key={tab.id}
-                onClick={() => setSelectedTab(tab.id)}
+                onClick={() => {
+                  setSelectedTab(tab.id);
+                  if (tab.id === 'reviews') {
+                    navigateToReviews();
+                  }
+                }}
                 className={`flex flex-col items-center space-y-1 p-2 rounded-xl transition-all ${
                   selectedTab === tab.id 
                     ? 'bg-white/10 text-white' 
@@ -348,7 +356,8 @@ function DesktopHome({
   setViewMode,
   quickActions,
   onUpdateLearning,
-  onDeleteLearning
+  onDeleteLearning,
+  navigateToReviews
 }: any) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
@@ -413,6 +422,7 @@ function DesktopHome({
           <nav className="space-y-2 mb-8">
             {[
               { icon: BookOpen, label: 'Dashboard', id: 'home', active: true },
+              { icon: RefreshCw, label: 'Revisões', id: 'reviews' },
               { icon: Search, label: 'Explorar', id: 'search' },
               { icon: TrendingUp, label: 'Progresso', id: 'progress' },
               { icon: Users, label: 'Comunidade', id: 'community' },
@@ -420,7 +430,12 @@ function DesktopHome({
             ].map(item => (
               <button
                 key={item.id}
-                onClick={() => setSelectedTab(item.id)}
+                onClick={() => {
+                  setSelectedTab(item.id);
+                  if (item.id === 'reviews') {
+                    navigateToReviews();
+                  }
+                }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
                   item.active 
                     ? 'bg-white/10 text-white border border-white/20' 
@@ -442,7 +457,7 @@ function DesktopHome({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={action.label === 'Novo Aprendizado' ? handleAddLearning : 
-                        action.label === 'Revisar Pendentes' ? handleReview : undefined}
+                        action.label === 'Revisar Pendentes' ? navigateToReviews : undefined}
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 text-white/80 hover:text-white transition-all group"
               >
                 <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${action.color} opacity-80 group-hover:opacity-100 flex items-center justify-center`}>
@@ -577,7 +592,7 @@ function DesktopHome({
                 <motion.div
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  onClick={handleReview}
+                  onClick={navigateToReviews}
                   className="bg-gradient-to-r from-orange-500/20 to-red-500/20 backdrop-blur-xl rounded-2xl p-6 border border-orange-500/30 relative overflow-hidden cursor-pointer"
                 >
                   <div className="flex items-center justify-between">
@@ -646,6 +661,7 @@ const Home = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [currentScreen, setCurrentScreen] = useState<'home' | 'reviews'>('home');
 
   // Existing hooks
   const {
@@ -750,6 +766,15 @@ const Home = () => {
     setShowAddModal(true);
   };
 
+  // Navigation functions
+  const navigateToReviews = () => {
+    setCurrentScreen('reviews');
+  };
+
+  const navigateToHome = () => {
+    setCurrentScreen('home');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden flex items-center justify-center">
@@ -825,6 +850,17 @@ const Home = () => {
 
   // Render based on device type
   if (isMobile) {
+    // Mobile version - conditional rendering
+    if (currentScreen === 'reviews') {
+      return (
+        <MindoReviewScreen 
+          onNavigateHome={navigateToHome}
+          reviews={reviewsToday.filter(e => e.step !== -1)}
+          onCompleteReview={handleCompleteReview}
+        />
+      );
+    }
+
     return (
       <>
         <MobileHome
@@ -844,6 +880,7 @@ const Home = () => {
           notifications={notifications}
           onUpdateLearning={handleUpdateLearning}
           onDeleteLearning={handleDeleteLearning}
+          navigateToReviews={navigateToReviews}
         />
         
         {/* Add Learning Modal */}
@@ -864,7 +901,17 @@ const Home = () => {
     );
   }
 
-  // Desktop version
+  // Desktop version - conditional rendering
+  if (currentScreen === 'reviews') {
+    return (
+      <MindoReviewScreen 
+        onNavigateHome={navigateToHome}
+        reviews={reviewsToday.filter(e => e.step !== -1)}
+        onCompleteReview={handleCompleteReview}
+      />
+    );
+  }
+
   return (
     <>
       <DesktopHome
@@ -887,6 +934,7 @@ const Home = () => {
         quickActions={quickActions}
         onUpdateLearning={handleUpdateLearning}
         onDeleteLearning={handleDeleteLearning}
+        navigateToReviews={navigateToReviews}
       />
       
       {/* Add Learning Modal */}
