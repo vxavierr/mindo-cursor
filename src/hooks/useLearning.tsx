@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SpacedRepetitionEngine, ReviewData } from '@/utils/spacedRepetition';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
 import { useAuth } from '@/contexts/AuthContext';
+import { validateTags, limitTags, initializeAdvancedFields, handleDifficultyResponse, calculateProgress } from '@/utils/learningStatus';
 
 export interface LearningEntry {
   id: string;
@@ -22,6 +23,12 @@ export interface LearningEntry {
     difficulty?: 'easy' | 'medium' | 'hard';
   }>;
   userId?: string;
+  // Novos campos para lógica avançada
+  consecutiveDifficult?: number;
+  consecutiveEasy?: number; 
+  totalEasyInHistory?: number;
+  visualProgress?: number;
+  isProtected?: boolean;
 }
 
 export const useLearning = () => {
@@ -87,18 +94,29 @@ export const useLearning = () => {
 
       console.log('Entradas carregadas:', data);
 
-      const entries: LearningEntry[] = data?.map(item => ({
-        id: item.id,
-        title: item.titulo || '',
-        content: item.conteudo,
-        context: item.contexto || '',
-        tags: Array.isArray(item.tags) ? item.tags : [],
-        createdAt: item.data_criacao || new Date().toISOString(),
-        updatedAt: item.data_ultima_revisao,
-        step: item.step || 0,
-        reviews: convertJsonToReviews(item.revisoes),
-        userId: item.usuario_id || undefined
-      })) || [];
+      const entries: LearningEntry[] = data?.map(item => {
+        const baseEntry: LearningEntry = {
+          id: item.id,
+          title: item.titulo || '',
+          content: item.conteudo,
+          context: item.contexto || '',
+          tags: Array.isArray(item.tags) ? item.tags : [],
+          createdAt: item.data_criacao || new Date().toISOString(),
+          updatedAt: item.data_ultima_revisao,
+          step: item.step || 0,
+          reviews: convertJsonToReviews(item.revisoes),
+          userId: item.usuario_id || undefined,
+          // Campos da lógica avançada (do banco de dados ou valores padrão)
+          consecutiveDifficult: item.consecutive_difficult || 0,
+          consecutiveEasy: item.consecutive_easy || 0,
+          totalEasyInHistory: item.total_easy_history || 0,
+          visualProgress: item.visual_progress,
+          isProtected: item.is_protected || false
+        };
+        
+        // Inicializar campos avançados se não existirem
+        return initializeAdvancedFields(baseEntry);
+      }) || [];
 
       setLearningEntries(entries);
     } catch (error) {
@@ -119,19 +137,38 @@ export const useLearning = () => {
       console.log('Adicionando nova entrada...');
       console.log('Usuário atual:', user?.id || 'Não autenticado');
       
+      // Validar e limitar tags a 3
+      const validatedTags = limitTags(tags || []);
+      const validation = validateTags(validatedTags);
+      
+      if (!validation.isValid) {
+        toast({
+          title: "Erro na validação",
+          description: validation.error,
+          variant: "destructive"
+        });
+        return;
+      }
+      
       const agora = new Date().toISOString();
       const newEntry = {
         titulo: title,
         conteudo: content,
         contexto: context || null,
-        tags: tags || [],
+        tags: validatedTags,
         step: 0,
         revisoes: serializeReviews([]),
         data_criacao: agora,
         data_ultima_revisao: agora,
         usuario_id: user?.id || null,
         status: 'ativo',
-        hora_criacao: agora
+        hora_criacao: agora,
+        // Inicializar campos da lógica avançada
+        consecutive_difficult: 0,
+        consecutive_easy: 0,
+        total_easy_history: 0,
+        visual_progress: null, // Será calculado automaticamente
+        is_protected: false
       };
 
       // Log do objeto antes de inserir
@@ -170,7 +207,13 @@ export const useLearning = () => {
         updatedAt: data.data_ultima_revisao,
         step: data.step,
         reviews: convertJsonToReviews(data.revisoes),
-        userId: data.usuario_id
+        userId: data.usuario_id,
+        // Inicializar campos da lógica avançada
+        consecutiveDifficult: data.consecutive_difficult || 0,
+        consecutiveEasy: data.consecutive_easy || 0,
+        totalEasyInHistory: data.total_easy_history || 0,
+        visualProgress: data.visual_progress,
+        isProtected: data.is_protected || false
       };
 
       setLearningEntries(prev => [newLearningEntry, ...prev]);
@@ -196,18 +239,48 @@ export const useLearning = () => {
     tags?: string[]; 
     context?: string; 
     reviews?: any[]; 
-    step?: number 
+    step?: number;
+    // Novos campos da lógica avançada
+    consecutiveDifficult?: number;
+    consecutiveEasy?: number;
+    totalEasyInHistory?: number;
+    visualProgress?: number;
+    isProtected?: boolean;
   }) => {
     try {
       console.log('Atualizando entrada:', entryId, updates);
       
+      // Validar tags se estiverem sendo atualizadas
+      let validatedTags = updates.tags;
+      if (updates.tags !== undefined) {
+        validatedTags = limitTags(updates.tags);
+        const validation = validateTags(validatedTags);
+        
+        if (!validation.isValid) {
+          toast({
+            title: "Erro na validação",
+            description: validation.error,
+            variant: "destructive"
+          });
+          return false;
+        }
+      }
+      
       const updateData: any = {};
       if (updates.title !== undefined) updateData.titulo = updates.title;
       if (updates.content !== undefined) updateData.conteudo = updates.content;
-      if (updates.tags !== undefined) updateData.tags = updates.tags;
+      if (validatedTags !== undefined) updateData.tags = validatedTags;
       if (updates.context !== undefined) updateData.contexto = updates.context;
       if (updates.reviews !== undefined) updateData.revisoes = serializeReviews(updates.reviews);
       if (updates.step !== undefined) updateData.step = updates.step;
+      
+      // Novos campos da lógica avançada
+      if (updates.consecutiveDifficult !== undefined) updateData.consecutive_difficult = updates.consecutiveDifficult;
+      if (updates.consecutiveEasy !== undefined) updateData.consecutive_easy = updates.consecutiveEasy;
+      if (updates.totalEasyInHistory !== undefined) updateData.total_easy_history = updates.totalEasyInHistory;
+      if (updates.visualProgress !== undefined) updateData.visual_progress = updates.visualProgress;
+      if (updates.isProtected !== undefined) updateData.is_protected = updates.isProtected;
+      
       updateData.data_ultima_revisao = new Date().toISOString();
 
       let query = supabase
@@ -243,10 +316,16 @@ export const useLearning = () => {
                 ...entry, 
                 title: updates.title !== undefined ? updates.title : entry.title,
                 content: updates.content !== undefined ? updates.content : entry.content,
-                tags: updates.tags !== undefined ? updates.tags : entry.tags,
+                tags: validatedTags !== undefined ? validatedTags : entry.tags,
                 context: updates.context !== undefined ? updates.context : entry.context,
                 reviews: updates.reviews !== undefined ? updates.reviews : entry.reviews,
                 step: updates.step !== undefined ? updates.step : entry.step,
+                // Novos campos da lógica avançada
+                consecutiveDifficult: updates.consecutiveDifficult !== undefined ? updates.consecutiveDifficult : entry.consecutiveDifficult,
+                consecutiveEasy: updates.consecutiveEasy !== undefined ? updates.consecutiveEasy : entry.consecutiveEasy,
+                totalEasyInHistory: updates.totalEasyInHistory !== undefined ? updates.totalEasyInHistory : entry.totalEasyInHistory,
+                visualProgress: updates.visualProgress !== undefined ? updates.visualProgress : entry.visualProgress,
+                isProtected: updates.isProtected !== undefined ? updates.isProtected : entry.isProtected,
                 updatedAt: updateData.data_ultima_revisao
               }
             : entry
@@ -552,47 +631,78 @@ export const useLearning = () => {
     }
   };
 
-  // Completar revisão usando SpacedRepetitionEngine
+  // Completar revisão usando nova lógica de penalidade gradativa
   const completeReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions?: string[], answers?: string[]) => {
     try {
-      console.log('Completando revisão:', entryId, difficulty);
+      console.log('Completando revisão com nova lógica:', entryId, difficulty);
       const entry = learningEntries.find(e => e.id === entryId);
       if (!entry) return;
 
-      // Converter reviews para o formato esperado pelo SpacedRepetitionEngine
-      const reviewHistory: ReviewData[] = entry.reviews.map(review => ({
-        date: review.date,
-        difficulty: review.difficulty || 'medium',
-        correct: review.difficulty !== 'hard', // Assumir que não-hard = correto
-        responseTime: undefined
-      }));
-
-      // Calcular próximo intervalo usando SpacedRepetitionEngine
-      const { nextStep, intervalDays } = SpacedRepetitionEngine.calculateNextInterval(
-        entry.step, 
-        reviewHistory, 
-        difficulty
-      );
-
+      // Aplicar nova lógica de dificuldade
+      const updatedEntry = handleDifficultyResponse(entry, difficulty);
+      
       const newReview = {
         date: new Date().toISOString(),
         questions: questions || [],
         answers: answers || [],
-        step: nextStep,
+        step: updatedEntry.step,
         difficulty
       };
 
       const updatedReviews = [...entry.reviews, newReview];
 
-      // Atualizar no banco usando updateLearningEntry
+      console.log('📊 Estado anterior:', {
+        step: entry.step,
+        consecutiveDifficult: entry.consecutiveDifficult,
+        consecutiveEasy: entry.consecutiveEasy,
+        visualProgress: entry.visualProgress,
+        isProtected: entry.isProtected
+      });
+
+      console.log('📊 Novo estado:', {
+        step: updatedEntry.step,
+        consecutiveDifficult: updatedEntry.consecutiveDifficult,
+        consecutiveEasy: updatedEntry.consecutiveEasy,
+        visualProgress: updatedEntry.visualProgress,
+        isProtected: updatedEntry.isProtected
+      });
+
+      // Atualizar no banco com todos os novos campos
       await updateLearningEntry(entryId, {
         reviews: updatedReviews,
-        step: nextStep
+        step: updatedEntry.step,
+        consecutiveDifficult: updatedEntry.consecutiveDifficult,
+        consecutiveEasy: updatedEntry.consecutiveEasy,
+        totalEasyInHistory: updatedEntry.totalEasyInHistory,
+        visualProgress: updatedEntry.visualProgress,
+        isProtected: updatedEntry.isProtected
       });
+
+      // Mensagem baseada no resultado
+      let message = '';
+      const progressChange = (updatedEntry.visualProgress || 0) - (entry.visualProgress || calculateProgress(entry.step));
+      
+      if (difficulty === 'easy') {
+        message = updatedEntry.step > entry.step ? 
+          `Excelente! Você avançou para o step ${updatedEntry.step}` :
+          'Ótimo! Continue assim!';
+      } else if (difficulty === 'medium') {
+        message = updatedEntry.step > entry.step ? 
+          `Bom trabalho! Você avançou para o step ${updatedEntry.step}` :
+          'Progresso normal. Continue praticando!';
+      } else { // hard
+        if (updatedEntry.step === 0) {
+          message = '⚠️ Reset completo. Não desista, comece novamente!';
+        } else if (progressChange < 0) {
+          message = `Penalidade aplicada: ${Math.abs(progressChange).toFixed(0)}% de progresso${updatedEntry.isProtected ? ' (com proteção)' : ''}`;
+        } else {
+          message = 'Continue praticando. Você vai conseguir!';
+        }
+      }
 
       toast({
         title: "Revisão concluída!",
-        description: `Próxima revisão em ${intervalDays} dias`
+        description: message
       });
     } catch (error) {
       console.error('Erro inesperado ao completar revisão:', error);

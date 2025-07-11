@@ -89,6 +89,13 @@ export type Database = {
           tags: string[]
           titulo: string | null
           usuario_id: string | null
+          consecutive_difficult: number | null
+          consecutive_easy: number | null
+          total_easy_history: number | null
+          visual_progress: number | null
+          is_protected: boolean | null
+          last_review_date: string | null
+          last_difficulty: string | null
         }
         Insert: {
           conteudo: string
@@ -103,6 +110,13 @@ export type Database = {
           tags?: string[]
           titulo?: string | null
           usuario_id?: string | null
+          consecutive_difficult?: number | null
+          consecutive_easy?: number | null
+          total_easy_history?: number | null
+          visual_progress?: number | null
+          is_protected?: boolean | null
+          last_review_date?: string | null
+          last_difficulty?: string | null
         }
         Update: {
           conteudo?: string
@@ -117,6 +131,13 @@ export type Database = {
           tags?: string[]
           titulo?: string | null
           usuario_id?: string | null
+          consecutive_difficult?: number | null
+          consecutive_easy?: number | null
+          total_easy_history?: number | null
+          visual_progress?: number | null
+          is_protected?: boolean | null
+          last_review_date?: string | null
+          last_difficulty?: string | null
         }
         Relationships: []
       }

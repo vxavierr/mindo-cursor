@@ -41,7 +41,7 @@ import NavigationLayout from '@/components/layout/NavigationLayout';
 import DateNavigation from '@/components/navigation/DateNavigation';
 import { useLearning } from '@/hooks/useLearning';
 import { useNotifications } from '@/hooks/useNotifications';
-import LearningCardList from '@/components/learning/LearningCardList';
+import LearningCard from '@/components/learning/LearningCard';
 import { useLearningCardLayout } from '@/components/learning/LearningCardLayoutContext';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -69,7 +69,9 @@ function MobileHome({
   handleReview,
   showNotifications,
   setShowNotifications,
-  notifications
+  notifications,
+  onUpdateLearning,
+  onDeleteLearning
 }: any) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
@@ -254,39 +256,16 @@ function MobileHome({
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {recentLearnings.map((learning: any, index: number) => (
-              <motion.div
+              <LearningCard
                 key={learning.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 border border-white/10 cursor-pointer group"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-white mb-1 group-hover:text-white/90">
-                      {learning.title}
-                    </h3>
-                    <div className="flex items-center space-x-3 text-sm text-white/60">
-                      <span>{learning.time}</span>
-                      <span>•</span>
-                      <span className={`flex items-center space-x-1 ${
-                        learning.nextReview === 'Hoje' ? 'text-orange-400' : 'text-white/60'
-                      }`}>
-                        <Clock className="w-3 h-3" />
-                        <span>{learning.nextReview}</span>
-                      </span>
-                    </div>
-                  </div>
-                  <div className={`w-2 h-2 rounded-full ${
-                    learning.difficulty === 'easy' ? 'bg-green-500' :
-                    learning.difficulty === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
-                  }`} />
-                </div>
-              </motion.div>
+                entry={learning}
+                onDelete={onDeleteLearning}
+                onUpdate={onUpdateLearning}
+                variant="enhanced"
+                index={index}
+              />
             ))}
           </div>
         </motion.div>
@@ -367,7 +346,9 @@ function DesktopHome({
   notifications,
   viewMode,
   setViewMode,
-  quickActions
+  quickActions,
+  onUpdateLearning,
+  onDeleteLearning
 }: any) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
@@ -636,48 +617,14 @@ function DesktopHome({
 
             <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-2' : 'grid-cols-1'}`}>
               {recentLearnings.map((learning: any, index: number) => (
-                <motion.div
+                <LearningCard
                   key={learning.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-black/40 backdrop-blur-xl rounded-2xl p-6 border border-white/10 cursor-pointer group relative overflow-hidden"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="px-2 py-1 rounded-lg bg-white/10 text-white/80 text-xs font-medium">
-                          {learning.category}
-                        </span>
-                        <div className={`w-2 h-2 rounded-full ${
-                          learning.difficulty === 'easy' ? 'bg-green-500' :
-                          learning.difficulty === 'medium' ? 'bg-yellow-500' : 'bg-red-500'
-                        }`} />
-                      </div>
-                      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-white/90">
-                        {learning.title}
-                      </h3>
-                      <div className="flex items-center space-x-4 text-sm text-white/60 mb-3">
-                        <span>{learning.time}</span>
-                        <span>•</span>
-                        <span className={`flex items-center space-x-1 ${
-                          learning.nextReview === 'Hoje' ? 'text-orange-400' : 'text-white/60'
-                        }`}>
-                          <Clock className="w-3 h-3" />
-                          <span>{learning.nextReview}</span>
-                        </span>
-                      </div>
-                      <div className="w-full bg-white/10 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all"
-                          style={{ width: `${learning.progress}%` }}
+                  entry={learning}
+                  onDelete={onDeleteLearning}
+                  onUpdate={onUpdateLearning}
+                  variant="enhanced"
+                  index={index}
                         />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
               ))}
             </div>
             </motion.div>
@@ -744,16 +691,8 @@ const Home = () => {
     return 'Boa noite';
   };
 
-  // Mock data for the new designs
-  const recentLearnings = todaysEntries.slice(0, 6).map((entry, index) => ({
-    id: entry.id,
-    title: entry.title || 'Aprendizado sem título',
-    time: new Date(entry.createdAt).toLocaleDateString('pt-BR'),
-    nextReview: 'Hoje', // Simplified since next_review doesn't exist in the interface
-    difficulty: ['easy', 'medium', 'hard'][index % 3],
-    category: entry.tags?.[0] || 'Geral',
-    progress: Math.floor(Math.random() * 100)
-  }));
+  // Usar dados reais dos aprendizados (primeiros 6)
+  const recentLearnings = learningEntries.slice(0, 6);
 
   const stats = [
     { label: 'Total Aprendizados', value: learningEntries.length, icon: BookOpen, color: 'from-blue-500 to-cyan-500', change: '+12%' },
@@ -789,6 +728,10 @@ const Home = () => {
 
   const handleUpdateLearning = async (entryId: string, updates: { title?: string; content?: string; tags?: string[]; context?: string }) => {
     return await updateLearningEntry(entryId, updates);
+  };
+
+  const handleDeleteLearning = async (entryId: string) => {
+    await deleteEntry(entryId);
   };
 
   const handleCompleteReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions: string[], answers: string[]) => {
@@ -899,6 +842,8 @@ const Home = () => {
           showNotifications={showNotifications}
           setShowNotifications={setShowNotifications}
           notifications={notifications}
+          onUpdateLearning={handleUpdateLearning}
+          onDeleteLearning={handleDeleteLearning}
         />
         
         {/* Add Learning Modal */}
@@ -940,6 +885,8 @@ const Home = () => {
         viewMode={viewMode}
         setViewMode={setViewMode}
         quickActions={quickActions}
+        onUpdateLearning={handleUpdateLearning}
+        onDeleteLearning={handleDeleteLearning}
       />
       
       {/* Add Learning Modal */}
