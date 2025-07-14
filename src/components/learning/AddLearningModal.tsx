@@ -1,24 +1,58 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Sparkles, Loader2, Send } from 'lucide-react';
+'use client'
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  X,
+  Mic,
+  MicOff,
+  Sparkles,
+  Save
+} from 'lucide-react';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
 import { useToast } from '@/hooks/use-toast';
-import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface AddLearningModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAdd: (content: string, title: string, tags: string[]) => void;
-  context?: string; // Contexto opcional para melhorar a geração de título e tags
+  context?: string;
 }
 
 const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalProps) => {
-  const [content, setContent] = useState('');
+  const [learningText, setLearningText] = useState('');
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [isProcessingAI, setIsProcessingAI] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showAIButton, setShowAIButton] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [isProcessingAudio, setIsProcessingAudio] = useState(false);
+  
   const { improveText, generateTitleAndTags, transcribeAudio, isProcessing } = useEnhancedAI();
   const { toast } = useToast();
+
+  useEffect(() => {
+    setShowAIButton(learningText.trim().length > 10);
+  }, [learningText]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isRecording) {
+      interval = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
+
+  const formatRecordingTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const startRecording = async () => {
     try {
@@ -35,6 +69,8 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
 
       recorder.onstop = async () => {
         console.log('Gravação finalizada, processando áudio...');
+        setIsProcessingAudio(true);
+        
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         console.log('Audio blob criado:', audioBlob.size, 'bytes');
         
@@ -43,11 +79,12 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
           console.log('Texto transcrito:', transcribedText);
           
           if (transcribedText && transcribedText.trim()) {
-            setContent(prev => prev + (prev ? ' ' : '') + transcribedText);
+            setLearningText(prev => prev + (prev ? ' ' : '') + transcribedText);
             try {
               toast({
                 title: "Áudio transcrito!",
-                description: "O texto foi adicionado com sucesso"
+                description: "O texto foi adicionado com sucesso",
+                variant: "success"
               });
             } catch (toastError) {
               console.error('Erro no toast:', toastError);
@@ -57,7 +94,7 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
               toast({
                 title: "Nenhum texto detectado",
                 description: "Tente falar mais alto ou digite manualmente",
-                variant: "destructive"
+                variant: "warning"
               });
             } catch (toastError) {
               console.error('Erro no toast:', toastError);
@@ -81,6 +118,8 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
           } catch (toastError) {
             console.error('Erro no toast:', toastError);
           }
+        } finally {
+          setIsProcessingAudio(false);
         }
         
         stream.getTracks().forEach(track => track.stop());
@@ -93,7 +132,8 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       try {
         toast({
           title: "Gravação iniciada",
-          description: "Fale agora..."
+          description: "Fale agora...",
+          variant: "info"
         });
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
@@ -117,25 +157,24 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       mediaRecorder.stop();
       setIsRecording(false);
       setMediaRecorder(null);
-      
-      try {
-        toast({
-          title: "Gravação finalizada",
-          description: "Processando áudio..."
-        });
-      } catch (toastError) {
-        console.error('Erro no toast:', toastError);
-      }
     }
   };
 
-  const handleImproveText = async () => {
-    if (!content.trim()) {
+  const toggleRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  const handleAIImprovement = async () => {
+    if (!learningText.trim()) {
       try {
         toast({
           title: "Nenhum texto para melhorar",
           description: "Digite algum conteúdo primeiro",
-          variant: "destructive"
+          variant: "warning"
         });
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
@@ -143,18 +182,21 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       return;
     }
     
+    setIsProcessingAI(true);
+    
     try {
       console.log('Melhorando texto...');
-      // Incluir contexto se fornecido
-      const textToImprove = context ? `${context}\n\n${content}` : content;
+      const textToImprove = context ? `${context}\n\n${learningText}` : learningText;
       const improvedText = await improveText(textToImprove);
       console.log('Texto melhorado recebido:', improvedText);
-      if (improvedText && improvedText !== content) {
-        setContent(improvedText || '');
+      
+      if (improvedText && improvedText !== learningText) {
+        setLearningText(improvedText || '');
         try {
           toast({
             title: "Texto melhorado!",
-            description: "O conteúdo foi aprimorado pela IA"
+          description: "O conteúdo foi aprimorado pela IA",
+          variant: "success"
           });
         } catch (toastError) {
           console.error('Erro no toast:', toastError);
@@ -171,16 +213,18 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
       }
+    } finally {
+      setIsProcessingAI(false);
     }
   };
 
-  const handleSubmit = async () => {
-    if (!content.trim()) {
+  const handleSave = async () => {
+    if (!learningText.trim()) {
       try {
         toast({
           title: "Conteúdo obrigatório",
           description: "Por favor, adicione algum conteúdo",
-          variant: "destructive"
+          variant: "warning"
         });
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
@@ -188,20 +232,22 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       return;
     }
 
+    setIsSaving(true);
+
     try {
       console.log('Gerando título e tags...');
-      // Incluir contexto se fornecido para melhor geração de título e tags
-      const contentWithContext = context ? `${context}\n\n${content}` : content;
+      const contentWithContext = context ? `${context}\n\n${learningText}` : learningText;
       const { title, tags } = await generateTitleAndTags(contentWithContext);
       
-      onAdd(content.trim(), title, tags);
-      setContent('');
+      onAdd(learningText.trim(), title, tags);
+      setLearningText('');
       onClose();
       
       try {
         toast({
           title: "Aprendizado salvo!",
-          description: "Título e tags foram gerados automaticamente"
+          description: "Título e tags foram gerados automaticamente",
+          variant: "success"
         });
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
@@ -217,122 +263,267 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
       }
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      handleSubmit();
+  const handleCloseModal = () => {
+    onClose();
+    setLearningText('');
+    setIsRecording(false);
+    setRecordingTime(0);
+    setIsProcessingAudio(false);
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setMediaRecorder(null);
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] border-0">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-light text-gray-900 dark:text-white">
-            O que você aprendeu?
-          </DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4">
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            className="bg-black/30 backdrop-blur-2xl rounded-3xl border border-white/10 p-8 w-full max-w-2xl relative"
+          >
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-white mb-2">O que você aprendeu?</h2>
+              <p className="text-white/60">
+                Escreva abaixo ou grave sua voz e deixe a IA transcrever automaticamente
+              </p>
+            </div>
+
+            {/* Context */}
           {context && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
+              <div className="mb-6 bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4">
+                <p className="text-blue-300 text-sm">
                 <strong>Contexto:</strong> {context}
               </p>
             </div>
           )}
           
+            {/* Input Area */}
+            <div className="mb-6">
+              {isRecording ? (
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="w-20 h-20 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center mb-4"
+                  >
+                    <Mic className="w-8 h-8 text-red-400" />
+                  </motion.div>
+                  <p className="text-white text-lg font-medium mb-2">Gravando...</p>
+                  <p className="text-white/60 mb-4">Fale sobre o que você aprendeu</p>
+                  <div className="text-red-400 font-mono text-xl mb-6">
+                    {formatRecordingTime(recordingTime)}
+                  </div>
+                  <div className="flex items-center space-x-2 mb-6">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                    <span className="text-white/60 text-sm">Gravando áudio...</span>
+                  </div>
+                  
+                  {/* Stop Recording Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={toggleRecording}
+                    className="bg-red-500/20 border border-red-500/30 text-red-400 px-6 py-3 rounded-xl font-medium flex items-center space-x-2 hover:bg-red-500/30 transition-colors"
+                  >
+                    <MicOff className="w-5 h-5" />
+                    <span>Encerrar Gravação</span>
+                  </motion.button>
+                </div>
+              ) : isProcessingAudio ? (
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center min-h-[200px]">
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    className="w-20 h-20 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mb-4"
+                  >
+                    <Sparkles className="w-8 h-8 text-purple-400" />
+                  </motion.div>
+                  <p className="text-white text-lg font-medium mb-2">Processando áudio...</p>
+                  <p className="text-white/60 mb-4">A IA está transcrevendo sua fala</p>
+                  <div className="flex items-center space-x-2 mb-6">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                    <span className="text-white/60 text-sm">Transcrevendo...</span>
+                  </div>
+                  
+                  {/* Processing Animation */}
+                  <div className="flex space-x-1">
+                    {[...Array(3)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 bg-purple-400 rounded-full"
+                        animate={{
+                          scale: [1, 1.5, 1],
+                          opacity: [0.5, 1, 0.5]
+                        }}
+                        transition={{
+                          duration: 1,
+                          repeat: Infinity,
+                          delay: i * 0.2
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Record Button - Above textarea */}
+                  <div className="flex justify-center">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={toggleRecording}
+                      className="bg-white/10 border border-white/20 text-white/80 hover:text-white px-4 py-2 rounded-xl font-medium flex items-center space-x-2 hover:bg-white/20 transition-colors"
+                    >
+                      <Mic className="w-4 h-4" />
+                      <span>Gravar Áudio</span>
+                    </motion.button>
+                  </div>
+                  
+                  {/* Textarea */}
           <div className="relative">
-            <RichTextEditor
-              content={content}
-              onChange={setContent}
+                    <textarea
+                      value={learningText}
+                      onChange={(e) => setLearningText(e.target.value)}
               placeholder="Descreva o que você aprendeu hoje..."
-              className="min-h-[120px]"
-            />
-            
-            <div className="absolute bottom-3 right-3 flex items-center space-x-2 z-10">
-              {content.trim() && (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleImproveText}
-                  disabled={isProcessing}
-                  className="h-8 px-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  {isProcessing ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
+                      className="w-full h-48 bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder:text-white/40 resize-none focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all duration-300 text-lg leading-relaxed"
+                    />
+                    
+                    {/* AI Button */}
+                    <AnimatePresence>
+                      {showAIButton && !isProcessingAI && (
+                        <motion.button
+                          initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleAIImprovement}
+                          className="absolute bottom-4 right-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-xl font-medium flex items-center space-x-2 shadow-lg"
+                        >
                     <Sparkles className="w-4 h-4" />
-                  )}
-                  <span className="ml-1 text-xs">IA</span>
-                </Button>
+                          <span>Aprimorar</span>
+                        </motion.button>
               )}
-              
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={isRecording ? stopRecording : startRecording}
-                disabled={isProcessing}
-                className={`h-8 px-3 ${
-                  isRecording 
-                    ? 'text-red-500 hover:text-red-600 bg-red-50 dark:bg-red-900/20' 
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
-              >
-                {isRecording ? (
-                  <MicOff className="w-4 h-4" />
-                ) : (
-                  <Mic className="w-4 h-4" />
-                )}
-                <span className="ml-1 text-xs">
-                  {isRecording ? 'Parar' : 'Gravar'}
-                </span>
-              </Button>
-            </div>
-          </div>
+                    </AnimatePresence>
 
-          <div className="flex justify-between items-center pt-2">
-            <p className="text-xs text-gray-400 dark:text-gray-500">
-              Título e tags serão gerados automaticamente pela IA. Selecione texto para formatar.
-            </p>
-            
-            <div className="flex space-x-2">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={onClose}
-                disabled={isProcessing}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    {/* AI Processing */}
+                    <AnimatePresence>
+                      {isProcessingAI && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xl rounded-xl px-4 py-2 flex items-center space-x-2"
+                        >
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-purple-500/30 border-t-purple-400 rounded-full"
+                          />
+                          <span className="text-white/80 text-sm">Aprimorando...</span>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Info */}
+            <div className="text-center text-white/60 text-sm mb-6">
+                {isRecording ? (
+                'Clique em "Encerrar Gravação" quando terminar de falar'
+              ) : isProcessingAudio ? (
+                'Aguarde enquanto processamos seu áudio...'
+                ) : (
+                `${learningText.length} caracteres • ${showAIButton ? 'Clique em "Aprimorar" para melhorar o texto' : 'Clique em "Gravar Áudio" ou continue escrevendo'}`
+                )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center space-x-4">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleCloseModal}
+                className="flex-1 bg-white/5 backdrop-blur-sm border border-white/10 h-12 rounded-2xl flex items-center justify-center text-white/70 hover:text-white transition-colors"
               >
                 Cancelar
-              </Button>
+              </motion.button>
               
-              <Button
-                onClick={handleSubmit}
-                disabled={!content.trim() || isProcessing}
-                className="bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-gray-900"
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSave}
+                disabled={!learningText.trim() || isSaving || isProcessingAudio}
+                className="flex-1 relative group"
               >
-                {isProcessing ? (
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <div className="absolute inset-0 bg-white/20 rounded-2xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                
+                <div className={`relative overflow-hidden h-12 rounded-2xl transition-all duration-300 flex items-center justify-center font-semibold ${
+                  learningText.trim() && !isSaving && !isProcessingAudio
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+                    : 'bg-white/10 text-white/50 cursor-not-allowed'
+                }`}>
+                  <AnimatePresence mode="wait">
+                    {isSaving ? (
+                      <motion.div
+                        key="saving"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center space-x-2"
+                      >
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                        />
+                        <span>Salvando...</span>
+                      </motion.div>
                 ) : (
-                  <Send className="w-4 h-4 mr-2" />
-                )}
-                Salvar
-              </Button>
+                      <motion.div
+                        key="save"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="flex items-center space-x-2"
+                      >
+                        <Save className="w-4 h-4" />
+                        <span>Salvar</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.button>
             </div>
-          </div>
-          
-          <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
-            ⌘ + Enter para salvar rapidamente
-          </p>
-        </div>
-      </DialogContent>
-    </Dialog>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 };
 

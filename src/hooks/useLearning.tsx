@@ -145,7 +145,7 @@ export const useLearning = () => {
         toast({
           title: "Erro na validação",
           description: validation.error,
-          variant: "destructive"
+          variant: "warning"
         });
         return;
       }
@@ -220,7 +220,8 @@ export const useLearning = () => {
 
       toast({
         title: "Aprendizado salvo!",
-        description: "Aprendizado foi salvo com sucesso."
+        description: "Aprendizado foi salvo com sucesso.",
+        variant: "success"
       });
     } catch (error) {
       console.error('Erro inesperado ao adicionar entrada:', error);
@@ -260,7 +261,7 @@ export const useLearning = () => {
           toast({
             title: "Erro na validação",
             description: validation.error,
-            variant: "destructive"
+          variant: "warning"
           });
           return false;
         }
@@ -334,7 +335,8 @@ export const useLearning = () => {
 
       toast({
         title: "Alterações salvas!",
-        description: "O aprendizado foi atualizado com sucesso."
+        description: "O aprendizado foi atualizado com sucesso.",
+        variant: "success"
       });
 
       return true;

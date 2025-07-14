@@ -53,7 +53,10 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { UserDropdown } from '@/components/ui/UserDropdown';
-import MindoReviewScreen from '@/components/learning/MindoReviewScreen';
+import MindoReviewScreen from '../components/learning/MindoReviewScreen';
+import { getGreeting } from '@/utils/timeUtils';
+import { GRADIENT_BACKGROUNDS } from '@/constants/reviewConstants';
+import BackdropCard from '@/components/ui/BackdropCard';
 
 // Mobile Home Component
 function MobileHome({
@@ -76,7 +79,7 @@ function MobileHome({
   navigateToReviews
 }: any) {
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
+    <div className="h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden flex flex-col">
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple-600/20 via-purple-700/30 to-black/90" />
       
@@ -118,8 +121,8 @@ function MobileHome({
         }}
       />
 
-      {/* Main Content */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      {/* Scrollable Content Area */}
+      <div className="relative z-10 flex-1 overflow-y-auto">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -128,23 +131,25 @@ function MobileHome({
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+              <BackdropCard size="sm" className="w-10 h-10 flex items-center justify-center">
                 <Brain className="w-5 h-5 text-white" />
-              </div>
+              </BackdropCard>
               <span className="text-xl font-bold text-white">Mindo</span>
             </div>
             
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <button 
-                  onClick={() => setShowNotifications(!showNotifications)}
-                  className="p-2 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 relative"
-                >
-                  <Bell className="w-5 h-5 text-white" />
-                  {notifications.length > 0 && (
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
-                  )}
-                </button>
+                <BackdropCard size="sm" className="p-0">
+                  <button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="p-2 relative"
+                  >
+                    <Bell className="w-5 h-5 text-white" />
+                    {notifications.length > 0 && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
+                    )}
+                  </button>
+                </BackdropCard>
                 
                 <AnimatePresence>
                   {showNotifications && (
@@ -152,17 +157,19 @@ function MobileHome({
                       initial={{ opacity: 0, scale: 0.9, y: 10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                      className="absolute right-0 mt-2 w-80 bg-black/80 backdrop-blur-xl rounded-2xl border border-white/20 p-4 z-50"
+                      className="absolute right-0 mt-2 w-80 z-50"
                     >
-                      <h3 className="font-semibold text-white mb-3">Notificações</h3>
-                      <div className="space-y-2">
-                        {notifications.map((notification: any) => (
-                          <div key={notification.id} className="p-3 rounded-xl bg-white/5 border border-white/10">
-                            <p className="text-white/90 text-sm">{notification.message}</p>
-                            <span className="text-white/60 text-xs">{notification.time}</span>
-                          </div>
-                        ))}
-                      </div>
+                      <BackdropCard variant="solid" className="p-4">
+                        <h3 className="font-semibold text-white mb-3">Notificações</h3>
+                        <div className="space-y-2">
+                          {notifications.map((notification: any) => (
+                            <BackdropCard key={notification.id} variant="glass" size="sm">
+                              <p className="text-white/90 text-sm">{notification.message}</p>
+                              <span className="text-white/60 text-xs">{notification.time}</span>
+                            </BackdropCard>
+                          ))}
+                        </div>
+                      </BackdropCard>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -249,7 +256,7 @@ function MobileHome({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="px-6 mb-6 flex-1"
+          className="px-6 mb-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-white">Aprendizados Recentes</h2>
@@ -272,12 +279,18 @@ function MobileHome({
           </div>
         </motion.div>
 
+        {/* Bottom padding to ensure content doesn't get hidden behind fixed elements */}
+        <div className="h-32"></div>
+      </div>
+
+      {/* Fixed Bottom Elements */}
+      <div className="relative z-20 bg-gradient-to-t from-black/80 to-transparent">
         {/* Add Learning Button */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="px-6 pb-6"
+          className="px-6 pb-4"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -700,12 +713,7 @@ const Home = () => {
     }
   }, [reviewsToday.length, scheduleDailyReminder]);
 
-  const getGreeting = () => {
-    const hour = currentTime.getHours();
-    if (hour < 12) return 'Bom dia';
-    if (hour < 18) return 'Boa tarde';
-    return 'Boa noite';
-  };
+  // Using shared greeting utility - removed duplicate function
 
   // Usar dados reais dos aprendizados (primeiros 6)
   const recentLearnings = learningEntries.slice(0, 6);

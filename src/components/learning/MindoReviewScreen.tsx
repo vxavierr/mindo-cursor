@@ -37,6 +37,9 @@ import {
 } from 'lucide-react';
 import { LearningEntry } from './types/review';
 import { toast } from '@/hooks/use-toast';
+import { formatTime, getDaysFromCreation } from '@/utils/timeUtils';
+import { DIFFICULTY_OPTIONS, GRADIENT_BACKGROUNDS } from '@/constants/reviewConstants';
+import BackdropCard from '@/components/ui/BackdropCard';
 
 interface MindoReviewScreenProps {
   onNavigateHome: () => void;
@@ -130,36 +133,14 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
     }
   };
 
-  // Função para calcular dias desde a criação
-  const getDaysFromCreation = (createdAt: string) => {
-    const created = new Date(createdAt);
-    const now = new Date();
-    return Math.floor((now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24));
-  };
-
-  const difficultyOptions = [
-    { 
-      id: 'easy', 
-      label: 'Fácil', 
-      color: 'from-green-500 to-emerald-500',
-      description: 'Lembrei facilmente',
-      nextReview: '7 dias'
-    },
-    { 
-      id: 'medium', 
-      label: 'Médio', 
-      color: 'from-yellow-500 to-orange-500',
-      description: 'Lembrei com esforço',
-      nextReview: '3 dias'
-    },
-    { 
-      id: 'hard', 
-      label: 'Difícil', 
-      color: 'from-red-500 to-pink-500',
-      description: 'Esqueci ou foi difícil',
-      nextReview: '1 dia'
-    }
-  ];
+  // Using shared constants for difficulty options
+  const difficultyOptions = DIFFICULTY_OPTIONS.map(option => ({
+    id: option.value,
+    label: option.label,
+    color: option.color,
+    description: option.description,
+    nextReview: option.value === 'easy' ? '7 dias' : option.value === 'medium' ? '3 dias' : '1 dia'
+  }));
 
   // Próximas revisões baseadas nos dados reais
   const upcomingReviews = reviews.slice(currentIndex + 1).slice(0, 4).map((review, index) => ({
@@ -192,11 +173,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
     }
   }, [showQuestions]);
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  // Using shared formatTime utility - removed duplicate function
 
   const handleDifficultySelect = (difficulty: 'easy' | 'medium' | 'hard') => {
     setSelectedDifficulty(difficulty);
@@ -212,7 +189,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
   // Verificar se há revisões para mostrar
   if (reviews.length === 0) {
     return (
-      <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden flex items-center justify-center">
+      <div className={`min-h-screen w-full ${GRADIENT_BACKGROUNDS.primary} relative overflow-hidden flex items-center justify-center`}>
         <div className="absolute inset-0 bg-gradient-to-b from-purple-600/20 via-purple-700/30 to-black/90" />
         <div className="relative z-10 text-center space-y-6 p-8">
           <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto">
@@ -245,7 +222,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
+    <div className={`min-h-screen w-full ${GRADIENT_BACKGROUNDS.primary} relative overflow-hidden`}>
       {/* Background Effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-purple-600/20 via-purple-700/30 to-black/90" />
       
@@ -290,10 +267,9 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
       {/* Main Content */}
       <div className="relative z-10 h-screen flex">
         {/* Sidebar */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-80 bg-black/40 backdrop-blur-2xl border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 h-full"
+        <BackdropCard 
+          className="w-80 border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 h-full"
+          variant="default"
         >
           {/* Logo */}
           <div className="flex items-center space-x-3 mb-8">
@@ -334,7 +310,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
           </nav>
 
           {/* Review Progress */}
-          <div className="bg-black/40 backdrop-blur-xl rounded-2xl p-4 mb-6 border border-white/10">
+          <BackdropCard className="p-4 mb-6">
             <div className="flex items-center justify-between mb-3">
               <span className="text-white/60 text-sm">Progresso da Sessão</span>
               <span className="text-white font-medium">{currentIndex + 1}/{totalReviews}</span>
@@ -347,23 +323,24 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
                 transition={{ duration: 0.5 }}
               />
             </div>
-          </div>
+          </BackdropCard>
 
           {/* Quick Actions */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-white/70 uppercase tracking-wide">Ações Rápidas</h3>
             {quickActions.map((action, index) => (
-              <motion.button
-                key={action.label}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl bg-black/40 backdrop-blur-xl border border-white/10 text-white/80 hover:text-white transition-all group"
-              >
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${action.color} opacity-80 group-hover:opacity-100 flex items-center justify-center`}>
-                  <action.icon className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-sm font-medium">{action.label}</span>
-              </motion.button>
+              <BackdropCard key={action.label} hover size="sm">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center space-x-3 text-white/80 hover:text-white transition-all group"
+                >
+                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${action.color} opacity-80 group-hover:opacity-100 flex items-center justify-center`}>
+                    <action.icon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-sm font-medium">{action.label}</span>
+                </motion.button>
+              </BackdropCard>
             ))}
           </div>
         </motion.div>
@@ -453,7 +430,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
                   className="max-w-4xl mx-auto"
                 >
                   {/* Review Card */}
-                  <div className="bg-black/40 backdrop-blur-2xl rounded-3xl p-8 border border-white/10 shadow-2xl mb-8">
+                  <BackdropCard className="p-8 mb-8 shadow-2xl" size="lg">
                     <div className="flex items-center justify-between mb-6">
                       <div className="flex items-center space-x-3">
                         <Calendar className="w-5 h-5 text-white/60" />
@@ -510,11 +487,11 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
                     </div>
 
                     {/* Conteúdo da Revisão */}
-                    <div className="bg-white/5 rounded-2xl p-6 mb-6">
+                    <BackdropCard variant="glass" className="p-6 mb-6">
                       <p className="text-white/90 leading-relaxed text-lg whitespace-pre-wrap">
                         {currentReview.content}
                       </p>
-                    </div>
+                    </BackdropCard>
 
                     {/* Contexto */}
                     {currentReview.context && (
@@ -596,11 +573,11 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
                     </h2>
 
                     {/* Conteúdo da Revisão */}
-                    <div className="bg-white/5 rounded-2xl p-6 mb-6">
+                    <BackdropCard variant="glass" className="p-6 mb-6">
                       <p className="text-white/90 leading-relaxed text-lg whitespace-pre-wrap">
                         {currentReview.content}
                       </p>
-                    </div>
+                    </BackdropCard>
 
                     {/* Tags */}
                     {currentReview.tags.length > 0 && (

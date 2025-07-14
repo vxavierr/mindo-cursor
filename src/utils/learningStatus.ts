@@ -10,6 +10,8 @@ export interface LearningEntry {
     date: string; 
     difficulty?: 'easy' | 'medium' | 'hard';
   }>;
+  lastReviewDate?: Date;
+  lastDifficulty?: 'easy' | 'medium' | 'hard';
   // Novos campos para lógica avançada
   consecutiveDifficult?: number;
   consecutiveEasy?: number; 

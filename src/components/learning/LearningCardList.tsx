@@ -1,17 +1,7 @@
 import React from 'react';
 import LearningCard from './LearningCard';
 import { useLearningCardLayout } from './LearningCardLayoutContext';
-
-interface LearningEntry {
-  id: string;
-  title: string;
-  content: string;
-  context?: string;
-  tags: string[];
-  createdAt: string;
-  step: number;
-  reviews?: Array<{ date: string }>;
-}
+import { LearningEntry } from '@/utils/learningStatus';
 
 interface LearningCardListProps {
   entries: LearningEntry[];
@@ -29,7 +19,7 @@ const LearningCardList: React.FC<LearningCardListProps> = ({ entries, onDelete, 
   }
   return (
     <div className="space-y-4">
-      {entries.map(entry => (
+      {entries.map((entry, index) => (
         <LearningCard
           key={entry.id}
           entry={entry}
@@ -38,6 +28,7 @@ const LearningCardList: React.FC<LearningCardListProps> = ({ entries, onDelete, 
           variant={layout}
           compact={compact}
           desktopLayout={desktopLayout}
+          index={index}
         />
       ))}
     </div>
