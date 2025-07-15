@@ -27,10 +27,8 @@ const FloatingNavigation = ({
     { value: 'enhanced', label: 'Colorido' },
   ];
 
-  console.log('FloatingNavigation props:', { onCreateLearning, onReview });
 
   const handleItemClick = (itemId: string, path: string) => {
-    console.log('Nav item clicked:', itemId, path);
     setPressedItem(itemId);
     setTimeout(() => setPressedItem(null), 150);
     onNavigate?.(path);
@@ -39,7 +37,6 @@ const FloatingNavigation = ({
   const handleFabClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('FAB clicked, current state:', fabMenuOpen);
     setPressedFab(true);
     setTimeout(() => setPressedFab(false), 150);
     setFabMenuOpen(!fabMenuOpen);
@@ -48,19 +45,15 @@ const FloatingNavigation = ({
   const handleSubAction = (action: 'create' | 'review', e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Sub action clicked:', action);
     setFabMenuOpen(false);
     if (action === 'create') {
-      console.log('Calling onCreateLearning');
       onCreateLearning?.();
     } else {
-      console.log('Calling onReview');
       onReview?.();
     }
   };
 
   const handleOverlayClick = () => {
-    console.log('Overlay clicked, closing menu');
     setFabMenuOpen(false);
   };
 

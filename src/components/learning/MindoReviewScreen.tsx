@@ -343,7 +343,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
               </BackdropCard>
             ))}
           </div>
-        </motion.div>
+        </BackdropCard>
 
         {/* Main Content Area */}
         <div className="flex-1 flex ml-80 h-screen overflow-hidden">
@@ -515,7 +515,7 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
                         ))}
                       </div>
                     )}
-                  </div>
+                  </BackdropCard>
 
                   {/* Action Buttons */}
                   <div className="flex space-x-4 max-w-2xl mx-auto">

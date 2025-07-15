@@ -32,16 +32,6 @@ export const getDaysFromCreation = (createdAt: string): number => {
 };
 
 /**
- * Formats a date to Brazilian Portuguese format
- * @param date - Date object or ISO string
- * @returns Formatted date string (DD/MM/YYYY)
- */
-export const formatDateBR = (date: Date | string): string => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  return dateObj.toLocaleDateString('pt-BR');
-};
-
-/**
  * Formats a date to a relative time string (e.g., "há 2 dias")
  * @param date - Date object or ISO string
  * @returns Relative time string in Portuguese
@@ -77,17 +67,6 @@ export const formatRelativeTime = (date: Date | string): string => {
   
   const years = Math.floor(months / 12);
   return `há ${years} ano${years > 1 ? 's' : ''}`;
-};
-
-/**
- * Checks if a date is today
- * @param date - Date object or ISO string
- * @returns Whether the date is today
- */
-export const isToday = (date: Date | string): boolean => {
-  const dateObj = typeof date === 'string' ? new Date(date) : date;
-  const today = new Date();
-  return dateObj.toDateString() === today.toDateString();
 };
 
 /**

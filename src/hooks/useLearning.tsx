@@ -65,7 +65,6 @@ export const useLearning = () => {
   const loadEntries = async () => {
     try {
       setLoading(true);
-      console.log('Carregando entradas ativas...');
       
       let query = supabase
         .from('revisoes')
@@ -92,7 +91,6 @@ export const useLearning = () => {
         return;
       }
 
-      console.log('Entradas carregadas:', data);
 
       const entries: LearningEntry[] = data?.map(item => {
         const baseEntry: LearningEntry = {
@@ -134,8 +132,6 @@ export const useLearning = () => {
   // Adicionar nova entrada
   const addLearningEntry = async (content: string, title: string, tags: string[], context?: string) => {
     try {
-      console.log('Adicionando nova entrada...');
-      console.log('Usuário atual:', user?.id || 'Não autenticado');
       
       // Validar e limitar tags a 3
       const validatedTags = limitTags(tags || []);
@@ -172,11 +168,6 @@ export const useLearning = () => {
       };
 
       // Log do objeto antes de inserir
-      console.log('📝 Inserindo nova entrada - Objeto:', JSON.stringify(newEntry, null, 2));
-      console.log('📝 Verificação - titulo presente:', !!newEntry.titulo);
-      console.log('📝 Verificação - conteudo presente:', !!newEntry.conteudo);
-      console.log('📝 Verificação - usuario_id presente:', !!newEntry.usuario_id);
-      console.log('📝 Verificação - usuario_id valor:', newEntry.usuario_id);
 
       const { data, error } = await supabase
         .from('revisoes')
@@ -194,7 +185,6 @@ export const useLearning = () => {
         return;
       }
 
-      console.log('Nova entrada criada:', data);
 
       // Atualizar estado local
       const newLearningEntry: LearningEntry = {
@@ -249,7 +239,6 @@ export const useLearning = () => {
     isProtected?: boolean;
   }) => {
     try {
-      console.log('Atualizando entrada:', entryId, updates);
       
       // Validar tags se estiverem sendo atualizadas
       let validatedTags = updates.tags;
@@ -354,7 +343,6 @@ export const useLearning = () => {
   // Mover para lixeira (substituindo deleteEntry por compatibilidade com useTrashLearning)
   const deleteEntry = async (entryId: string) => {
     try {
-      console.log('Movendo entrada para lixeira:', entryId);
       
       // Encontrar a entrada a ser movida
       const entryToMove = learningEntries.find(e => e.id === entryId);
@@ -384,10 +372,6 @@ export const useLearning = () => {
         usuario_id: entryToMove.userId || null, // Manter o usuario_id original
       };
 
-      console.log('🗑️ Inserindo na lixeira:', { 
-        id_lixeira: entryForTrash.id_lixeira, 
-        usuario_id: entryForTrash.usuario_id 
-      });
 
       const { error: insertError } = await supabase
         .from('lixeira_aprendizados')
@@ -404,7 +388,6 @@ export const useLearning = () => {
       }
 
       // 2. SEGUNDO: Remover da tabela principal (usando apenas o UUID)
-      console.log('🗑️ Removendo da tabela principal:', entryToMove.id);
       
       let deleteQuery = supabase
         .from('revisoes')
@@ -445,7 +428,6 @@ export const useLearning = () => {
         description: "O aprendizado foi movido para a lixeira com sucesso."
       });
 
-      console.log('✅ Entrada movida para lixeira com sucesso:', entryToMove.id);
       return true;
 
     } catch (error) {
@@ -462,7 +444,6 @@ export const useLearning = () => {
   // Restaurar entrada da lixeira
   const restoreEntry = async (entryId: string) => {
     try {
-      console.log('Restaurando entrada da lixeira:', entryId);
       
       // 1. PRIMEIRO: Buscar entrada na lixeira usando UUID
       let query = supabase
@@ -491,10 +472,6 @@ export const useLearning = () => {
         return false;
       }
 
-      console.log('🔄 Restaurando entrada:', { 
-        id_lixeira: trashEntry.id_lixeira,
-        usuario_id: trashEntry.usuario_id
-      });
 
       // 2. SEGUNDO: Inserir de volta na tabela principal com UUID original
       const agora = new Date().toISOString();
@@ -559,7 +536,6 @@ export const useLearning = () => {
         description: "O aprendizado foi restaurado com sucesso."
       });
 
-      console.log('✅ Entrada restaurada com sucesso:', entryId);
       return true;
 
     } catch (error) {
@@ -576,7 +552,6 @@ export const useLearning = () => {
   // Exclusão permanente da lixeira
   const permanentlyDeleteEntry = async (entryId: string) => {
     try {
-      console.log('Excluindo permanentemente da lixeira:', entryId);
       
       // Excluir da lixeira usando UUID diretamente
       let deleteQuery = supabase
@@ -619,7 +594,6 @@ export const useLearning = () => {
         description: "O aprendizado foi excluído definitivamente da lixeira."
       });
 
-      console.log('✅ Entrada excluída permanentemente:', entryId);
       return true;
 
     } catch (error) {
@@ -636,7 +610,6 @@ export const useLearning = () => {
   // Completar revisão usando nova lógica de penalidade gradativa
   const completeReview = async (entryId: string, difficulty: 'easy' | 'medium' | 'hard', questions?: string[], answers?: string[]) => {
     try {
-      console.log('Completando revisão com nova lógica:', entryId, difficulty);
       const entry = learningEntries.find(e => e.id === entryId);
       if (!entry) return;
 
@@ -653,21 +626,6 @@ export const useLearning = () => {
 
       const updatedReviews = [...entry.reviews, newReview];
 
-      console.log('📊 Estado anterior:', {
-        step: entry.step,
-        consecutiveDifficult: entry.consecutiveDifficult,
-        consecutiveEasy: entry.consecutiveEasy,
-        visualProgress: entry.visualProgress,
-        isProtected: entry.isProtected
-      });
-
-      console.log('📊 Novo estado:', {
-        step: updatedEntry.step,
-        consecutiveDifficult: updatedEntry.consecutiveDifficult,
-        consecutiveEasy: updatedEntry.consecutiveEasy,
-        visualProgress: updatedEntry.visualProgress,
-        isProtected: updatedEntry.isProtected
-      });
 
       // Atualizar no banco com todos os novos campos
       await updateLearningEntry(entryId, {

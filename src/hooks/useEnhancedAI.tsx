@@ -9,7 +9,6 @@ export const useEnhancedAI = () => {
   const improveText = async (content: string): Promise<string> => {
     setIsProcessing(true);
     try {
-      console.log('Melhorando texto:', content.substring(0, 100) + '...');
       
       const { data, error } = await supabase.functions.invoke('enhance-text', {
         body: { 
@@ -23,7 +22,6 @@ export const useEnhancedAI = () => {
         throw error;
       }
 
-      console.log('Resposta da IA para melhoria:', data);
       return data.result || content;
     } catch (error) {
       console.error('Erro ao melhorar texto:', error);
@@ -44,7 +42,6 @@ export const useEnhancedAI = () => {
 
   const generateTitleAndTags = async (content: string): Promise<{ title: string; tags: string[] }> => {
     try {
-      console.log('Gerando título e tags para:', content.substring(0, 100) + '...');
       
       // Gerar título
       const { data: titleData, error: titleError } = await supabase.functions.invoke('enhance-text', {
@@ -72,8 +69,6 @@ export const useEnhancedAI = () => {
         throw tagsError;
       }
 
-      console.log('Título gerado:', titleData);
-      console.log('Tags geradas:', tagsData);
 
       const title = titleData?.result || content.substring(0, 60) + (content.length > 60 ? '...' : '');
       const tagsString = tagsData?.result || '';
@@ -93,7 +88,6 @@ export const useEnhancedAI = () => {
   const transcribeAudio = async (audioBlob: Blob): Promise<string> => {
     setIsProcessing(true);
     try {
-      console.log('Iniciando transcrição de áudio, tamanho:', audioBlob.size, 'bytes');
       
       // Converter áudio para base64
       const reader = new FileReader();
@@ -107,7 +101,6 @@ export const useEnhancedAI = () => {
         reader.readAsDataURL(audioBlob);
       });
 
-      console.log('Áudio convertido para base64, tamanho:', audioData.length);
 
       const { data, error } = await supabase.functions.invoke('transcribe-audio', {
         body: { 
@@ -124,7 +117,6 @@ export const useEnhancedAI = () => {
         throw error;
       }
 
-      console.log('Resposta da transcrição:', data);
       return data.text || '';
     } catch (error) {
       console.error('Erro na transcrição:', error);

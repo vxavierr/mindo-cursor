@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X,
@@ -56,7 +56,6 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
 
   const startRecording = async () => {
     try {
-      console.log('Iniciando gravação...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
       const chunks: Blob[] = [];
@@ -68,15 +67,12 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
       };
 
       recorder.onstop = async () => {
-        console.log('Gravação finalizada, processando áudio...');
         setIsProcessingAudio(true);
         
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-        console.log('Audio blob criado:', audioBlob.size, 'bytes');
         
         try {
           const transcribedText = await transcribeAudio(audioBlob);
-          console.log('Texto transcrito:', transcribedText);
           
           if (transcribedText && transcribedText.trim()) {
             setLearningText(prev => prev + (prev ? ' ' : '') + transcribedText);
@@ -185,10 +181,8 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
     setIsProcessingAI(true);
     
     try {
-      console.log('Melhorando texto...');
       const textToImprove = context ? `${context}\n\n${learningText}` : learningText;
       const improvedText = await improveText(textToImprove);
-      console.log('Texto melhorado recebido:', improvedText);
       
       if (improvedText && improvedText !== learningText) {
         setLearningText(improvedText || '');
@@ -235,7 +229,6 @@ const AddLearningModal = ({ isOpen, onClose, onAdd, context }: AddLearningModalP
     setIsSaving(true);
 
     try {
-      console.log('Gerando título e tags...');
       const contentWithContext = context ? `${context}\n\n${learningText}` : learningText;
       const { title, tags } = await generateTitleAndTags(contentWithContext);
       

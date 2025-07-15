@@ -28,7 +28,7 @@ interface ReviewScreenMobileProps {
 
 export default function ReviewScreenMobile({ reviews, onCompleteReview, onClose }: ReviewScreenMobileProps) {
   const [currentReview, setCurrentReview] = useState(1);
-  const [totalReviews] = useState(reviews.length);
+  const totalReviews = reviews.length;
   const [showContent, setShowContent] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard' | null>(null);
   const [isAnswering, setIsAnswering] = useState(false);

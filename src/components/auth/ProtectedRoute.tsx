@@ -28,7 +28,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   // Bypass para testes
   if (testMode) {
-    console.log('🧪 MODO DE TESTE ATIVO - Bypass de autenticação');
     return <>{children}</>;
   }
 
