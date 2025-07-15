@@ -75,6 +75,7 @@ export type Database = {
         }
         Relationships: []
       }
+
       revisoes: {
         Row: {
           conteudo: string

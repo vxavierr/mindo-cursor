@@ -17,6 +17,7 @@ import Home from "@/pages/Home";
 import { LearningCardLayoutProvider } from '@/components/learning/LearningCardLayoutContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import SettingsPage from './pages/SettingsPage';
 // Componente principal de rotas
 function AppContent() {
   return (
@@ -47,6 +48,11 @@ function AppContent() {
         <Route path="/trash" element={
           <ProtectedRoute>
             <TrashPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />

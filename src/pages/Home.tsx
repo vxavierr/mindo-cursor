@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Brain, 
   Plus, 
@@ -53,7 +54,6 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { UserDropdown } from '@/components/ui/UserDropdown';
-import MindoReviewScreen from '../components/learning/MindoReviewScreen';
 import { getGreeting } from '@/utils/timeUtils';
 import { GRADIENT_BACKGROUNDS } from '@/constants/reviewConstants';
 import BackdropCard from '@/components/ui/BackdropCard';
@@ -76,7 +76,8 @@ function MobileHome({
   notifications,
   onUpdateLearning,
   onDeleteLearning,
-  navigateToReviews
+  navigateToReviews,
+  navigate
 }: any) {
   return (
     <div className="h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden flex flex-col">
@@ -330,6 +331,8 @@ function MobileHome({
                   setSelectedTab(tab.id);
                   if (tab.id === 'reviews') {
                     navigateToReviews();
+                  } else if (tab.id === 'settings') {
+                    navigate('/settings');
                   }
                 }}
                 className={`flex flex-col items-center space-y-1 p-2 rounded-xl transition-all ${
@@ -370,7 +373,8 @@ function DesktopHome({
   quickActions,
   onUpdateLearning,
   onDeleteLearning,
-  navigateToReviews
+  navigateToReviews,
+  navigate
 }: any) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
@@ -421,7 +425,7 @@ function DesktopHome({
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-80 bg-black/40 backdrop-blur-2xl border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 h-full"
+          className="w-80 bg-black/40 backdrop-blur-2xl border-r border-white/10 p-6 flex flex-col fixed left-0 top-0 h-full rounded-r-3xl"
         >
           {/* Logo */}
           <div className="flex items-center space-x-3 mb-8">
@@ -447,6 +451,8 @@ function DesktopHome({
                   setSelectedTab(item.id);
                   if (item.id === 'reviews') {
                     navigateToReviews();
+                  } else if (item.id === 'settings') {
+                    navigate('/settings');
                   }
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
@@ -674,7 +680,7 @@ const Home = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [currentScreen, setCurrentScreen] = useState<'home' | 'reviews'>('home');
+  const navigate = useNavigate();
 
   // Existing hooks
   const {
@@ -776,11 +782,7 @@ const Home = () => {
 
   // Navigation functions
   const navigateToReviews = () => {
-    setCurrentScreen('reviews');
-  };
-
-  const navigateToHome = () => {
-    setCurrentScreen('home');
+    navigate('/reviews');
   };
 
   if (loading) {
@@ -858,17 +860,6 @@ const Home = () => {
 
   // Render based on device type
   if (isMobile) {
-    // Mobile version - conditional rendering
-    if (currentScreen === 'reviews') {
-      return (
-        <MindoReviewScreen 
-          onNavigateHome={navigateToHome}
-          reviews={reviewsToday.filter(e => e.step !== -1)}
-          onCompleteReview={handleCompleteReview}
-        />
-      );
-    }
-
     return (
       <>
         <MobileHome
@@ -889,6 +880,7 @@ const Home = () => {
           onUpdateLearning={handleUpdateLearning}
           onDeleteLearning={handleDeleteLearning}
           navigateToReviews={navigateToReviews}
+          navigate={navigate}
         />
         
         {/* Add Learning Modal */}
@@ -906,17 +898,6 @@ const Home = () => {
           onCompleteReview={handleCompleteReview}
         />
       </>
-    );
-  }
-
-  // Desktop version - conditional rendering
-  if (currentScreen === 'reviews') {
-    return (
-      <MindoReviewScreen 
-        onNavigateHome={navigateToHome}
-        reviews={reviewsToday.filter(e => e.step !== -1)}
-        onCompleteReview={handleCompleteReview}
-      />
     );
   }
 
@@ -943,6 +924,7 @@ const Home = () => {
         onUpdateLearning={handleUpdateLearning}
         onDeleteLearning={handleDeleteLearning}
         navigateToReviews={navigateToReviews}
+        navigate={navigate}
       />
       
       {/* Add Learning Modal */}
