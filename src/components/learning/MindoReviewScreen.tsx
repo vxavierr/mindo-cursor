@@ -54,6 +54,8 @@ import { formatTime, getDaysFromCreation } from '@/utils/timeUtils';
 import { DIFFICULTY_OPTIONS, GRADIENT_BACKGROUNDS } from '@/constants/reviewConstants';
 import BackdropCard from '@/components/ui/BackdropCard';
 import { useEnhancedAI } from '@/hooks/useEnhancedAI';
+import { useIsMobile } from '@/hooks/use-mobile';
+import ReviewScreenMobile from './ReviewScreenMobile';
 
 interface MindoReviewScreenProps {
   onNavigateHome?: () => void; // Opcional para manter compatibilidade
@@ -63,6 +65,7 @@ interface MindoReviewScreenProps {
 
 export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteReview }: MindoReviewScreenProps) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   // Estados principais do sistema de revisão (baseado no ReviewModal)
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -560,6 +563,17 @@ export default function MindoReviewScreen({ onNavigateHome, reviews, onCompleteR
 
   if (!currentReview) {
     return null;
+  }
+
+  // Retornar componente mobile se estiver em dispositivo móvel
+  if (isMobile) {
+    return (
+      <ReviewScreenMobile 
+        reviews={reviews}
+        onCompleteReview={onCompleteReview}
+        onClose={() => onNavigateHome ? onNavigateHome() : navigate('/')}
+      />
+    );
   }
 
   return (

@@ -364,33 +364,64 @@ const TrashPage = () => {
 
       {/* Confirmation Dialog */}
       <AlertDialog open={!!confirmAction} onOpenChange={() => setConfirmAction(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmAction?.type === 'restore' ? 'Restaurar aprendizado?' : 'Excluir permanentemente?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {confirmAction?.type === 'restore' 
-                ? `O aprendizado "${confirmAction.title}" será restaurado para a lista principal.`
-                : `O aprendizado "${confirmAction.title}" será excluído permanentemente e não poderá ser recuperado.`
-              }
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => {
-                if (confirmAction?.type === 'restore') {
-                  restoreEntry(confirmAction.id);
-                } else if (confirmAction?.type === 'delete') {
-                  permanentlyDeleteEntry(confirmAction.id);
-                }
-              }}
-              className={confirmAction?.type === 'delete' ? 'bg-red-500 hover:bg-red-600' : ''}
-            >
-              {confirmAction?.type === 'restore' ? 'Restaurar' : 'Excluir permanentemente'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+        <AlertDialogContent className="border-0 bg-transparent shadow-none max-w-md">
+          <div className="relative">
+            {/* Background with gradient and blur */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-purple-800 to-black rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-b from-purple-600/20 via-purple-700/30 to-black/90 rounded-3xl" />
+            
+            {/* Animated glow effect */}
+            <div className="absolute -inset-1 bg-purple-400/20 rounded-3xl blur-lg animate-pulse" />
+            
+            {/* Main content */}
+            <div className="relative bg-black/40 backdrop-blur-2xl rounded-3xl p-8 border border-white/10 shadow-2xl">
+              <AlertDialogHeader className="space-y-6">
+                {/* Icon */}
+                <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-red-500/20 to-red-600/20 flex items-center justify-center border border-red-500/30">
+                  {confirmAction?.type === 'restore' ? (
+                    <RotateCcw className="w-8 h-8 text-green-400" />
+                  ) : (
+                    <Trash2 className="w-8 h-8 text-red-400" />
+                  )}
+                </div>
+                
+                <div className="text-center space-y-4">
+                  <AlertDialogTitle className="text-xl font-bold text-white">
+                    {confirmAction?.type === 'restore' ? 'Restaurar aprendizado?' : 'Excluir permanentemente?'}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-white/70 text-base leading-relaxed">
+                    {confirmAction?.type === 'restore' 
+                      ? `O aprendizado "${confirmAction.title}" será restaurado para a lista principal.`
+                      : `O aprendizado "${confirmAction.title}" será excluído permanentemente e não poderá ser recuperado.`
+                    }
+                  </AlertDialogDescription>
+                </div>
+              </AlertDialogHeader>
+              
+              <AlertDialogFooter className="mt-8 flex-col space-y-3">
+                <AlertDialogAction
+                  onClick={() => {
+                    if (confirmAction?.type === 'restore') {
+                      restoreEntry(confirmAction.id);
+                    } else if (confirmAction?.type === 'delete') {
+                      permanentlyDeleteEntry(confirmAction.id);
+                    }
+                  }}
+                  className={`w-full h-12 rounded-2xl font-semibold transition-all duration-300 ${
+                    confirmAction?.type === 'delete' 
+                      ? 'bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white shadow-lg' 
+                      : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white shadow-lg'
+                  }`}
+                >
+                  {confirmAction?.type === 'restore' ? 'Restaurar' : 'Excluir permanentemente'}
+                </AlertDialogAction>
+                
+                <AlertDialogCancel className="w-full h-12 rounded-2xl bg-white/10 border border-white/20 text-white/70 hover:text-white hover:bg-white/20 font-semibold transition-all duration-300">
+                  Cancelar
+                </AlertDialogCancel>
+              </AlertDialogFooter>
+            </div>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>

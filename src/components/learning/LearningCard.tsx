@@ -14,6 +14,9 @@ import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, A
 import EditableTags from '@/components/ui/EditableTags';
 import { getLearningStatus, getRelativeDate, formatBrazilianDate, calculateProgress, getStatusDot, LearningEntry } from '@/utils/learningStatus';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { useLongPress } from '@/hooks/useLongPress';
+import MobileFullScreenEditor from './MobileFullScreenEditor';
 
 interface LearningCardProps {
   entry: LearningEntry;
@@ -34,16 +37,30 @@ const LearningCard: React.FC<LearningCardProps> = ({
   desktopLayout = false,
   index = 0
 }) => {
+  const isMobile = useIsMobile();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showActionOverlay, setShowActionOverlay] = useState(false);
+  const [showMobileEditor, setShowMobileEditor] = useState(false);
   const [rightClickPosition, setRightClickPosition] = useState({ x: 0, y: 0 });
   const [newTag, setNewTag] = useState('');
   const [editData, setEditData] = useState({
     title: entry.title,
     content: entry.content,
     tags: [...entry.tags]
+  });
+
+  // Long press functionality for mobile
+  const longPressHandlers = useLongPress({
+    onLongPress: () => {
+      if (isMobile && !isEditing) {
+        setShowActionOverlay(true);
+      }
+    },
+    delay: 600,
+    shouldPreventDefault: true,
+    shouldStopPropagation: true,
   });
 
   // Close action overlay when clicking elsewhere
@@ -56,7 +73,11 @@ const LearningCard: React.FC<LearningCardProps> = ({
   }, []);
 
   // Obter status do aprendizado
-  const status = getLearningStatus(entry.step, entry.lastReviewDate, entry.lastDifficulty);
+  const status = getLearningStatus(entry.step, entry.lastReviewDate, 
+    entry.lastDifficulty === 'easy' ? 'easy' : 
+    entry.lastDifficulty === 'medium' ? 'normal' : 
+    entry.lastDifficulty === 'hard' ? 'difficult' : undefined
+  );
   
   // Obter data relativa
   const relativeDate = getRelativeDate(new Date(entry.createdAt));
@@ -66,7 +87,9 @@ const LearningCard: React.FC<LearningCardProps> = ({
 
   // Handlers para as ações
   const handleDelete = () => {
-    onDelete && onDelete(entry.id);
+    if (onDelete) {
+      onDelete(entry.id);
+    }
     setShowConfirm(false);
   };
 
@@ -112,7 +135,7 @@ const LearningCard: React.FC<LearningCardProps> = ({
 
   const handleCardClick = (event: React.MouseEvent) => {
     event.preventDefault();
-    if (!isEditing && !showActionOverlay) {
+    if (!isEditing && !showActionOverlay && !longPressHandlers.isLongPressing) {
       toggleCardExpansion();
     }
   };
@@ -120,17 +143,24 @@ const LearningCard: React.FC<LearningCardProps> = ({
   const handleCardRightClick = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    setRightClickPosition({ x: event.clientX, y: event.clientY });
-    setShowActionOverlay(true);
+    // Only show context menu on desktop
+    if (!isMobile) {
+      setRightClickPosition({ x: event.clientX, y: event.clientY });
+      setShowActionOverlay(true);
+    }
   };
 
   const startEditingFromOverlay = () => {
-    setIsEditing(true);
-    setEditData({
-      title: entry.title,
-      content: entry.content,
-      tags: [...entry.tags]
-    });
+    if (isMobile) {
+      setShowMobileEditor(true);
+    } else {
+      setIsEditing(true);
+      setEditData({
+        title: entry.title,
+        content: entry.content,
+        tags: [...entry.tags]
+      });
+    }
     setShowActionOverlay(false);
   };
 
@@ -148,6 +178,17 @@ const LearningCard: React.FC<LearningCardProps> = ({
 
   const removeTag = (tagToRemove: string) => {
     setEditData(prev => ({ ...prev, tags: prev.tags.filter(tag => tag !== tagToRemove) }));
+  };
+
+  const handleMobileEditorSave = async (data: { title: string; content: string; tags: string[] }) => {
+    if (onUpdate) {
+      const success = await onUpdate(entry.id, data);
+      if (success) {
+        setShowMobileEditor(false);
+      }
+      return success;
+    }
+    return false;
   };
 
   // Garante que as tags sempre sejam um array
@@ -171,7 +212,50 @@ const LearningCard: React.FC<LearningCardProps> = ({
       style={{ alignSelf: 'start' }}
       onClick={handleCardClick}
       onContextMenu={handleCardRightClick}
+      {...(isMobile ? {
+        onTouchStart: longPressHandlers.onTouchStart,
+        onTouchEnd: longPressHandlers.onTouchEnd,
+        onTouchMove: longPressHandlers.onTouchMove,
+        onMouseDown: longPressHandlers.onMouseDown,
+        onMouseUp: longPressHandlers.onMouseUp,
+        onMouseLeave: longPressHandlers.onMouseLeave,
+      } : {})}
     >
+      {/* Long Press Progress Indicator for Mobile */}
+      {isMobile && longPressHandlers.isLongPressing && longPressHandlers.progress > 0 && (
+        <div className="absolute top-4 right-4 z-40">
+          <div className="relative w-8 h-8">
+            <svg className="w-8 h-8 transform -rotate-90" viewBox="0 0 32 32">
+              <circle
+                cx="16"
+                cy="16"
+                r="14"
+                fill="none"
+                stroke="rgba(255,255,255,0.2)"
+                strokeWidth="2"
+              />
+              <motion.circle
+                cx="16"
+                cy="16"
+                r="14"
+                fill="none"
+                stroke="rgba(168, 85, 247, 0.8)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                initial={{ strokeDasharray: "0 87.96" }}
+                animate={{ 
+                  strokeDasharray: `${(longPressHandlers.progress / 100) * 87.96} 87.96`
+                }}
+                transition={{ duration: 0.1 }}
+              />
+            </svg>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-2 h-2 bg-purple-400 rounded-full" />
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className={`p-6 transition-all duration-300 ${showActionOverlay ? 'opacity-30' : 'opacity-100'}`}>
         {/* Header with tags and expand indicator */}
         <div className="flex items-center justify-between mb-4">
@@ -228,7 +312,7 @@ const LearningCard: React.FC<LearningCardProps> = ({
           <span>{formatBrazilianDate(new Date(entry.createdAt))}</span>
           <span>•</span>
           <span className={`flex items-center space-x-1 ${
-            status === 'pending' ? 'text-orange-400' : 'text-white/60'
+            status === 'new' ? 'text-orange-400' : 'text-white/60'
           }`}>
             <Clock className="w-3 h-3" />
             <span>{relativeDate}</span>
@@ -429,6 +513,16 @@ const LearningCard: React.FC<LearningCardProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Mobile Full Screen Editor */}
+      {isMobile && (
+        <MobileFullScreenEditor
+          isOpen={showMobileEditor}
+          entry={entry}
+          onClose={() => setShowMobileEditor(false)}
+          onSave={handleMobileEditorSave}
+        />
+      )}
     </motion.div>
   );
 };

@@ -91,7 +91,7 @@ export const useEnhancedAI = () => {
 
       const title = titleData?.result || content.substring(0, 60) + (content.length > 60 ? '...' : '');
       const tagsString = tagsData?.result || '';
-      const tags = tagsString ? tagsString.split(',').map((tag: string) => tag.trim()).filter(Boolean) : [];
+      const tags = tagsString ? tagsString.split(',').map((tag: string) => tag.trim().replace(/\s+/g, '')).filter(Boolean) : [];
 
       return { title, tags };
     } catch (error) {

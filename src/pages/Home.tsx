@@ -57,6 +57,7 @@ import { UserDropdown } from '@/components/ui/UserDropdown';
 import { getGreeting } from '@/utils/timeUtils';
 import { GRADIENT_BACKGROUNDS } from '@/constants/reviewConstants';
 import BackdropCard from '@/components/ui/BackdropCard';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Mobile Home Component
 function MobileHome({
@@ -77,7 +78,8 @@ function MobileHome({
   onUpdateLearning,
   onDeleteLearning,
   navigateToReviews,
-  navigate
+  navigate,
+  userName
 }: any) {
   return (
     <div className="h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden flex flex-col">
@@ -182,7 +184,7 @@ function MobileHome({
           {/* Greeting */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-white mb-1">
-              {getGreeting()}, João!
+              {getGreeting()}, {userName}!
             </h1>
             <p className="text-white/70">
               O que você vai aprender hoje?
@@ -318,13 +320,12 @@ function MobileHome({
           className="bg-black/40 backdrop-blur-2xl border-t border-white/10 px-6 py-4"
         >
           <div className="flex items-center justify-around">
-            {[
+{[
               { icon: BookOpen, label: 'Home', id: 'home' },
               { icon: RefreshCw, label: 'Revisões', id: 'reviews' },
               { icon: Search, label: 'Buscar', id: 'search' },
-              { icon: TrendingUp, label: 'Progresso', id: 'progress' },
               { icon: Settings, label: 'Config', id: 'settings' }
-            ].map(tab => (
+            ].map((tab: any) => (
               <button
                 key={tab.id}
                 onClick={() => {
@@ -333,12 +334,16 @@ function MobileHome({
                     navigateToReviews();
                   } else if (tab.id === 'settings') {
                     navigate('/settings');
+                  } else if (tab.id === 'new') {
+                    navigate('/new-learning');
                   }
                 }}
                 className={`flex flex-col items-center space-y-1 p-2 rounded-xl transition-all ${
-                  selectedTab === tab.id 
-                    ? 'bg-white/10 text-white' 
-                    : 'text-white/60 hover:text-white'
+                  tab.special 
+                    ? 'bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-blue-500/30 text-blue-400'
+                    : selectedTab === tab.id 
+                      ? 'bg-white/10 text-white' 
+                      : 'text-white/60 hover:text-white'
                 }`}
               >
                 <tab.icon className="w-5 h-5" />
@@ -374,7 +379,8 @@ function DesktopHome({
   onUpdateLearning,
   onDeleteLearning,
   navigateToReviews,
-  navigate
+  navigate,
+  userName
 }: any) {
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-purple-900 via-purple-800 to-black relative overflow-hidden">
@@ -499,7 +505,7 @@ function DesktopHome({
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-white mb-2">
-                  {getGreeting()}, João!
+                  {getGreeting()}, {userName}!
                 </h1>
                 <p className="text-white/70 text-lg">
                   {currentTime.toLocaleDateString('pt-BR', { 
@@ -682,6 +688,9 @@ const Home = () => {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const navigate = useNavigate();
 
+  // Add auth hook
+  const { user } = useAuth();
+
   // Existing hooks
   const {
     learningEntries,
@@ -702,6 +711,16 @@ const Home = () => {
 
   const { layout, setLayout } = useLearningCardLayout();
   const { toast } = useToast();
+
+  // Get user name from user metadata or fallback
+  const getUserName = () => {
+    if (user?.user_metadata?.full_name) {
+      // Extract first name from full name
+      return user.user_metadata.full_name.split(' ')[0];
+    }
+    // Fallback to email if no name is available
+    return 'Usuário';
+  };
 
   // Data for the new designs
   const pendingReviews = reviewsToday.length;
@@ -752,7 +771,12 @@ const Home = () => {
       await addLearningEntry(content, title, tags || []);
       setShowAddModal(false);
     } else {
-      setShowAddModal(true);
+      // On mobile, redirect to dedicated new learning page
+      if (isMobile) {
+        navigate('/new-learning');
+      } else {
+        setShowAddModal(true);
+      }
     }
   };
 
@@ -881,6 +905,7 @@ const Home = () => {
           onDeleteLearning={handleDeleteLearning}
           navigateToReviews={navigateToReviews}
           navigate={navigate}
+          userName={getUserName()}
         />
         
         {/* Add Learning Modal */}
@@ -925,6 +950,7 @@ const Home = () => {
         onDeleteLearning={handleDeleteLearning}
         navigateToReviews={navigateToReviews}
         navigate={navigate}
+        userName={getUserName()}
       />
       
       {/* Add Learning Modal */}

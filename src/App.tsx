@@ -7,6 +7,7 @@ import TrashPage from './pages/TrashPage';
 import NotFound from './pages/NotFound';
 import AuthPage from './pages/AuthPage';
 import AuthCallbackPage from './pages/AuthCallbackPage';
+import NewLearningPage from './pages/NewLearningPage';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from "@/components/ui/tooltip"
 import {
@@ -53,6 +54,11 @@ function AppContent() {
         <Route path="/settings" element={
           <ProtectedRoute>
             <SettingsPage />
+          </ProtectedRoute>
+        } />
+        <Route path="/new-learning" element={
+          <ProtectedRoute>
+            <NewLearningPage />
           </ProtectedRoute>
         } />
         <Route path="*" element={<NotFound />} />

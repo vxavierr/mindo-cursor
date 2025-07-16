@@ -50,7 +50,7 @@ ${text}`;
         break;
         
       case 'generate_tags':
-        prompt = `Gere até 5 tags relevantes e concisas para este aprendizado em português. Retorne APENAS as tags separadas por vírgula, sem numeração, explicações ou formatação extra:
+        prompt = `Gere até 3 tags relevantes para este aprendizado em português. Cada tag deve ser uma ÚNICA PALAVRA, sem espaços ou hífens. Retorne APENAS as tags separadas por vírgula, sem numeração, explicações ou formatação extra:
 
 ${text}`;
         break;

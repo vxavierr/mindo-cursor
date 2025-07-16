@@ -4,7 +4,14 @@
       "Bash(npx supabase:*)",
       "Bash(npm run dev:*)",
       "Bash(rm:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(tail:*)",
+      "Bash(npm run build:dev:*)",
+      "Bash(npm run lint)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx supabase functions:*)"
     ],
     "deny": []
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Brain } from 'lucide-react';
@@ -6,12 +6,11 @@ import { toast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LearningEntry, ReviewModalProps } from './types/review';
 import EmptyReviewState from './EmptyReviewState';
-import ReviewCard from './ReviewCard';
+import MobileQuestionCard from './MobileQuestionCard';
 import QuestionCard from './QuestionCard';
 
 const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModalProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showQuestions, setShowQuestions] = useState(false);
   const [questions, setQuestions] = useState<string[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const [currentAnswer, setCurrentAnswer] = useState('');
@@ -20,7 +19,16 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
 
   const currentReview = reviews[currentIndex];
 
-
+  // Inicializar perguntas automaticamente quando o modal abrir
+  useEffect(() => {
+    if (isOpen && currentReview && questions.length === 0) {
+      const generatedQuestions = generateQuestions(currentReview.content, currentReview.title);
+      setQuestions(generatedQuestions);
+      setAnswers(new Array(generatedQuestions.length).fill(''));
+      setQuestionIndex(0);
+      setCurrentAnswer('');
+    }
+  }, [isOpen, currentReview]);
 
   const generateQuestions = (content: string, title?: string) => {
     const topicReference = title ? `"${title}"` : 'este tema';
@@ -30,17 +38,6 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
       `Por que este conteúdo é importante ou verdadeiro?`,
       `Como posso aplicar ou exemplificar este conhecimento na prática?`
     ];
-  };
-
-  const startReview = () => {
-    if (!currentReview) return;
-    
-    const generatedQuestions = generateQuestions(currentReview.content, currentReview.title);
-    setQuestions(generatedQuestions);
-    setAnswers(new Array(generatedQuestions.length).fill(''));
-    setQuestionIndex(0);
-    setCurrentAnswer('');
-    setShowQuestions(true);
   };
 
   const nextQuestion = () => {
@@ -89,7 +86,6 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   };
 
   const resetReviewState = () => {
-    setShowQuestions(false);
     setQuestions([]);
     setAnswers([]);
     setCurrentAnswer('');
@@ -99,16 +95,6 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
   const resetModalState = () => {
     setCurrentIndex(0);
     resetReviewState();
-  };
-
-  const skipReview = () => {
-    if (currentIndex < reviews.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      resetReviewState();
-    } else {
-      onClose();
-      resetModalState();
-    }
   };
 
   const handleCompleteReviewWithAnswers = (difficulty: 'easy' | 'medium' | 'hard') => {
@@ -122,6 +108,24 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
     return <EmptyReviewState isOpen={isOpen} onClose={onClose} />;
   }
 
+  // Se for mobile e temos perguntas, mostrar o componente mobile
+  if (isMobile && questions.length > 0) {
+    return (
+      <MobileQuestionCard
+        questions={questions}
+        questionIndex={questionIndex}
+        currentAnswer={currentAnswer}
+        onAnswerChange={setCurrentAnswer}
+        onNextQuestion={nextQuestion}
+        onPrevQuestion={prevQuestion}
+        onCompleteReview={handleCompleteReviewWithAnswers}
+        onClose={onClose}
+        currentReview={currentReview}
+      />
+    );
+  }
+
+  // Desktop ou quando ainda não temos perguntas
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={`
@@ -140,19 +144,10 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
               <DialogTitle className="flex items-center justify-center gap-2 sm:gap-3 text-lg sm:text-xl font-bold flex-wrap">
                 <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
                 <span className="text-sm sm:text-base">Revisão {currentIndex + 1} de {reviews.length}</span>
-
               </DialogTitle>
             </DialogHeader>
 
-            {!showQuestions ? (
-              <ReviewCard 
-                review={currentReview}
-                currentIndex={currentIndex}
-                totalReviews={reviews.length}
-                onStartReview={startReview}
-                onSkipReview={skipReview}
-              />
-            ) : (
+            {questions.length > 0 ? (
               <QuestionCard 
                 questions={questions}
                 questionIndex={questionIndex}
@@ -162,6 +157,11 @@ const ReviewModal = ({ isOpen, onClose, reviews, onCompleteReview }: ReviewModal
                 onPrevQuestion={prevQuestion}
                 onCompleteReview={handleCompleteReviewWithAnswers}
               />
+            ) : (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-4"></div>
+                <p className="text-white/70">Preparando perguntas...</p>
+              </div>
             )}
           </div>
         </div>
