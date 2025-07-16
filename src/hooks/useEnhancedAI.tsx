@@ -19,6 +19,10 @@ export const useEnhancedAI = () => {
 
       if (error) {
         console.error('Erro na função enhance-text:', error);
+        // Tratar erro 429 (Too Many Requests) especificamente
+        if (error.context?.status === 429 || (error.message && error.message.includes('429'))) {
+          throw new Error('Muitas solicitações. Aguarde um momento e tente novamente.');
+        }
         throw error;
       }
 
@@ -26,11 +30,18 @@ export const useEnhancedAI = () => {
     } catch (error) {
       console.error('Erro ao melhorar texto:', error);
       try {
-      toast({
-        title: "Erro ao melhorar texto",
-        description: "Verifique sua conexão e tente novamente",
-        variant: "destructive"
-      });
+        const errorMessage = error.message || 'Erro desconhecido';
+        const isRateLimit = error.context?.status === 429 || 
+                           errorMessage.includes('429') || 
+                           errorMessage.includes('Muitas solicitações');
+        
+        toast({
+          title: "Erro ao melhorar texto",
+          description: isRateLimit 
+            ? "Muitas solicitações. Aguarde um momento e tente novamente"
+            : "Verifique sua conexão e tente novamente",
+          variant: "destructive"
+        });
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
       }
@@ -53,6 +64,10 @@ export const useEnhancedAI = () => {
 
       if (titleError) {
         console.error('Erro ao gerar título:', titleError);
+        // Tratar erro 429 (Too Many Requests) especificamente
+        if (titleError.context?.status === 429 || (titleError.message && titleError.message.includes('429'))) {
+          throw new Error('Muitas solicitações. Aguarde um momento e tente novamente.');
+        }
         throw titleError;
       }
 
@@ -66,6 +81,10 @@ export const useEnhancedAI = () => {
 
       if (tagsError) {
         console.error('Erro ao gerar tags:', tagsError);
+        // Tratar erro 429 (Too Many Requests) especificamente
+        if (tagsError.context?.status === 429 || (tagsError.message && tagsError.message.includes('429'))) {
+          throw new Error('Muitas solicitações. Aguarde um momento e tente novamente.');
+        }
         throw tagsError;
       }
 
@@ -111,7 +130,7 @@ export const useEnhancedAI = () => {
       if (error) {
         console.error('Erro na função transcribe-audio:', error);
         // Tratar erro 429 (Too Many Requests) especificamente
-        if (error.message && error.message.includes('429')) {
+        if (error.context?.status === 429 || (error.message && error.message.includes('429'))) {
           throw new Error('Muitas solicitações. Aguarde um momento e tente novamente.');
         }
         throw error;
@@ -121,11 +140,18 @@ export const useEnhancedAI = () => {
     } catch (error) {
       console.error('Erro na transcrição:', error);
       try {
-      toast({
-        title: "Erro na transcrição",
-        description: "Verifique o microfone e tente novamente",
-        variant: "destructive"
-      });
+        const errorMessage = error.message || 'Erro desconhecido';
+        const isRateLimit = error.context?.status === 429 || 
+                           errorMessage.includes('429') || 
+                           errorMessage.includes('Muitas solicitações');
+        
+        toast({
+          title: "Erro na transcrição",
+          description: isRateLimit 
+            ? "Muitas solicitações. Aguarde um momento e tente novamente"
+            : "Verifique o microfone e tente novamente",
+          variant: "destructive"
+        });
       } catch (toastError) {
         console.error('Erro no toast:', toastError);
       }
