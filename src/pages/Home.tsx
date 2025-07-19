@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import logoMindo from '@/components/ui/logo-mindo.png';
+import tipoMindo from '@/components/ui/tipo-mindo.png';
 import { 
   Brain, 
   Plus, 
@@ -134,8 +136,8 @@ function MobileHome({
         >
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <img src="/src/components/ui/logo-mindo.png" alt="Mindo Logo" className="w-10 h-10" />
-              <img src="/src/components/ui/tipo-mindo.png" alt="Mindo" className="h-6" />
+              <img src={logoMindo} alt="Mindo Logo" className="w-10 h-10" />
+              <img src={tipoMindo} alt="Mindo" className="h-6" />
             </div>
             
             <div className="flex items-center space-x-3">
@@ -433,8 +435,8 @@ function DesktopHome({
         >
           {/* Logo */}
           <div className="flex items-center space-x-3 mb-8">
-            <img src="/src/components/ui/logo-mindo.png" alt="Mindo Logo" className="w-12 h-12" />
-            <img src="/src/components/ui/tipo-mindo.png" alt="Mindo" className="h-8" />
+            <img src={logoMindo} alt="Mindo Logo" className="w-12 h-12" />
+            <img src={tipoMindo} alt="Mindo" className="h-8" />
           </div>
 
           {/* Navigation */}
@@ -861,7 +863,7 @@ const Home = () => {
               animate={{ rotate: 360 }}
               transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
             >
-              <img src="/src/components/ui/logo-mindo.png" alt="Mindo Logo" className="w-8 h-8" />
+              <img src={logoMindo} alt="Mindo Logo" className="w-8 h-8" />
             </motion.div>
           </motion.div>
           
@@ -870,7 +872,7 @@ const Home = () => {
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <img src="/src/components/ui/tipo-mindo.png" alt="Mindo" className="h-8 mb-2" />
+            <img src={tipoMindo} alt="Mindo" className="h-8 mb-2" />
             <p className="text-white/70 font-medium">Carregando...</p>
           </motion.div>
         </div>
