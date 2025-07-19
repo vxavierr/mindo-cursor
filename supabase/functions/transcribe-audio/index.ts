@@ -14,14 +14,14 @@ serve(async (req) => {
 
   try {
     const { audio } = await req.json();
-    const googleApiKey = Deno.env.get('GOOGLE_AI_API');
+    const groqApiKey = Deno.env.get('GROQ_API_KEY');
     
     console.log('Recebida requisição de transcrição, tamanho do áudio:', audio?.length);
     
-    if (!googleApiKey) {
-      console.error('GOOGLE_AI_API key not found');
+    if (!groqApiKey) {
+      console.error('GROQ_API_KEY not found');
       return new Response(
-        JSON.stringify({ error: 'Google AI API key not configured' }),
+        JSON.stringify({ error: 'Groq API key not configured' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -40,40 +40,36 @@ serve(async (req) => {
       );
     }
 
-    console.log('Enviando áudio para Gemini API...');
+    console.log('Enviando áudio para Groq API...');
+
+    // Convert base64 audio to blob
+    const audioBuffer = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    const audioBlob = new Blob([audioBuffer], { type: 'audio/webm' });
+
+    // Create FormData for multipart upload
+    const formData = new FormData();
+    formData.append('file', audioBlob, 'audio.webm');
+    formData.append('model', 'whisper-large-v3-turbo');
+    formData.append('language', 'pt');
+    formData.append('response_format', 'json');
+    formData.append('temperature', '0.1');
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${googleApiKey}`,
+      'https://api.groq.com/openai/v1/audio/transcriptions',
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${groqApiKey}`,
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: "Transcreva este áudio para texto em português. Retorne APENAS o texto transcrito, sem formatação, explicações ou pontuação extra:" },
-              {
-                inline_data: {
-                  mime_type: "audio/webm",
-                  data: audio
-                }
-              }
-            ]
-          }],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 500,
-          }
-        }),
+        body: formData,
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
+      console.error('Groq API error:', response.status, errorText);
       return new Response(
-        JSON.stringify({ error: `Gemini API error: ${response.status}` }),
+        JSON.stringify({ error: `Groq API error: ${response.status}` }),
         { 
           status: response.status, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -82,12 +78,12 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    console.log('Resposta da Gemini API:', JSON.stringify(data, null, 2));
+    console.log('Resposta da Groq API:', JSON.stringify(data, null, 2));
 
-    if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
-      console.error('Unexpected Gemini API response structure:', data);
+    if (!data.text) {
+      console.error('Unexpected Groq API response structure:', data);
       return new Response(
-        JSON.stringify({ error: 'Invalid response from Gemini API' }),
+        JSON.stringify({ error: 'Invalid response from Groq API' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -95,7 +91,7 @@ serve(async (req) => {
       );
     }
 
-    const transcription = data.candidates[0].content.parts[0].text.trim();
+    const transcription = data.text.trim();
     console.log('Transcrição obtida:', transcription);
 
     return new Response(
