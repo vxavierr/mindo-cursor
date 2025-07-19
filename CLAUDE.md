@@ -206,3 +206,8 @@ When working on this codebase:
 4. Maintain proper TypeScript types
 5. Use the toast system for user feedback
 6. Test authentication flows thoroughly
+
+## Git Guidelines
+
+### Version Control Best Practices
+- Nunca dê um hard reset ou volte a algum commit anterior sem antes confirmar com o usuário
